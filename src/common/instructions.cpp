@@ -186,6 +186,9 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kfnmsub_d, {0b1001011, 0b01, -1, -1, -1, -1}},
     {Instruction::kfnmadd_d, {0b1001111, 0b01, -1, -1, -1, -1}},
 
+    {Instruction::kvadd, {0b0101011, -1, 0b001, -1, -1, 0b0000000}},
+    {Instruction::kvsub, {0b0101011, -1, 0b001, -1, -1, 0b0000001}},
+
 };
 
 std::unordered_map<std::string, Instruction> instruction_string_map = {
@@ -346,7 +349,11 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"flw", Instruction::kflw},
     {"fsw", Instruction::kfsw},
     {"fld", Instruction::kfld},
-    {"fsd", Instruction::kfsd}
+    {"fsd", Instruction::kfsd},
+
+
+    {"vadd", Instruction::kvadd},
+    {"vsub", Instruction::kvsub}
 
 };
 
@@ -376,6 +383,9 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fdiv.d", "fsqrt.d", "fsgnj.d", "fsgnjn.d", "fsgnjx.d", "fmin.d", "fmax.d", "fcvt.s.d",
     "fcvt.d.s", "feq.d", "flt.d", "fle.d", "fclass.d", "fcvt.w.d", "fcvt.wu.d", "fcvt.d.w",
     "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x"
+
+    //Floatvextsn
+    "vadd","vsub"
 
 };
 
@@ -514,6 +524,13 @@ static const std::unordered_set<std::string> DExtensionInstructions = {
     "fsgnjn.d", "fsgnjx.d", "fmin.d",    "fmax.d",   "fcvt.s.d",  "fcvt.d.s",
     "feq.d",    "flt.d",    "fle.d",     "fclass.d", "fcvt.w.d",  "fcvt.wu.d",
     "fmv.x.d",  "fcvt.l.d", "fcvt.lu.d", "fcvt.d.l", "fcvt.d.lu",
+};
+
+
+
+
+static const std::unordered_set<std::string> RVTypeInstructions = {
+    "vadd","vsub"
 };
 
 std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map = {
@@ -726,6 +743,13 @@ std::unordered_map<std::string, FDSTypeInstructionEncoding> F_D_S_type_instructi
     {"fsw", {0b0100111, 0b010}}, // O_FPR_C_I_LP_GPR_RP
     {"fsd", {0b0100111, 0b011}}, // O_FPR_C_I_LP_GPR_RP
 };
+
+std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_encoding_map = {
+    {"vadd", {0b0101011, 0b001, 0b0000000}},  // O_VPR_C_VPR_C_VPR
+    {"vsub", {0b0101011, 0b001, 0b0000001}},  // O_VPR_C_VPR_C_VPR
+};
+
+
 
 /*
     O_GPR_C_GPR_C_GPR,       ///< Opcode general-register , general-register , register
@@ -967,6 +991,11 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
                                             // from an x (integer) register into an f
                                             // (floating-point) register without conversion
 
+    /////////////
+
+    {"vadd",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vsub",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+
 };
 
 bool isValidInstruction(const std::string &instruction)
@@ -1081,6 +1110,13 @@ bool isValidFDSTypeInstruction(const std::string &instruction)
 {
     return (FDExtensionSTypeInstructions.find(instruction) != FDExtensionSTypeInstructions.end());
 }
+
+bool isValidRVTypeInstruction(const std::string &instruction)
+{
+    return RVTypeInstructions.find(instruction) != RVTypeInstructions.end();
+}
+
+
 
 bool isFInstruction(const uint32_t &instruction)
 {
@@ -1206,6 +1242,7 @@ std::string getExpectedSyntaxes(const std::string &opcode)
         {SyntaxType::O_GPR_C_FPR_C_RM, "<gp-reg>, <fp-reg>, <rm>"},
         {SyntaxType::O_GPR_C_FPR_C_FPR, "<gp-reg>, <fp-reg>, <fp-reg>"},
         {SyntaxType::O_FPR_C_I_LP_GPR_RP, "<fp-reg>, <imm>(<gp-reg>)"},
+        {SyntaxType::O_VPR_C_VPR_C_VPR, "<vp-reg>, <vp-reg>,<vp-reg>"},
     };
 
     std::string syntaxes;
@@ -1268,6 +1305,10 @@ InstructionType getInstructionType(const std::string &instruction)
     // if (isValidBaseExtensionInstruction(instruction))
     //     return InstructionType::BASE_EXT;
 
+
+    if (isValidRVTypeInstruction(instruction))
+        return InstructionType::RV_TYPE;
+
     return InstructionType::UNKNOWN;
 }
 
@@ -1314,7 +1355,7 @@ std::string disassemble(uint32_t instruction)
     // B: name rs1, rs2, imm
     // U: name rd, imm
     // J: name rd, imm
-
+    // RV : name rd , rs1, rs2
     switch (opcode)
     {
 
@@ -1797,6 +1838,27 @@ std::string disassemble(uint32_t instruction)
 
         break;
     }
+
+
+
+    case 0b010101:
+    { //Vextsn
+        std::string name;
+        switch (funct7)
+        {
+        case 0:
+            name = "vadd";
+            break;
+        case 1:
+            name = "vsub";
+            break;
+        }
+         if (!name.empty())
+            return name + " " + xr(rd) + ", " + xr(rs1) + ", " + xr(rs2);
+        break;
+    }
+
+
 
     } // end switch
 

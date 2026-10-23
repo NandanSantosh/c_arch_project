@@ -186,7 +186,10 @@ enum class Instruction
     kfmv_x_d,
     kfcvt_d_l,
     kfcvt_d_lu,
-    kfmv_d_x
+    kfmv_d_x,
+    kvadd,
+    kvsub
+    
 };
 
 // TODO: use enum class for instruction encoding
@@ -407,6 +410,19 @@ struct FDSTypeInstructionEncoding
     }
 };
 
+
+struct RVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<7> funct7;
+
+    RVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7)
+        : opcode(opcode), funct3(funct3), funct7(funct7)
+    {
+    }
+};
+
 /**
  * @brief Enum that represents different syntax types for instructions.
  */
@@ -446,6 +462,9 @@ enum class SyntaxType
                          ///< floating-point-register
     O_FPR_C_I_LP_GPR_RP, ///< Opcode floating-point-register , immediate , lparen ( general-register
                          ///< ) rparen
+    
+
+     O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register                    
 };
 
 extern std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map;
@@ -475,6 +494,9 @@ extern std::unordered_map<std::string, FDITypeInstructionEncoding>
     F_D_I_type_instruction_encoding_map;
 extern std::unordered_map<std::string, FDSTypeInstructionEncoding>
     F_D_S_type_instruction_encoding_map;
+
+extern std::unordered_map<std::string, RVTypeInstructionEncoding>
+    RV_type_instruction_encoding_map;
 
 /**
  * @brief A map that associates instruction names with their expected syntax.
@@ -513,6 +535,8 @@ bool isValidFDSTypeInstruction(const std::string &instruction);
 
 bool isFInstruction(const uint32_t &instruction);
 bool isDInstruction(const uint32_t &instruction);
+
+bool isValidRVTypeInstruction(const std::string &name);
 
 std::string getExpectedSyntaxes(const std::string &opcode);
 

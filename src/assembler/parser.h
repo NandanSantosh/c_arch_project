@@ -156,6 +156,11 @@ class Parser
     bool parse_O_GPR_C_FPR_C_FPR();
     bool parse_O_FPR_C_I_LP_GPR_RP();
 
+
+
+    // Vector :
+    bool parse_O_VPR_C_VPR_C_VPR();
+
     /**
      * @brief Parses a data directive.
      */

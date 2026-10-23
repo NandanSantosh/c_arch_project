@@ -134,6 +134,12 @@ Token Lexer::identifier()
     {
         return {TokenType::FP_REGISTER, value, line_number_, start_column};
     }
+
+    if (IsValidVectorRegister(value))
+    {
+        return {TokenType::VP_REGISTER, value, line_number_, start_column};
+    }
+
     if (IsValidCsr(value))
     {
         return {TokenType::CSR_REGISTER, value, line_number_, start_column};

@@ -26,8 +26,12 @@ class RegisterFile : public QObject
     static constexpr size_t NUM_GPR = 32; ///< Number of General-Purpose Registers (GPR).
     static constexpr size_t NUM_FPR = 32; ///< Number of Floating-Point Registers (FPR).
 
+    static constexpr size_t NUM_VPR = 8; ///< Number of Vector-Point Registers (FPR).
+
     std::array<uint64_t, NUM_GPR> gpr_ = {}; ///< Array for storing GPR values.
     std::array<uint64_t, NUM_FPR> fpr_ = {}; ///< Array for storing FPR values.
+    std::array<uint64_t, NUM_VPR> vpr_ = {}; ///< Array for storing FPR values.
+
 
     static constexpr size_t NUM_CSR = 4096; ///< Number of Control and Status Registers (CSR).
 
@@ -107,6 +111,8 @@ extern const std::unordered_set<std::string> valid_general_purpose_registers;
 
 extern const std::unordered_set<std::string> valid_floating_point_registers;
 
+extern const std::unordered_set<std::string> valid_vector_registers;
+
 extern const std::unordered_set<std::string> valid_csr_registers;
 
 extern const std::unordered_map<std::string, int> csr_to_address;
@@ -119,6 +125,8 @@ extern const std::unordered_map<std::string, std::string> reg_alias_to_name;
 bool IsValidGeneralPurposeRegister(const std::string &reg);
 
 bool IsValidFloatingPointRegister(const std::string &reg);
+
+bool IsValidVectorRegister(const std::string &reg);
 
 bool IsValidCsr(const std::string &reg);
 }//namespace Kites
