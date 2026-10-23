@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 
+#include <gtest/gtest.h>
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -72,15 +72,15 @@ void runMatrixMultiplyCacheTest(const char* vm_label)
 
     l2_cache->reconfigure(CacheConfig{
         64,
-        1,
-        2,
+        4,
+        4,
         WritePolicy::WriteBack,
         AllocationPolicy::WriteAllocate,
         ReplacementPolicy::LRU});
 
     l1_cache->reconfigure(CacheConfig{
         2,
-        1,
+        4,
         1,
         WritePolicy::WriteBack,
         AllocationPolicy::WriteAllocate,
@@ -105,11 +105,29 @@ void runMatrixMultiplyCacheTest(const char* vm_label)
     warmL2(*l2_cache, kBaseA, kMatrixWords);
     warmL2(*l2_cache, kBaseB, kMatrixWords);
     warmL2(*l2_cache, kBaseC, kMatrixWords);
+    // for (uint64_t address : {kBaseA, kBaseB, kBaseC})
+    // {
+    //     const size_t setIndex = l2_cache->getSetIndex(address);
+    //     std::cerr << "L2 address 0x" << std::hex << address
+    //             << std::dec << " set=" << setIndex << '\n';
 
+    //     for (size_t way = 0; way < l2_cache->getWayCount(); ++way)
+    //     {
+    //         const auto& line = l2_cache->getCacheLine(setIndex, way);
+    //         std::cerr << "  way=" << way
+    //                 << " valid=" << line.valid
+    //                 << " tag=" << line.tag << '\n';
+    //     }
+    // }
+    // std::cerr << "After warm-up: L2 hits=" << l2_cache->getHitCount()
+    //           << ", misses=" << l2_cache->getMissCount() << '\n';
     l1_cache->reset();
 
     const size_t l2_hits_probe_before = l2_cache->getHitCount();
     const uint32_t probe_value = vm->memory_controller_.readWord(kBaseA);
+    // std::cerr << "After probe: L2 hits=" << l2_cache->getHitCount()
+    //       << ", misses=" << l2_cache->getMissCount()
+    //       << ", value=" << probe_value << '\n';
     EXPECT_EQ(probe_value, kMatrixA[0]);
     const size_t l2_hits_probe_after = l2_cache->getHitCount();
     EXPECT_GT(l2_hits_probe_after, l2_hits_probe_before);
@@ -119,7 +137,7 @@ void runMatrixMultiplyCacheTest(const char* vm_label)
     const size_t l1_misses_before = l1_cache->getMissCount();
     const size_t l2_hits_before = l2_cache->getHitCount();
 
-    AssembledProgram program = assemble("../examples/cache_matrix_mul_3x3.s");
+    AssembledProgram program = assemble("../../examples/cache_matrix_mul_3x3.s");
     vm->LoadProgram(program);
     vm->DebugRun();
 

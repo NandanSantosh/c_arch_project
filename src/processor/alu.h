@@ -8,6 +8,7 @@
 
 #include <cfenv>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <ostream>
 
@@ -136,6 +137,13 @@ enum class AluOp
 
     FMV_D_X, ///< Floating point move to integer double operation.
     FMV_X_D, ///< Floating point move from integer double operation.
+
+    //vector operations
+    VADD,    ///< Vector Addition operation.
+    VSUB,    ///< Vector Subtraction operation.
+    VMUL,    ///< Vector Multiplication operation.
+    VDIV,    ///< Vector Division operation.
+    VREM,    ///< Vector Remainder operation.
 };
 
 inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
@@ -337,6 +345,23 @@ inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
     case AluOp::FSGNJ_D:
         os << "FSGNJ_D";
         break;
+    
+    //vector operations
+    case AluOp::VADD:
+        os << "VADD";
+        break;
+    case AluOp::VSUB:
+        os << "VSUB";
+        break;
+    case AluOp::VMUL:
+        os << "VMUL";
+        break;
+    case AluOp::VDIV:
+        os << "VDIV";
+        break;
+    case AluOp::VREM:
+        os << "VREM";
+        break;
 
     default:
         os << "UNKNOWN";
@@ -375,6 +400,9 @@ class Alu
 
     [[nodiscard]] static std::pair<uint64_t, bool> dfpexecute(AluOp op, uint64_t ina, uint64_t inb,
                                                               uint64_t inc, uint8_t rm);
+
+    [[nodiscard]] static std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+    std::uint64_t b, std::size_t activeLanes = 2, std::uint8_t mask = 0b11);
 
     void setFlags(bool carry, bool zero, bool negative, bool overflow);
 };

@@ -4,9 +4,9 @@
  * @author Vishank Singh, https://github.com/VishankSingh
  */
 
+#include <array>
 #include "processor/registers.h"
 #include <QDebug>
-#include <array>
 #include <cstdint>
 #include <stdexcept>
 #include <unordered_map>

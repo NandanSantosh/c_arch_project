@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
+
+#ifdef _WIN32
 #include <windows.h>
+#endif
+
 #include <QLoggingCategory>
 #include <filesystem>
-
 int main(int argc, char *argv[]) 
 {
   std::cout << std::filesystem::current_path() << std::endl;

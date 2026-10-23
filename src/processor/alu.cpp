@@ -1052,6 +1052,10 @@ namespace alu
     return {result_bits, fcsr};
 }
 
+[[nodiscard]] std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+                                                    std::uint64_t b, std::size_t activeLanes = 2, std::uint8_t mask = 0b11);
+
+
 void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)
 {
     carry_ = carry;
