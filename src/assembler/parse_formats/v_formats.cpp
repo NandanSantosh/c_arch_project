@@ -9,9 +9,8 @@
 #include "common/rounding_modes.h"
 #include "utils/utils.h"
 #include "processor/registers.h"
-
-
 #include <string>
+
 namespace Kites
 {
 bool Parser::parse_O_VPR_C_VPR_C_VPR()

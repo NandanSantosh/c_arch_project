@@ -5,6 +5,7 @@
  */
 
 #include "processor/alu.h"
+#include <stdexcept>
 #include <cfenv>
 #include <cmath>
 #include <cstdint>
@@ -1052,8 +1053,71 @@ namespace alu
     return {result_bits, fcsr};
 }
 
-[[nodiscard]] std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
-                                                    std::uint64_t b, std::size_t activeLanes = 2, std::uint8_t mask = 0b11);
+[[nodiscard]] std::uint64_t Alu::executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+                                                    std::uint64_t b, std::size_t activeLanes , std::uint8_t mask)
+{
+    constexpr std::uint64_t LANE_MASK = 0xFFFFFFFFULL;
+
+    // A 64-bit register contains at most two 32-bit lanes.
+    if (activeLanes > 2) {
+        throw std::invalid_argument(
+            "activeLanes must be 0, 1, or 2");
+    }
+
+    // Only mask bits 0 and 1 are valid.
+    if ((mask & ~0x03u) != 0) {
+        throw std::invalid_argument(
+            "Mask must contain only two lane bits");
+    }
+
+    // Map the vector operation to the existing scalar float operation.
+    AluOp scalarOp;
+
+    switch (op) {
+        case AluOp::VADD:
+            scalarOp = AluOp::FADD_S;
+            break;
+
+        case AluOp::VSUB:
+            scalarOp = AluOp::FSUB_S;
+            break;
+
+        default:
+            throw std::invalid_argument(
+                "Unsupported vector operation");
+    }
+
+    // Start with the old destination so inactive lanes are preserved.
+    std::uint64_t result = destination;
+
+    for (std::size_t lane = 0; lane < activeLanes; ++lane) {
+        // Skip this lane if its mask bit is disabled.
+        if ((mask & (1u << lane)) == 0) {
+            continue;
+        }
+
+        const unsigned shift = static_cast<unsigned>(lane * 32);
+
+        // Extract the 32-bit floating-point representations.
+        const std::uint32_t laneA =
+            static_cast<std::uint32_t>((a >> shift) & LANE_MASK);
+
+        const std::uint32_t laneB =
+            static_cast<std::uint32_t>((b >> shift) & LANE_MASK);
+
+        // Execute the existing scalar single-precision operation.
+        const auto [laneResultBits, fcsr] =
+            Alu::fpexecute(scalarOp, laneA, laneB, 0, 0);
+
+        // Replace only this lane; keep the other lane unchanged.
+        const std::uint64_t shiftedMask = LANE_MASK << shift;
+
+        result = (result & ~shiftedMask) |
+                 ((laneResultBits & LANE_MASK) << shift);
+    }
+
+    return result;
+}
 
 
 void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)

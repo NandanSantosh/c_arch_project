@@ -30,12 +30,8 @@ inline constexpr std::array<const char *, 32> kFprAliases = {
     "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7",
     "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
 
-<<<<<<< Updated upstream
-
-=======
 // v0-v7 canonical names.
->>>>>>> Stashed changes
-inline constexpr std::array<const char *, 8> kvprNames = {
+inline constexpr std::array<const char *, 8> kVprNames = {
     "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7"
 };
 
