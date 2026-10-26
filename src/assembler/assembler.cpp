@@ -73,6 +73,7 @@ AssembledProgram assemble(const std::string &filename)
     }
 
     std::vector<Token> tokens = lexer->getTokenList();
+    
 
     Parser parser(lexer->getFilename(), tokens);
     parser.parse();

@@ -133,6 +133,13 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
         break;
     }
 
+    case 0b0101011:
+    { // RV-type (kvAdd, kvSub)
+        reg_write_ = true;
+        alu_op_ = true;
+        break;
+    }
+
     default:
         break;
     }

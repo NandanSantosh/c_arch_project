@@ -35,6 +35,10 @@ inline constexpr std::array<const char *, 8> kVprNames = {
     "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7"
 };
 
+inline constexpr std::array<const char *, 8> kVprAliases = {
+    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7"
+};
+
 } // namespace register_names
 
 

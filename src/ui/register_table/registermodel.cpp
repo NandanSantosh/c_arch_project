@@ -15,6 +15,8 @@ RegisterModel::RegisterModel(QObject *parent, RegisterFile *regfile) : QAbstract
             &RegisterModel::updateRegisterValue);
     connect(m_currentRegisterFile, &RegisterFile::updateFRegister, this,
             &RegisterModel::updateFRegisterValue);
+    // connect(m_currentRegisterFile, &RegisterFile::updateFRegister, this,
+    //         &RegisterModel::updateFRegisterValue);
     connect(m_currentRegisterFile, &RegisterFile::registerResetSignal, this,
             &RegisterModel::registerResetSlot);
 }
@@ -85,16 +87,22 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
             {
                 return QString("x%1").arg(row);
             }
-            else
+            else if (row>=32 &&row < 64)
             {
                 return QString("f%1").arg(row - 32);
+            }
+             else 
+            {
+                return QString("v%1").arg(row - 64);
             }
         case 1: // Register Alias
         {
             if (row < 32)
                 return QString(register_names::kGprAliases[row]);
-            else if (row < 64)
+            else if (row>=32 &&row < 64)
                 return QString(register_names::kFprAliases[row - 32]);
+            else if (row>=64 && row < 72)
+                return QString(register_names::kVprAliases[row - 64]);
             else
                 return QString("");
         }

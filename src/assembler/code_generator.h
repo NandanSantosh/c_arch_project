@@ -311,6 +311,9 @@ uint32_t generateFDR4TypeMachineCode(const ICUnit &block);
 uint32_t generateFDITypeMachineCode(const ICUnit &block);
 uint32_t generateFDSTypeMachineCode(const ICUnit &block);
 
+
+
+uint32_t generateRVTypeMachineCode(const ICUnit &block);
 /**
  * @brief Generates machine code from a vector of intermediate code blocks.
  *

@@ -185,5 +185,9 @@
         "jal",
         "jr",
         "jalr"
+    ],
+    "RVInstruction":[
+        "vadd",
+        "vsub"
     ]
 }
