@@ -17,6 +17,7 @@
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
+#include <stdexcept>
 #include <iostream>
 #include <mutex>
 #include <queue>
@@ -200,6 +201,11 @@ void RVSSProcessor::Execute()
     else if (instruction_set::isDInstruction(current_instruction_))
     {
         ExecuteDouble();
+        return;
+    }
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        ExecuteVector();
         return;
     }
     else if (opcode == 0b1110011)
@@ -398,6 +404,45 @@ void RVSSProcessor::ExecuteDouble()
         control_unit_.GetAluSignal(current_instruction_, control_unit_.GetAluOp());
     std::tie(execution_result_, fcsr_status) =
         alu::Alu::dfpexecute(aluOperation, reg1_value, reg2_value, reg3_value, rm);
+}
+
+
+void RVSSProcessor::ExecuteVector()
+{
+    uint8_t opcode = current_instruction_ & 0b1111111;
+    uint8_t rd     = (current_instruction_ >> 7)  & 0b11111;
+    uint8_t funct3 = (current_instruction_ >> 12) & 0b111;
+    uint8_t rs1    = (current_instruction_ >> 15) & 0b11111;
+    uint8_t rs2    = (current_instruction_ >> 20) & 0b11111;
+    uint8_t funct7 = (current_instruction_ >> 25) & 0b1111111;
+
+    // This assumes vector register indices are encoded directly
+    // and only v0-v7 are valid.
+    if (rd >= 8 || rs1 >= 8 || rs2 >= 8)
+    {
+        throw std::out_of_range("Invalid vector register index");
+    }
+
+    // Read packed 64-bit vector registers (two 32-bit float lanes).
+    uint64_t a = registers_.ReadVpr(rs1);
+    uint64_t b = registers_.ReadVpr(rs2);
+    uint64_t old_destination = registers_.ReadVpr(rd);
+
+    // Decode the operation. This must map to VADD, VSUB, etc.
+    // in your control unit and instruction definitions.
+    alu::AluOp aluOperation =
+        control_unit_.GetAluSignal(
+            current_instruction_,
+            control_unit_.GetAluOp());
+
+    // Execute both 32-bit lanes.
+    execution_result_ = alu::Alu::executeVector32(
+        aluOperation,
+        old_destination,
+        a,
+        b,
+        2,
+        0b11);
 }
 
 void RVSSProcessor::ExecuteCsr()
@@ -644,7 +689,11 @@ void RVSSProcessor::WriteMemory()
         WriteMemoryDouble();
         return;
     }
-
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        WriteMemoryVector();
+        return;
+    }
     if (control_unit_.GetMemRead())
     {
         switch (funct3)
@@ -827,6 +876,10 @@ void RVSSProcessor::WriteMemoryDouble()
     }
 }
 
+void RVSSProcessor::WriteMemoryVector()
+{
+    //since we are only using vadd and vsub for now, no need of this. we use this for vld and vsd
+}
 void RVSSProcessor::WriteBack()
 {
     uint8_t opcode = current_instruction_ & 0b1111111;
@@ -847,6 +900,11 @@ void RVSSProcessor::WriteBack()
     else if (instruction_set::isDInstruction(current_instruction_))
     {
         WriteBackDouble();
+        return;
+    }
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        WriteBackVector();
         return;
     }
     else if (opcode == 0b1110011)
@@ -998,6 +1056,34 @@ void RVSSProcessor::WriteBackDouble()
     }
 
     return;
+}
+
+void RVSSProcessor::WriteBackVector()
+{
+    uint8_t rd = (current_instruction_ >> 7) & 0b11111;
+
+    // Only process instructions that write a destination register.
+    if (!control_unit_.GetRegWrite())
+    {
+        return;
+    }
+
+    if (rd >= 8)
+    {
+        throw std::out_of_range("Invalid vector destination register");
+    }
+
+    uint64_t old_reg = registers_.ReadVpr(rd);
+    uint64_t new_reg = execution_result_;
+
+    registers_.WriteVpr(rd, new_reg);
+
+    // Register change type 3 represents a vector register.
+    if (old_reg != new_reg)
+    {
+        current_delta_.register_changes.push_back(
+            {rd, 3, old_reg, new_reg});
+    }
 }
 
 void RVSSProcessor::WriteBackCsr()
@@ -1213,6 +1299,11 @@ void RVSSProcessor::Undo()
             registers_.WriteFpr(change.reg_index, change.old_value);
             break;
         }
+        case 3:
+        { // VPR
+            registers_.WriteVpr(change.reg_index, change.old_value);
+            break;
+        }
         default:
             std::cerr << "Invalid register type: " << change.reg_type << std::endl;
             break;
@@ -1283,6 +1374,11 @@ void RVSSProcessor::Redo()
         case 2:
         { // FPR
             registers_.WriteFpr(change.reg_index, change.new_value);
+            break;
+        }
+        case 3:
+        { // VPR
+            registers_.WriteVpr(change.reg_index, change.new_value);
             break;
         }
         default:

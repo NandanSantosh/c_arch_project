@@ -1183,6 +1183,25 @@ bool isDInstruction(const uint32_t &instruction)
     return false;
 }
 
+bool isVInstruction(const uint32_t &instruction)
+{
+    uint8_t opcode = (instruction & 0b1111111);
+    uint8_t funct3 = (instruction >> 12) & 0b111;
+    uint8_t funct7 = (instruction >> 25) & 0b1111111;
+
+    switch (opcode)
+    {
+    case 0b0101011:
+        if(funct3 == 0b001)
+        {
+            return true; // vadd, vsub
+        }
+    default:
+        break;
+    }
+    return false;
+}
+
 std::string getExpectedSyntaxes(const std::string &opcode)
 {
     static const std::unordered_map<std::string, std::string> opcodeSyntaxMap = {

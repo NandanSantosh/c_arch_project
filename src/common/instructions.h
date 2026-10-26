@@ -536,7 +536,7 @@ bool isValidFDSTypeInstruction(const std::string &instruction);
 
 bool isFInstruction(const uint32_t &instruction);
 bool isDInstruction(const uint32_t &instruction);
-
+bool isVInstruction(const uint32_t &instruction);
 bool isValidRVTypeInstruction(const std::string &name);
 
 std::string getExpectedSyntaxes(const std::string &opcode);
