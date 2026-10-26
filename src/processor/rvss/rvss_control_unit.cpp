@@ -974,8 +974,27 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
         }
         break;
     }
-    }
+    case 0b0001011:
+    { // RV-type (kvAdd, kvSub)
+        switch (funct3)
+        {
+        case 0b000:
+        { // 
+            return alu::AluOp::VADD;
+            break;
+        }
+        case 0b001:
+        { // FSD
+            return alu::AluOp::VSUB;
+            break;
+        }
+        
+    }}
+
+    
 
     return alu::AluOp::NONE;
 }
 }//namespace Kites
+
+}

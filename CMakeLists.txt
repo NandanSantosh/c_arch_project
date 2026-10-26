@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # set( CMAKE_PREFIX_PATH "D:/QT/6.9.2/mingw_64/lib/cmake")
 # set(MINGW_PATH "D:/Qt/Tools/mingw1310_64")
 find_package(Qt6 6.9.2 REQUIRED COMPONENTS Core Widgets Network Concurrent)
-find_package(Lua REQUIRED)
+
 # This works for Atharva
 # set(CMAKE_PREFIX_PATH "/home/atharv/Qt/6.10.0/gcc_64")
 # set(Qt6_DIR "/home/atharv/Qt/6.10.0/gcc_64/lib/cmake/Qt6")
@@ -40,21 +40,6 @@ set_source_files_properties(${LUA_SRC_FILES}
 
 file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.cpp")
 file(GLOB_RECURSE TEST_FILES "${TEST_DIR}/*.cpp")
-
-list(FILTER SRC_FILES EXCLUDE REGEX
-    ".*/custom_vector/vector_registers\\.cpp$")
-
-list(FILTER HEADER_FILES EXCLUDE REGEX
-    ".*/custom_vector/vector_registers\\.h$")
-
-set_source_files_properties(
-    "${SRC_DIR}/custom_vector/vector_registers.h"
-    "${SRC_DIR}/custom_vector/vector_registers.cpp"
-    PROPERTIES
-    HEADER_FILE_ONLY TRUE
-    SKIP_AUTOMOC TRUE
-)
-
 file(GLOB_RECURSE UI_FILES "${SRC_DIR}/*.ui")
 file(GLOB_RECURSE HEADER_FILES
     "${SRC_DIR}/*.h")
@@ -83,9 +68,6 @@ add_library(kites_core STATIC
     ${UI_FILES}
 )
 
-target_include_directories(kites_core PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(kites_core ${LUA_LIBRARIES})
-
 target_include_directories(kites_core PUBLIC
     "${PROJECT_BINARY_DIR}/${PROJECT_NAME}_autogen/include"
     ${SRC_DIR}
@@ -98,7 +80,6 @@ target_link_libraries(kites_core
     Qt::Network
     Qt::Concurrent
 )
-
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(kites_core PRIVATE 
