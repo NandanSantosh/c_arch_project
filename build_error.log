@@ -1,0 +1,141 @@
+Change Dir: '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+
+Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile
+/usr/bin/cmake -P /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/VerifyGlobs.cmake
+/usr/bin/cmake -S/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project -B/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build//CMakeFiles/progress.marks
+/usr/bin/gmake  -f CMakeFiles/Makefile2 all
+gmake[1]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+/usr/bin/gmake  -f CMakeFiles/kites_core_autogen_timestamp_deps.dir/build.make CMakeFiles/kites_core_autogen_timestamp_deps.dir/depend
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+cd /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/kites_core_autogen_timestamp_deps.dir/DependInfo.cmake "--color=" kites_core_autogen_timestamp_deps
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+/usr/bin/gmake  -f CMakeFiles/kites_core_autogen_timestamp_deps.dir/build.make CMakeFiles/kites_core_autogen_timestamp_deps.dir/build
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+gmake[2]: Nothing to be done for 'CMakeFiles/kites_core_autogen_timestamp_deps.dir/build'.
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+[  0%] Built target kites_core_autogen_timestamp_deps
+/usr/bin/gmake  -f CMakeFiles/kites_core_autogen.dir/build.make CMakeFiles/kites_core_autogen.dir/depend
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+cd /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/kites_core_autogen.dir/DependInfo.cmake "--color=" kites_core_autogen
+Dependencies file "kites_core_autogen/deps" is newer than depends file "/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/kites_core_autogen.dir/compiler_depend.internal".
+Consolidate compiler generated dependencies of target kites_core_autogen
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+/usr/bin/gmake  -f CMakeFiles/kites_core_autogen.dir/build.make CMakeFiles/kites_core_autogen.dir/build
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+gmake[2]: Nothing to be done for 'CMakeFiles/kites_core_autogen.dir/build'.
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+[  1%] Built target kites_core_autogen
+/usr/bin/gmake  -f CMakeFiles/kites_core.dir/build.make CMakeFiles/kites_core.dir/depend
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+cd /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/kites_core.dir/DependInfo.cmake "--color=" kites_core
+Dependencies file "CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o.d" is newer than depends file "/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/CMakeFiles/kites_core.dir/compiler_depend.internal".
+Consolidate compiler generated dependencies of target kites_core
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+/usr/bin/gmake  -f CMakeFiles/kites_core.dir/build.make CMakeFiles/kites_core.dir/build
+gmake[2]: Entering directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+[  2%] Building CXX object CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o
+/usr/bin/c++ -DDISABLE_GUI -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_NO_DEBUG -DQT_WIDGETS_LIB -I/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/include -I/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/Kites_autogen/include -I/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src -I/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/external/lua-5.5.0/src -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -isystem /usr/include/x86_64-linux-gnu/qt6/QtNetwork -isystem /usr/include/x86_64-linux-gnu/qt6/QtConcurrent -std=gnu++20 -Wall -Wextra -pedantic -frounding-math -ffloat-store -MD -MT CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o -MF CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o.d -o CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o -c /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/moc_editortab.cpp:9,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp:26:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/editortab.h:76:8: warning: extra tokens at end of ‘#endif’ directive [-Wendif-labels]
+   76 | #endif EDITORTAB__H
+      |        ^~~~~~~~~~~~
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp:9:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:34:8: error: redefinition of ‘struct {anonymous}::qt_meta_tag_ZN5Kites12RegisterFileE_t’
+   34 | struct qt_meta_tag_ZN5Kites12RegisterFileE_t {};
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp:3:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:34:8: note: previous definition of ‘struct {anonymous}::qt_meta_tag_ZN5Kites12RegisterFileE_t’
+   34 | struct qt_meta_tag_ZN5Kites12RegisterFileE_t {};
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:37:35: error: template-id ‘qt_create_metaobjectdata<{anonymous}::qt_meta_tag_ZN5Kites12RegisterFileE_t>’ for ‘constexpr auto Kites::RegisterFile::qt_create_metaobjectdata()’ does not match any template declaration
+   37 | template <> constexpr inline auto Kites::RegisterFile::qt_create_metaobjectdata<qt_meta_tag_ZN5Kites12RegisterFileE_t>()
+      |                                   ^~~~~
+In file included from /usr/include/x86_64-linux-gnu/qt6/QtCore/qnamespace.h:15,
+                 from /usr/include/x86_64-linux-gnu/qt6/QtCore/qobjectdefs.h:12,
+                 from /usr/include/x86_64-linux-gnu/qt6/QtCore/qobject.h:10,
+                 from /usr/include/x86_64-linux-gnu/qt6/QtCore/QObject:1,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/6DQYUKT47J/../../../src/config/app_settings.h:2,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/6DQYUKT47J/moc_app_settings.cpp:9,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp:2:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/../../../src/custom_vector/vector_registers.h:19:5: note: candidate is: ‘template<class> static constexpr auto Kites::RegisterFile::qt_create_metaobjectdata()’
+   19 |     Q_OBJECT
+      |     ^~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:76:31: error: redefinition of ‘const QMetaObject Kites::RegisterFile::staticMetaObject’
+   76 | Q_CONSTINIT const QMetaObject Kites::RegisterFile::staticMetaObject = { {
+      |                               ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:71:31: note: ‘const QMetaObject Kites::RegisterFile::staticMetaObject’ previously defined here
+   71 | Q_CONSTINIT const QMetaObject Kites::RegisterFile::staticMetaObject = { {
+      |                               ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:86:6: error: redefinition of ‘static void Kites::RegisterFile::qt_static_metacall(QObject*, QMetaObject::Call, int, void**)’
+   86 | void Kites::RegisterFile::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:81:6: note: ‘static void Kites::RegisterFile::qt_static_metacall(QObject*, QMetaObject::Call, int, void**)’ previously defined here
+   81 | void Kites::RegisterFile::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:110:20: error: redefinition of ‘const QMetaObject* Kites::RegisterFile::metaObject() const’
+  110 | const QMetaObject *Kites::RegisterFile::metaObject() const
+      |                    ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:102:20: note: ‘virtual const QMetaObject* Kites::RegisterFile::metaObject() const’ previously defined here
+  102 | const QMetaObject *Kites::RegisterFile::metaObject() const
+      |                    ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:115:7: error: redefinition of ‘void* Kites::RegisterFile::qt_metacast(const char*)’
+  115 | void *Kites::RegisterFile::qt_metacast(const char *_clname)
+      |       ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:107:7: note: ‘virtual void* Kites::RegisterFile::qt_metacast(const char*)’ previously defined here
+  107 | void *Kites::RegisterFile::qt_metacast(const char *_clname)
+      |       ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:123:5: error: redefinition of ‘int Kites::RegisterFile::qt_metacall(QMetaObject::Call, int, void**)’
+  123 | int Kites::RegisterFile::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+      |     ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:115:5: note: ‘virtual int Kites::RegisterFile::qt_metacall(QMetaObject::Call, int, void**)’ previously defined here
+  115 | int Kites::RegisterFile::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+      |     ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:142:6: error: redefinition of ‘void Kites::RegisterFile::updateRegister(size_t, uint64_t)’
+  142 | void Kites::RegisterFile::updateRegister(size_t _t1, uint64_t _t2)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:134:6: note: ‘void Kites::RegisterFile::updateRegister(size_t, uint64_t)’ previously defined here
+  134 | void Kites::RegisterFile::updateRegister(size_t _t1, uint64_t _t2)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:148:6: error: redefinition of ‘void Kites::RegisterFile::updateFRegister(size_t, uint64_t)’
+  148 | void Kites::RegisterFile::updateFRegister(size_t _t1, uint64_t _t2)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:140:6: note: ‘void Kites::RegisterFile::updateFRegister(size_t, uint64_t)’ previously defined here
+  140 | void Kites::RegisterFile::updateFRegister(size_t _t1, uint64_t _t2)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:154:6: error: no declaration matches ‘void Kites::RegisterFile::updateVRegister(size_t, uint64_t)’
+  154 | void Kites::RegisterFile::updateVRegister(size_t _t1, uint64_t _t2)
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:154:6: note: no functions named ‘void Kites::RegisterFile::updateVRegister(size_t, uint64_t)’
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:9:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/../../../src/custom_vector/vector_registers.h:17:7: note: ‘class Kites::RegisterFile’ defined here
+   17 | class RegisterFile : public QObject
+      |       ^~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/HL54M2HNYE/moc_registers.cpp:160:6: error: redefinition of ‘void Kites::RegisterFile::registerResetSignal()’
+  160 | void Kites::RegisterFile::registerResetSignal()
+      |      ^~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/VFBYA3SRRM/moc_vector_registers.cpp:146:6: note: ‘void Kites::RegisterFile::registerResetSignal()’ previously defined here
+  146 | void Kites::RegisterFile::registerResetSignal()
+      |      ^~~~~
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/moc_break_point_gutter_column.cpp:9,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/mocs_compilation.cpp:25:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/break_point_gutter_column.h: In member function ‘virtual void Kites::BreakPointGutterColumn::mouseMoveEvent(QMouseEvent*)’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/break_point_gutter_column.h:112:38: warning: unused parameter ‘event’ [-Wunused-parameter]
+  112 |     void mouseMoveEvent(QMouseEvent *event) override
+      |                         ~~~~~~~~~~~~~^~~~~
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/editortab.h:5:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/disassembly_editor.h: In member function ‘virtual void Kites::DisassemblyEditor::paintEvent(QPaintEvent*)’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/disassembly_editor.h:38:25: warning: loop variable ‘<structured bindings>’ creates a copy from type ‘const std::pair<int, std::__cxx11::basic_string<char> >’ [-Wrange-loop-construct]
+   38 |         for (const auto [lineNumber, instructionStage] : m_LinesToHighlight)
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/disassembly_editor.h:38:25: note: use reference type to prevent copying
+   38 |         for (const auto [lineNumber, instructionStage] : m_LinesToHighlight)
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         &
+gmake[2]: *** [CMakeFiles/kites_core.dir/build.make:79: CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o] Error 1
+gmake[2]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+gmake[1]: *** [CMakeFiles/Makefile2:202: CMakeFiles/kites_core.dir/all] Error 2
+gmake[1]: Leaving directory '/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build'
+gmake: *** [Makefile:146: all] Error 2
+
