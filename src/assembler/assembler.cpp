@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include<stdio.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -74,13 +75,16 @@ AssembledProgram assemble(const std::string &filename)
 
     std::vector<Token> tokens = lexer->getTokenList();
     
+    
 
     Parser parser(lexer->getFilename(), tokens);
     parser.parse();
+  
+
 
     AssembledProgram program;
     program.filename = filename;
-
+    // std::cerr << "Assembly line: " << line << '\n';
     if (parser.getErrorCount() == 0)
     {
         populateProgramFromParser(program, parser);
@@ -92,10 +96,11 @@ AssembledProgram assemble(const std::string &filename)
     else
     {
         DumpErrors(globals::errors_dump_file_path, parser.getErrors());
-        if (globals::verbose_errors_print)
-        {
-            parser.printErrors();
-        }
+        // if (globals::verbose_errors_print)
+        // {
+        //     parser.printErrors();
+        // }
+         parser.printErrors(); 
         throw std::runtime_error("Failed to parse file: " + filename);
     }
 

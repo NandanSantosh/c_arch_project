@@ -203,6 +203,7 @@ void DumpRegisters(const std::filesystem::path &filename, RegisterFile &register
 
     std::vector<uint64_t> gp_registers = register_file.GetGprValues();
     std::vector<uint64_t> fp_registers = register_file.GetFprValues();
+    std::vector<uint64_t> vp_registers = register_file.GetVprValues();
 
     std::ofstream file(filename);
     if (!file.is_open())
@@ -274,17 +275,17 @@ void DumpRegisters(const std::filesystem::path &filename, RegisterFile &register
     file << "    }\n";
     // file << "    },\n";
 
-    // file << "    \"vec_registers\": {\n";
-    // for (size_t i = 0; i < gp_registers.size(); ++i) {
-    //     file << "        \"x" << i << "\": \"0x"
-    //          << std::hex << std::setw(16) << std::setfill('0') << gp_registers[i] << std::setw(0)
-    //          << std::dec << "\"";
-    //     if (i != gp_registers.size() - 1) {
-    //         file << ",";
-    //     }
-    //     file << "\n";
-    // }
-    // file << "    }\n";
+    file << "    \"vec_registers\": {\n";
+    for (size_t i = 0; i < vp_registers.size(); ++i) {
+        file << "        \"v" << i << "\": \"0x"
+             << std::hex << std::setw(16) << std::setfill('0') << vp_registers[i] << std::setw(0)
+             << std::dec << "\"";
+        if (i != vp_registers.size() - 1) {
+            file << ",";
+        }
+        file << "\n";
+    }
+    file << "    }\n";
 
     file << "}\n";
 

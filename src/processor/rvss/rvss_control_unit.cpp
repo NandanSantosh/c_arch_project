@@ -974,16 +974,16 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
         }
         break;
     }
-    case 0b0001011:
+    case 0b0101011:
     { // RV-type (kvAdd, kvSub)
-        switch (funct3)
+        switch (funct7)
         {
-        case 0b000:
+        case 0b0000000:
         { // 
             return alu::AluOp::VADD;
             break;
         }
-        case 0b001:
+        case 0b0000001:
         { // FSD
             return alu::AluOp::VSUB;
             break;

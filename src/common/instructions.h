@@ -464,7 +464,8 @@ enum class SyntaxType
                          ///< ) rparen
     
 
-     O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register                    
+     O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register          
+    //  O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register              
 };
 
 extern std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map;

@@ -382,11 +382,7 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fld", "fsd", "fmadd.d", "fmsub.d", "fnmsub.d", "fnmadd.d", "fadd.d", "fsub.d", "fmul.d",
     "fdiv.d", "fsqrt.d", "fsgnj.d", "fsgnjn.d", "fsgnjx.d", "fmin.d", "fmax.d", "fcvt.s.d",
     "fcvt.d.s", "feq.d", "flt.d", "fle.d", "fclass.d", "fcvt.w.d", "fcvt.wu.d", "fcvt.d.w",
-    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x"
-
-    //Floatvextsn
-    "vadd","vsub"
-
+    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x","vadd","vsub"
 };
 
 static const std::unordered_set<std::string> RTypeInstructions = {
@@ -1000,7 +996,7 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
 
 bool isValidInstruction(const std::string &instruction)
 {
-    return valid_instructions.find(instruction) != valid_instructions.end();
+    return valid_instructions.contains(instruction);
 }
 
 bool isValidRTypeInstruction(const std::string &instruction)
@@ -1841,7 +1837,7 @@ std::string disassemble(uint32_t instruction)
 
 
 
-    case 0b010101:
+    case 0b0101011:
     { //Vextsn
         std::string name;
         switch (funct7)
