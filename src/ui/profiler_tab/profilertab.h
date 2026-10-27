@@ -31,7 +31,7 @@ public slots:
     void setSourceText(const QString &sourceText);
     void updateLineExecutionCount(const std::map<int, int> &lineExecutionCounts);
     void updateLineInstructionType(const std::map<int, std::string> &lineInstructionTypes);
-    void updateStatistics(const std::map<std::string, int> &statistics);
+    void updateStatistics(const std::map<std::string, int> &);
     void resetProfilerView();
 
 private:

@@ -175,11 +175,13 @@ int32_t ProcessorBase::ImmGenerator(uint32_t instruction)
 
     /*** S-TYPE (Store, Floating-Point Store) ***/
     case 0b0100011: // Store (SB, SH, SW, SD)
-    case 0b0100111: // FSW, FSD (Floating-point store)
-        imm = ((instruction >> 7) & 0x1F) | ((instruction >> 25) & 0x7F) << 5;
+    case 0b0100111: // FSW, FSD
+    case 0b1101011: // VSD
+        imm = ((instruction >> 7) & 0x1F)
+            | (((instruction >> 25) & 0x7F) << 5);
         imm = sign_extend(imm, 12);
         break;
-
+        
     /*** SB-TYPE (branch_ Instructions) ***/
     case 0b1100011:                                // branch_ (BEQ, BNE, BLT, BGE, BLTU, BGEU)
         imm = ((instruction >> 8) & 0xF)           // Bits 11:8

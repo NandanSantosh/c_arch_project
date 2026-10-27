@@ -139,6 +139,20 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
         alu_op_ = true;
         break;
     }
+    case 0b1011011:
+    { // MV-type (kvMul)
+        reg_write_ = true;
+        alu_op_ = true;
+        break;
+    }
+
+    case 0b1101011:
+    { // SV-type (kvsd)
+        alu_src_ = true;
+        alu_op_ = true;
+        mem_write_ = true;
+        break;
+    }
 
     default:
         break;
@@ -974,6 +988,7 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
         }
         break;
     }
+
     case 0b0101011:
     { // RV-type (kvAdd, kvSub)
         switch (funct7)
@@ -988,8 +1003,25 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
             return alu::AluOp::VSUB;
             break;
         }
-        
-    }}
+        }
+    break;
+}
+
+    case 0b1011011: // MV-type: vmul
+{
+    if (funct3 == 0b001 && funct7 == 0b0000010)
+        return alu::AluOp::VMUL;
+
+    break;
+}
+
+case 0b1101011: // SV-type: vsd
+{
+    if (funct3 == 0b011)
+        return alu::AluOp::ADD;
+
+    break;
+}
 
     
 

@@ -502,7 +502,11 @@ bool isValidExpainsionLine(const QString &line,
          {"fmv.d.x", {2, {}}},
         // Vextension
         {"vadd", {3, {}}},
-        {"vsub", {3, {}}}};
+        {"vsub", {3, {}}},
+    
+        {"vmul", {3, {}}},
+        {"vsd", {3, {2}}}
+    };
 
     // const auto opcodeTable = getOpcodeTable();
 

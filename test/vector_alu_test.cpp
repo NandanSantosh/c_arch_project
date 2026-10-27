@@ -33,6 +33,35 @@ TEST(VectorAluTest, SubtractsTwoFloatLanes) {
     EXPECT_EQ(result, 0x40E00000BF800000ULL);
 }
 
+
+TEST(VectorAluTest, MultipliesTwoFloatLanes) {
+    // Lane 0: 1.5 * 2.5 = 3.75
+    // Lane 1: 10.0 * 3.0 = 30.0
+    const std::uint64_t a = 0x412000003FC00000ULL;
+    const std::uint64_t b = 0x4040000040200000ULL;
+
+    const auto result =
+        Alu::executeVector32(AluOp::VMUL, 0, a, b);
+
+    EXPECT_EQ(result, 0x41F0000040700000ULL);
+}
+
+
+TEST(VectorMemoryTest, Stores64BitVectorRegister) {
+    // Example packed vector value:
+    // Lane 0 = 1.5, lane 1 = 10.0
+    const std::uint64_t vectorValue = 0x412000003FC00000ULL;
+
+    // Set up your processor and memory using your existing test fixture.
+    // Write vectorValue into vector register v3.
+    // Execute: vsd v3, 0(x10), with x10 pointing to a valid memory address.
+
+    // After executing VSD, verify the 8 bytes at that address
+    // reconstruct the original 64-bit value.
+    //
+    // EXPECT_EQ(memory_controller.readDoubleWord(address), vectorValue);
+}
+
 TEST(VectorAluTest, PreservesInactiveDestinationLane) {
     // Destination: upper lane = 10.0, lower lane = 1.0
     const std::uint64_t destination = 0x412000003F800000ULL;

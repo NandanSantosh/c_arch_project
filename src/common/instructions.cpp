@@ -18,6 +18,11 @@ namespace Kites
 namespace instruction_set
 {
 
+std::string vr(uint8_t r)
+{
+    return "v" + std::to_string(r);
+}
+
 std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = {
     {Instruction::kadd, {0b0110011, -1, 0b000, -1, -1, 0b0000000}},
     {Instruction::ksub, {0b0110011, -1, 0b000, -1, -1, 0b0100000}},
@@ -189,6 +194,9 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kvadd, {0b0101011, -1, 0b001, -1, -1, 0b0000000}},
     {Instruction::kvsub, {0b0101011, -1, 0b001, -1, -1, 0b0000001}},
 
+    {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
+    {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
+
 };
 
 std::unordered_map<std::string, Instruction> instruction_string_map = {
@@ -353,7 +361,10 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
 
 
     {"vadd", Instruction::kvadd},
-    {"vsub", Instruction::kvsub}
+    {"vsub", Instruction::kvsub},
+
+    {"vmul", Instruction::kvmul},
+    {"vsd", Instruction::kvsd}
 
 };
 
@@ -382,7 +393,16 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fld", "fsd", "fmadd.d", "fmsub.d", "fnmsub.d", "fnmadd.d", "fadd.d", "fsub.d", "fmul.d",
     "fdiv.d", "fsqrt.d", "fsgnj.d", "fsgnjn.d", "fsgnjx.d", "fmin.d", "fmax.d", "fcvt.s.d",
     "fcvt.d.s", "feq.d", "flt.d", "fle.d", "fclass.d", "fcvt.w.d", "fcvt.wu.d", "fcvt.d.w",
-    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x","vadd","vsub"
+    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x",
+    
+    // RVV
+    "vadd","vsub",
+
+    //MV
+    "vmul",
+    
+    //SV
+    "vsd"
 };
 
 static const std::unordered_set<std::string> RTypeInstructions = {
@@ -525,8 +545,17 @@ static const std::unordered_set<std::string> DExtensionInstructions = {
 
 
 
+
 static const std::unordered_set<std::string> RVTypeInstructions = {
     "vadd","vsub"
+};
+
+static const std::unordered_set<std::string> MVTypeInstructions = {
+    "vmul"
+};
+
+static const std::unordered_set<std::string> SVTypeInstructions = {
+    "vsd"
 };
 
 std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map = {
@@ -745,7 +774,13 @@ std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_e
     {"vsub", {0b0101011, 0b001, 0b0000001}},  // O_VPR_C_VPR_C_VPR
 };
 
+std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_encoding_map = {
+    {"vmul", {0b1011011, 0b001, 0b0000010}},  // O_VPR_C_VPR_C_VPR
+};
 
+std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_encoding_map = {
+    {"vsd", {0b1101011, 0b011}},  // O_VPR_C_I_LP_GPR_RP
+};
 
 /*
     O_GPR_C_GPR_C_GPR,       ///< Opcode general-register , general-register , register
@@ -992,6 +1027,10 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
     {"vadd",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsub",{SyntaxType::O_VPR_C_VPR_C_VPR}},
 
+    {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+
+    {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
+
 };
 
 bool isValidInstruction(const std::string &instruction)
@@ -1112,6 +1151,15 @@ bool isValidRVTypeInstruction(const std::string &instruction)
     return RVTypeInstructions.find(instruction) != RVTypeInstructions.end();
 }
 
+bool isValidMVTypeInstruction(const std::string &instruction)
+{
+    return MVTypeInstructions.find(instruction) != MVTypeInstructions.end();
+}
+
+bool isValidSVTypeInstruction(const std::string &instruction)
+{
+    return SVTypeInstructions.find(instruction) != SVTypeInstructions.end();
+}
 
 
 bool isFInstruction(const uint32_t &instruction)
@@ -1185,20 +1233,38 @@ bool isDInstruction(const uint32_t &instruction)
 
 bool isVInstruction(const uint32_t &instruction)
 {
-    uint8_t opcode = (instruction & 0b1111111);
+    uint8_t opcode = instruction & 0b1111111;
     uint8_t funct3 = (instruction >> 12) & 0b111;
     uint8_t funct7 = (instruction >> 25) & 0b1111111;
 
     switch (opcode)
     {
-    case 0b0101011:
-        if(funct3 == 0b001)
+    case 0b0101011: // vadd, vsub
+        if (funct3 == 0b001 &&
+            (funct7 == 0b0000000 || funct7 == 0b0000001))
         {
-            return true; // vadd, vsub
+            return true;
         }
+        break;
+
+    case 0b1011011: // vmul
+        if (funct3 == 0b001 && funct7 == 0b0000010)
+        {
+            return true;
+        }
+        break;
+
+    case 0b1101011: // vsd
+        if (funct3 == 0b011)
+        {
+            return true;
+        }
+        break;
+
     default:
         break;
     }
+
     return false;
 }
 
@@ -1258,6 +1324,7 @@ std::string getExpectedSyntaxes(const std::string &opcode)
         {SyntaxType::O_GPR_C_FPR_C_FPR, "<gp-reg>, <fp-reg>, <fp-reg>"},
         {SyntaxType::O_FPR_C_I_LP_GPR_RP, "<fp-reg>, <imm>(<gp-reg>)"},
         {SyntaxType::O_VPR_C_VPR_C_VPR, "<vp-reg>, <vp-reg>,<vp-reg>"},
+        {SyntaxType::O_VPR_C_I_LP_GPR_RP, "<vp-reg>, <imm>(<gp-reg>)"}
     };
 
     std::string syntaxes;
@@ -1324,6 +1391,12 @@ InstructionType getInstructionType(const std::string &instruction)
     if (isValidRVTypeInstruction(instruction))
         return InstructionType::RV_TYPE;
 
+    if (isValidMVTypeInstruction(instruction))
+        return InstructionType::MV_TYPE;
+
+    if (isValidSVTypeInstruction(instruction))
+        return InstructionType::SV_TYPE;
+
     return InstructionType::UNKNOWN;
 }
 
@@ -1371,6 +1444,8 @@ std::string disassemble(uint32_t instruction)
     // U: name rd, imm
     // J: name rd, imm
     // RV : name rd , rs1, rs2
+    // MV : name rd , rs1, rs2
+    // SV : name rd , rs1, rs2
     switch (opcode)
     {
 
@@ -1857,7 +1932,7 @@ std::string disassemble(uint32_t instruction)
 
 
     case 0b0101011:
-    { //Vextsn
+    { //RV-type vector instructions
         std::string name;
         switch (funct7)
         {
@@ -1869,13 +1944,40 @@ std::string disassemble(uint32_t instruction)
             break;
         }
          if (!name.empty())
-            return name + " " + xr(rd) + ", " + xr(rs1) + ", " + xr(rs2);
+            return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
         break;
     }
 
+    case 0b1011011:
+    { //MV-type vector instructions
+        std::string name;
+        switch (funct7)
+        {
+        case 2:
+            name = "vmul";
+            break;
+        }
+         if (!name.empty())
+            return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
+        break;
+    }
 
+    case 0b1101011:
+    { // SV-type vector stores
+        std::string name;
+        switch (funct3)
+        {
+        case 3:
+            name = "vsd";
+            break;
+        }
 
-    } // end switch
+        if (!name.empty())
+            return name + " " + vr(rs2) + ", " +
+                std::to_string(immS()) + "(" + xr(rs1) + ")";
+
+        break;
+    }
 
     char buf[32];
     snprintf(buf, sizeof(buf), "unknown(0x%08x)", instruction);
@@ -1883,4 +1985,5 @@ std::string disassemble(uint32_t instruction)
 }
 
 } // namespace instruction_set
+}
 }// namespace Kites

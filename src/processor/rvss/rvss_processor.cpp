@@ -414,28 +414,37 @@ void RVSSProcessor::ExecuteVector()
     uint8_t funct3 = (current_instruction_ >> 12) & 0b111;
     uint8_t rs1    = (current_instruction_ >> 15) & 0b11111;
     uint8_t rs2    = (current_instruction_ >> 20) & 0b11111;
-    uint8_t funct7 = (current_instruction_ >> 25) & 0b1111111;
 
-    // This assumes vector register indices are encoded directly
-    // and only v0-v7 are valid.
+    // VSD: calculate effective address using a GPR base and S-type immediate.
+    if (opcode == 0b1101011)
+    {
+        if (funct3 != 0b011)
+            throw std::runtime_error("Invalid VSD instruction");
+
+        int32_t imm = ImmGenerator(current_instruction_);
+        uint64_t base = registers_.ReadGpr(rs1);
+
+        execution_result_ =
+            base + static_cast<uint64_t>(static_cast<int64_t>(imm));
+
+        return;
+    }
+
+    // Arithmetic vector instructions: VADD, VSUB, VMUL.
     if (rd >= 8 || rs1 >= 8 || rs2 >= 8)
     {
         throw std::out_of_range("Invalid vector register index");
     }
 
-    // Read packed 64-bit vector registers (two 32-bit float lanes).
     uint64_t a = registers_.ReadVpr(rs1);
     uint64_t b = registers_.ReadVpr(rs2);
     uint64_t old_destination = registers_.ReadVpr(rd);
 
-    // Decode the operation. This must map to VADD, VSUB, etc.
-    // in your control unit and instruction definitions.
     alu::AluOp aluOperation =
         control_unit_.GetAluSignal(
             current_instruction_,
             control_unit_.GetAluOp());
 
-    // Execute both 32-bit lanes.
     execution_result_ = alu::Alu::executeVector32(
         aluOperation,
         old_destination,
@@ -878,8 +887,40 @@ void RVSSProcessor::WriteMemoryDouble()
 
 void RVSSProcessor::WriteMemoryVector()
 {
-    //since we are only using vadd and vsub for now, no need of this. we use this for vld and vsd
+    uint8_t rs2 = (current_instruction_ >> 20) & 0b11111;
+
+    if (control_unit_.GetMemRead())
+    { // VLD
+        memory_result_ = memory_controller_.readDoubleWord(execution_result_);
+    }
+
+    uint64_t addr = 0;
+    std::vector<uint8_t> old_bytes_vec;
+    std::vector<uint8_t> new_bytes_vec;
+
+    if (control_unit_.GetMemWrite())
+    { // VSD
+        addr = execution_result_;
+        for (size_t i = 0; i < 8; ++i)
+        {
+            old_bytes_vec.push_back(memory_controller_.readByte(addr + i));
+        }
+        uint64_t val = registers_.ReadVpr(rs2);
+        memory_controller_.writeDoubleWord(execution_result_, val);
+        // new_bytes_vec.push_back(memory_controller_.ReadByte(addr));
+        for (size_t i = 0; i < 8; ++i)
+        {
+            new_bytes_vec.push_back(memory_controller_.readByte(addr + i));
+        }
+    }
+
+    if (old_bytes_vec != new_bytes_vec)
+    {
+        current_delta_.memory_changes.push_back({addr, old_bytes_vec, new_bytes_vec});
+    }
 }
+
+
 void RVSSProcessor::WriteBack()
 {
     uint8_t opcode = current_instruction_ & 0b1111111;

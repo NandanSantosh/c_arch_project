@@ -1082,6 +1082,11 @@ namespace alu
             scalarOp = AluOp::FSUB_S;
             break;
 
+        case AluOp::VMUL:
+            scalarOp = AluOp::FMUL_S;
+            break;
+        
+            
         default:
             throw std::invalid_argument(
                 "Unsupported vector operation");

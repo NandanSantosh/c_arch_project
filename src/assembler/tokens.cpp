@@ -38,6 +38,8 @@ std::string tokenTypeToString(TokenType type)
         return "GP_REGISTER    ";
     case TokenType::FP_REGISTER:
         return "FP_REGISTER    ";
+
+    //vector register
     case TokenType::VP_REGISTER :
         return "VP_REGISTER   ";
     case TokenType::CSR_REGISTER:

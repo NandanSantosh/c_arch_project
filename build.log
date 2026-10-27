@@ -1,193 +1,100 @@
 [  0%] Built target kites_core_autogen_timestamp_deps
-[  0%] Automatic MOC and UIC for target kites_core
-AutoGen warning: "SRC:/src/custom_vector/vector_decoder.h" is empty.
-
-AutoGen warning: "SRC:/src/custom_vector/vector_alu.h" is empty.
-
-AutoGen warning: "SRC:/src/custom_vector/vector_decoder.cpp" is empty.
-
-AutoGen warning: "SRC:/src/custom_vector/vector_alu.cpp" is empty.
-
-AutoUic: /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/ui/dialogs/addpseudo_dialog.ui: Warning: The name 'layoutWidget' (QWidget) is already in use, defaulting to 'layoutWidget1'.
-AutoUic: /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/ui/cache_tab/cachetab.ui: Warning: The name 'layoutWidget' (QWidget) is already in use, defaulting to 'layoutWidget1'.
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/ui/cache_tab/cachetab.ui: Warning: The name 'layoutWidget' (QWidget) is already in use, defaulting to 'layoutWidget2'.
-AutoUic: /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/ui/compiler_tab/compilertab.ui: Warning: The name 'layoutWidget' (QWidget) is already in use, defaulting to 'layoutWidget1'.
-AutoUic: /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/ui/editor_tab/editortab.ui: Warning: The name 'layoutWidget' (QWidget) is already in use, defaulting to 'layoutWidget1'.
-[  0%] Built target kites_core_autogen
-[  1%] Building CXX object CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/mocs_compilation.cpp:6:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/HL54M2HNYE/moc_processor_base.cpp:9:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/HL54M2HNYE/../../../src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/HL54M2HNYE/../../../src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/mocs_compilation.cpp:24:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/moc_break_point_gutter_column.cpp:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/break_point_gutter_column.h:112:38: warning: unused parameter 'event' [-Wunused-parameter]
-  112 |     void mouseMoveEvent(QMouseEvent *event) override
-      |                                      ^
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/mocs_compilation.cpp:25:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/moc_editortab.cpp:9:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/editortab.h:5:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/disassembly_editor.h:38:25: warning: loop variable '[lineNumber, instructionStage]' creates a copy from type 'std::pair<int, std::string> const' [-Wrange-loop-construct]
-   38 |         for (const auto [lineNumber, instructionStage] : m_LinesToHighlight)
-      |                         ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/disassembly_editor.h:38:14: note: use reference type 'std::pair<int, std::string> const &' to prevent copying
-   38 |         for (const auto [lineNumber, instructionStage] : m_LinesToHighlight)
-      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      |                         &
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/mocs_compilation.cpp:25:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/moc_editortab.cpp:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/build/kites_core_autogen/4CW5EXY7PR/../../../src/ui/editor_tab/editortab.h:76:8: warning: extra tokens at end of #endif directive [-Wextra-tokens]
-   76 | #endif EDITORTAB__H
-      |        ^
-      |        //
-4 warnings generated.
-[  2%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/assembler.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/assembler.cpp:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/assembler.cpp:135:54: warning: unused parameter 'source' [-Wunused-parameter]
-  135 | std::vector<ParseError> getDiagnostics(std::istream &source, const std::string &virtualFilename)
-      |                                                      ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/assembler.cpp:135:81: warning: unused parameter 'virtualFilename' [-Wunused-parameter]
-  135 | std::vector<ParseError> getDiagnostics(std::istream &source, const std::string &virtualFilename)
-      |                                                                                 ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/assembler.cpp:154:1: warning: non-void function does not return a value [-Wreturn-type]
-  154 | }
-      | ^
-4 warnings generated.
-[  2%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/code_generator.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[  3%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/errors.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[  4%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/lexer.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[  4%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parse_formats/csr_formats.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parse_formats/csr_formats.cpp:9:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  5%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parse_formats/f_d_formats.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parse_formats/f_d_formats.cpp:10:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  6%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parse_formats/i_m_formats.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parse_formats/i_m_formats.cpp:9:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  6%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parse_formats/pseudo_formats.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parse_formats/pseudo_formats.cpp:10:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  7%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parse_formats/v_formats.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parse_formats/v_formats.cpp:10:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  8%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/parser.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/assembler/parser.cpp:11:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/utils/utils.h:12:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[  9%] Building CXX object CMakeFiles/kites_core.dir/src/assembler/tokens.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[  9%] Building CXX object CMakeFiles/kites_core.dir/src/command_handler/command_handler.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/command_handler/command_handler.cpp:6:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/command_handler/command_handler.h:10:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_manager.h:10:
-In file included from /Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/processor_base.h:9:
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/processor/alu.h:21:13: warning: unknown pragma ignored [-Wunknown-pragmas]
-   21 | #pragma GCC optimize("no-fast-math")
-      |             ^
-1 warning generated.
-[ 10%] Building CXX object CMakeFiles/kites_core.dir/src/common/globals.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 11%] Building CXX object CMakeFiles/kites_core.dir/src/common/instructions.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/common/instructions.cpp:1820:32: warning: unused variable 'fromInt' [-Wunused-variable]
- 1820 |             static const char *fromInt[] = {"fcvt", "fcvt", "fcvt", "fcvt"};
+[  1%] Automatic MOC and UIC for target kites_core
+[  1%] Built target kites_core_autogen
+[  1%] Building CXX object CMakeFiles/kites_core.dir/src/common/instructions.cpp.o
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/common/instructions.cpp: In function ‘std::string Kites::instruction_set::disassemble(uint32_t)’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/common/instructions.cpp:1910:32: warning: unused variable ‘fromInt’ [-Wunused-variable]
+ 1910 |             static const char *fromInt[] = {"fcvt", "fcvt", "fcvt", "fcvt"};
       |                                ^~~~~~~
-1 warning generated.
-[ 11%] Building CXX object CMakeFiles/kites_core.dir/src/config/app_settings.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 12%] Building CXX object CMakeFiles/kites_core.dir/src/config/config.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 13%] Building CXX object CMakeFiles/kites_core.dir/src/custom_pseudo_manager/custom_pseudo_manager.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 13%] Building CXX object CMakeFiles/kites_core.dir/src/custom_vector/vector_alu.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 14%] Building CXX object CMakeFiles/kites_core.dir/src/custom_vector/vector_decoder.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-[ 15%] Building CXX object CMakeFiles/kites_core.dir/src/custom_vector/vector_registers.cpp.o
-clang++: warning: optimization flag '-ffloat-store' is not supported [-Wignored-optimization-argument]
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:13:1: error: use of undeclared identifier 'RegisterFile'
-   13 | RegisterFile::RegisterFile(QObject *parent) : QObject(parent)
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/common/instructions.cpp:1987:1: warning: control reaches end of non-void function [-Wreturn-type]
+ 1987 | } // namespace instruction_set
       | ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:17:6: error: use of undeclared identifier 'RegisterFile'
-   17 | void RegisterFile::Reset()
-      |      ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:26:10: error: use of undeclared identifier 'RegisterFile'
-   26 | uint64_t RegisterFile::ReadGpr(size_t reg) const
-      |          ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:35:6: error: use of undeclared identifier 'RegisterFile'
-   35 | void RegisterFile::WriteGpr(size_t reg, uint64_t value)
-      |      ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:46:10: error: use of undeclared identifier 'RegisterFile'
-   46 | uint64_t RegisterFile::ReadFpr(size_t reg) const
-      |          ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:53:6: error: use of undeclared identifier 'RegisterFile'
-   53 | void RegisterFile::WriteFpr(size_t reg, uint64_t value)
-      |      ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:61:10: error: use of undeclared identifier 'RegisterFile'
-   61 | uint64_t RegisterFile::ReadCsr(size_t reg) const
-      |          ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:68:6: error: use of undeclared identifier 'RegisterFile'
-   68 | void RegisterFile::WriteCsr(size_t reg, uint64_t value)
-      |      ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:75:23: error: use of undeclared identifier 'RegisterFile'
-   75 | std::vector<uint64_t> RegisterFile::GetGprValues() const
-      |                       ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:80:23: error: use of undeclared identifier 'RegisterFile'
-   80 | std::vector<uint64_t> RegisterFile::GetFprValues() const
-      |                       ^
-/Users/ramaraogolla/Documents/Courses/Sem5/CArch/Mp/Carch/src/custom_vector/vector_registers.cpp:85:6: error: use of undeclared identifier 'RegisterFile'
-   85 | void RegisterFile::ModifyRegister(const std::string &reg_name, uint64_t value)
-      |      ^
-11 errors generated.
-make[2]: *** [CMakeFiles/kites_core.dir/src/custom_vector/vector_registers.cpp.o] Error 1
-make[1]: *** [CMakeFiles/kites_core.dir/all] Error 2
-make: *** [all] Error 2
+[  1%] Building CXX object CMakeFiles/kites_core.dir/src/ui/mainwindow/mainwindow.cpp.o
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/ui/mainwindow/mainwindow.cpp:11:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/ui/editor_tab/editortab.h:76:8: warning: extra tokens at end of ‘#endif’ directive [-Wendif-labels]
+   76 | #endif EDITORTAB__H
+      |        ^~~~~~~~~~~~
+[  2%] Building CXX object CMakeFiles/kites_core.dir/src/ui/profiler_tab/profilertab.cpp.o
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/ui/profiler_tab/profilertab.cpp: In member function ‘void Kites::ProfilerTab::updateStatistics(const std::map<std::__cxx11::basic_string<char>, int>&)’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/ui/profiler_tab/profilertab.cpp:58:70: warning: unused parameter ‘statistics’ [-Wunused-parameter]
+   58 | void ProfilerTab::updateStatistics(const std::map<std::string, int> &statistics)
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+[  2%] Linking CXX static library libkites_core.a
+[ 65%] Built target kites_core
+[ 65%] Built target Kites_autogen_timestamp_deps
+[ 66%] Built target Kites_autogen
+[ 67%] Generating qrc_instructions.cpp
+[ 68%] Building CXX object CMakeFiles/Kites.dir/main.cpp.o
+[ 68%] Building CXX object CMakeFiles/Kites.dir/qrc_instructions.cpp.o
+[ 69%] Linking CXX executable Kites
+/usr/bin/x86_64-linux-gnu-ld.bfd: libkites_core.a(loslib.c.o): in function `os_tmpname':
+loslib.c:(.text+0x17e): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+[ 74%] Built target Kites
+[ 74%] Built target kites_cli_autogen_timestamp_deps
+[ 75%] Built target kites_cli_autogen
+[ 76%] Building CXX object CMakeFiles/kites_cli.dir/cli/main.cpp.o
+[ 77%] Building CXX object CMakeFiles/kites_cli.dir/cli/repl.cpp.o
+[ 77%] Linking CXX executable kites-cli
+/usr/bin/x86_64-linux-gnu-ld.bfd: libkites_core.a(loslib.c.o): in function `os_tmpname':
+loslib.c:(.text+0x17e): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+[ 77%] Built target kites_cli
+[ 77%] Built target gtest_autogen_timestamp_deps
+[ 78%] Built target gtest_autogen
+[ 80%] Built target gtest
+[ 80%] Built target gmock_autogen_timestamp_deps
+[ 80%] Built target gmock_autogen
+[ 82%] Built target gmock
+[ 82%] Built target gmock_main_autogen_timestamp_deps
+[ 82%] Built target gmock_main_autogen
+[ 85%] Built target gmock_main
+[ 85%] Built target gtest_main_autogen_timestamp_deps
+[ 86%] Built target gtest_main_autogen
+[ 88%] Built target gtest_main
+[ 88%] Built target kites_test_autogen_timestamp_deps
+[ 89%] Automatic MOC and UIC for target kites_test
+[ 89%] Built target kites_test_autogen
+[ 90%] Building CXX object test/CMakeFiles/kites_test.dir/cache_matrix_mul_l1_l2_test.cpp.o
+[ 90%] Building CXX object test/CMakeFiles/kites_test.dir/custom_policy_test.cpp.o
+[ 91%] Building CXX object test/CMakeFiles/kites_test.dir/div_rem_edge_cases_test.cpp.o
+[ 91%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_f_extension_test.cpp.o
+[ 92%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_fp_test.cpp.o
+[ 92%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_h_f_test.cpp.o
+[ 93%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_h_nf_test.cpp.o
+[ 93%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_nh_f_test.cpp.o
+[ 94%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_nh_nf_fp_memory_test.cpp.o
+[ 95%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_nh_nf_fp_test.cpp.o
+[ 95%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_test.cpp.o
+[ 96%] Building CXX object test/CMakeFiles/kites_test.dir/rv5s_undo_redo_test.cpp.o
+[ 97%] Building CXX object test/CMakeFiles/kites_test.dir/vector_alu_test.cpp.o
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/_deps/googletest-src/googletest/include/gtest/gtest-printers.h:122,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/_deps/googletest-src/googletest/include/gtest/gtest-matchers.h:49,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/_deps/googletest-src/googletest/include/gtest/internal/gtest-death-test-internal.h:47,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/_deps/googletest-src/googletest/include/gtest/gtest-death-test.h:43,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/build/_deps/googletest-src/googletest/include/gtest/gtest.h:65,
+                 from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp:2:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp: In member function ‘virtual void VectorAluTest_RejectsInvalidActiveLaneCount_Test::TestBody()’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp:92:29: warning: ignoring return value of ‘static uint64_t Kites::alu::Alu::executeVector32(Kites::alu::AluOp, uint64_t, uint64_t, uint64_t, std::size_t, uint8_t)’, declared with attribute ‘nodiscard’ [-Wunused-result]
+   92 |         Alu::executeVector32(AluOp::VADD, 0, 0, 0, 3, 0b11),
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp:7:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/processor/alu.h:406:40: note: declared here
+  406 |     [[nodiscard]] static std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+      |                                        ^~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp: In member function ‘virtual void VectorAluTest_RejectsInvalidMask_Test::TestBody()’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp:98:29: warning: ignoring return value of ‘static uint64_t Kites::alu::Alu::executeVector32(Kites::alu::AluOp, uint64_t, uint64_t, uint64_t, std::size_t, uint8_t)’, declared with attribute ‘nodiscard’ [-Wunused-result]
+   98 |         Alu::executeVector32(AluOp::VADD, 0, 0, 0, 2, 0b100),
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/processor/alu.h:406:40: note: declared here
+  406 |     [[nodiscard]] static std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+      |                                        ^~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp: In member function ‘virtual void VectorAluTest_RejectsUnsupportedOperation_Test::TestBody()’:
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/test/vector_alu_test.cpp:104:29: warning: ignoring return value of ‘static uint64_t Kites::alu::Alu::executeVector32(Kites::alu::AluOp, uint64_t, uint64_t, uint64_t, std::size_t, uint8_t)’, declared with attribute ‘nodiscard’ [-Wunused-result]
+  104 |         Alu::executeVector32(AluOp::VMUL, 0, 0, 0),
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+/home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/src/processor/alu.h:406:40: note: declared here
+  406 |     [[nodiscard]] static std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+      |                                        ^~~~~~~~~~~~~~~
+[ 98%] Linking CXX executable kites_test
+/usr/bin/x86_64-linux-gnu-ld.bfd: ../libkites_core.a(loslib.c.o): in function `os_tmpname':
+loslib.c:(.text+0x17e): warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+[100%] Built target kites_test

@@ -488,6 +488,11 @@ void Parser::parseTextDirective()
                     break;
                 }
 
+                case instruction_set::SyntaxType::O_VPR_C_I_LP_GPR_RP:
+                {
+                    valid_syntax = parse_O_VPR_C_I_LP_GPR_RP();
+                    break;
+                }
 
                 default:
                 {

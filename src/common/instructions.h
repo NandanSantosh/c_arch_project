@@ -188,7 +188,10 @@ enum class Instruction
     kfcvt_d_lu,
     kfmv_d_x,
     kvadd,
-    kvsub
+    kvsub,
+    //added for mul and sd vector instructions
+    kvmul,
+    kvsd
     
 };
 
@@ -423,6 +426,29 @@ struct RVTypeInstructionEncoding
     }
 };
 
+struct MVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<7> funct7;
+    
+    MVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7)
+        : opcode(opcode), funct3(funct3), funct7(funct7)
+    {
+    }
+};
+
+struct SVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+
+    SVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3)
+        : opcode(opcode), funct3(funct3)
+    {
+    }
+};
+
 /**
  * @brief Enum that represents different syntax types for instructions.
  */
@@ -464,8 +490,9 @@ enum class SyntaxType
                          ///< ) rparen
     
 
-     O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register          
-    //  O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register              
+    O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register          
+    //  O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register 
+    O_VPR_C_I_LP_GPR_RP, ///< Opcode vector-register, immediate, lparen (general-register) rparen          
 };
 
 extern std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map;
@@ -498,7 +525,10 @@ extern std::unordered_map<std::string, FDSTypeInstructionEncoding>
 
 extern std::unordered_map<std::string, RVTypeInstructionEncoding>
     RV_type_instruction_encoding_map;
-
+extern std::unordered_map<std::string, MVTypeInstructionEncoding>
+    MV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, SVTypeInstructionEncoding>
+    SV_type_instruction_encoding_map;
 /**
  * @brief A map that associates instruction names with their expected syntax.
  *
@@ -538,6 +568,8 @@ bool isFInstruction(const uint32_t &instruction);
 bool isDInstruction(const uint32_t &instruction);
 bool isVInstruction(const uint32_t &instruction);
 bool isValidRVTypeInstruction(const std::string &name);
+bool isValidMVTypeInstruction(const std::string &name);
+bool isValidSVTypeInstruction(const std::string &name);
 
 std::string getExpectedSyntaxes(const std::string &opcode);
 

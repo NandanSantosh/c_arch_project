@@ -189,5 +189,12 @@
     "RVInstruction":[
         "vadd",
         "vsub"
+    ],
+    "MVInstruction":[
+        "vmul"
+    ],
+    "SVInstruction":[
+        "vsd"
     ]
+
 }
