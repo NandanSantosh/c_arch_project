@@ -195,6 +195,9 @@
     ],
     "SVInstruction":[
         "vsd"
+    ],
+    "LVInstruction":[
+        "vld"
     ]
 
 }

@@ -317,6 +317,8 @@ uint32_t generateRVTypeMachineCode(const ICUnit &block);
 uint32_t generateMVTypeMachineCode(const ICUnit &block);
 
 uint32_t generateSVTypeMachineCode(const ICUnit &block);
+
+uint32_t generateLVTypeMachineCode(const ICUnit &block);
 /**
  * @brief Generates machine code from a vector of intermediate code blocks.
  *

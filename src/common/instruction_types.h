@@ -31,6 +31,7 @@ enum class InstructionType
     RV_TYPE,
     MV_TYPE,
     SV_TYPE,
+    LV_TYPE,
     INSTRUCTION_TYPE_COUNT, // this is used to get the count of valid instruction types
     UNKNOWN // putting unknown in the last becase we only want the
            //count of valid instruction types
@@ -48,7 +49,8 @@ instructionTypeNames =
     "F-Type",
     "RV_TYPE",
     "MV_TYPE",
-    "SV_TYPE"
+    "SV_TYPE",
+    "LV_TYPE"
 };
 }// namespace instruction_set
 }// namespace Kites

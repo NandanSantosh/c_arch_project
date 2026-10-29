@@ -191,7 +191,8 @@ enum class Instruction
     kvsub,
     //added for mul and sd vector instructions
     kvmul,
-    kvsd
+    kvsd,
+    kvld
     
 };
 
@@ -449,6 +450,18 @@ struct SVTypeInstructionEncoding
     }
 };
 
+
+struct LVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+
+    LVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3)
+        : opcode(opcode), funct3(funct3)
+    {
+    }
+};
+
 /**
  * @brief Enum that represents different syntax types for instructions.
  */
@@ -529,6 +542,8 @@ extern std::unordered_map<std::string, MVTypeInstructionEncoding>
     MV_type_instruction_encoding_map;
 extern std::unordered_map<std::string, SVTypeInstructionEncoding>
     SV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, LVTypeInstructionEncoding>
+    LV_type_instruction_encoding_map;
 /**
  * @brief A map that associates instruction names with their expected syntax.
  *
@@ -570,7 +585,7 @@ bool isVInstruction(const uint32_t &instruction);
 bool isValidRVTypeInstruction(const std::string &name);
 bool isValidMVTypeInstruction(const std::string &name);
 bool isValidSVTypeInstruction(const std::string &name);
-
+bool isValidLVTypeInstruction(const std::string &name);
 std::string getExpectedSyntaxes(const std::string &opcode);
 
 /**

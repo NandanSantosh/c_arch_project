@@ -68,6 +68,11 @@ printIntermediateCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCo
             code = block.getOpcode() + " " + block.getRs2() + " " + block.getImm() + "(" +
                    block.getRs1() + ")";
         }
+         else if (instruction_set::isValidLVTypeInstruction(block.getOpcode()))
+        {
+            code = block.getOpcode() + " " + block.getRd() + " " + block.getRs1() + " " +
+                   block.getImm();
+        }
 
         else
         {
@@ -441,6 +446,24 @@ uint32_t generateSVTypeMachineCode(const ICUnit &block)
 }
 
 
+uint32_t generateLVTypeMachineCode(const ICUnit &block)
+{
+    const auto &encoding = instruction_set::LV_type_instruction_encoding_map.at(block.getOpcode());
+    const uint32_t rd = extractRegisterIndex(block.getRd());
+    const uint32_t rs1 = extractRegisterIndex(block.getRs1());
+    const uint32_t imm = static_cast<uint32_t>(std::stoi(block.getImm()));
+    const uint32_t funct3 = encoding.funct3.to_ulong();
+    const uint32_t opcode = encoding.opcode.to_ulong();
+    uint32_t machineCode = 0;
+    machineCode |= (imm << 20);
+    machineCode |= (rs1 << 15);
+    machineCode |= (funct3 << 12);
+    machineCode |= (rd << 7);
+    machineCode |= opcode;
+    return machineCode;
+}
+
+
 std::vector<uint32_t>
 generateMachineCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCode)
 {
@@ -530,6 +553,10 @@ generateMachineCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCode
         else if(instruction_set::isValidSVTypeInstruction(block.getOpcode()))
         {
             code = generateSVTypeMachineCode(block);
+        }
+        else if(instruction_set::isValidLVTypeInstruction(block.getOpcode()))
+        {
+            code = generateLVTypeMachineCode(block);
         }
         
         else

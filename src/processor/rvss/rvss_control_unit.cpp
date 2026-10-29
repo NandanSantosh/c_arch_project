@@ -153,6 +153,14 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
         mem_write_ = true;
         break;
     }
+     case 0b1101010:
+    { // Load instructions (LB, LH, LW, LD)
+        alu_src_ = true;
+        mem_to_reg_ = true;
+        reg_write_ = true;
+        mem_read_ = true;
+        break;
+    }
 
     default:
         break;
@@ -1016,6 +1024,14 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
 }
 
 case 0b1101011: // SV-type: vsd
+{
+    if (funct3 == 0b011)
+        return alu::AluOp::ADD;
+
+    break;
+}
+
+case 0b1101010: // SV-type: vld
 {
     if (funct3 == 0b011)
         return alu::AluOp::ADD;

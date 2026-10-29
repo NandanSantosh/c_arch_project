@@ -169,6 +169,7 @@ int32_t ProcessorBase::ImmGenerator(uint32_t instruction)
     case 0b1100111: // JALR
     case 0b0001111: // FENCE
     case 0b0000111: // FLW, FLD (Floating-point load)
+    case 0b1101010:  //VLD
         imm = (instruction >> 20) & 0xFFF;
         imm = sign_extend(imm, 12);
         break;

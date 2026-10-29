@@ -196,6 +196,7 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
 
     {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
     {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
+     {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
 
 };
 
@@ -364,7 +365,8 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"vsub", Instruction::kvsub},
 
     {"vmul", Instruction::kvmul},
-    {"vsd", Instruction::kvsd}
+    {"vsd", Instruction::kvsd},
+    {"vld", Instruction::kvld}
 
 };
 
@@ -402,7 +404,8 @@ static const std::unordered_set<std::string> valid_instructions = {
     "vmul",
     
     //SV
-    "vsd"
+    "vsd",
+    "vld"
 };
 
 static const std::unordered_set<std::string> RTypeInstructions = {
@@ -556,6 +559,11 @@ static const std::unordered_set<std::string> MVTypeInstructions = {
 
 static const std::unordered_set<std::string> SVTypeInstructions = {
     "vsd"
+};
+
+
+static const std::unordered_set<std::string> LVTypeInstructions = {
+    "vld"
 };
 
 std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map = {
@@ -780,6 +788,10 @@ std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_e
 
 std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_encoding_map = {
     {"vsd", {0b1101011, 0b011}},  // O_VPR_C_I_LP_GPR_RP
+};
+
+std::unordered_map<std::string, LVTypeInstructionEncoding> LV_type_instruction_encoding_map = {
+    {"vld", {0b1101010, 0b011}},  // O_VPR_C_I_LP_GPR_RP
 };
 
 /*
@@ -1031,6 +1043,8 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
 
     {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
 
+     {"vld",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
+
 };
 
 bool isValidInstruction(const std::string &instruction)
@@ -1161,6 +1175,10 @@ bool isValidSVTypeInstruction(const std::string &instruction)
     return SVTypeInstructions.find(instruction) != SVTypeInstructions.end();
 }
 
+bool isValidLVTypeInstruction(const std::string &instruction)
+{
+    return LVTypeInstructions.find(instruction) != LVTypeInstructions.end();
+}
 
 bool isFInstruction(const uint32_t &instruction)
 {
@@ -1255,6 +1273,11 @@ bool isVInstruction(const uint32_t &instruction)
         break;
 
     case 0b1101011: // vsd
+        if (funct3 == 0b011)
+        {
+            return true;
+        }
+    case 0b1101010: // vld
         if (funct3 == 0b011)
         {
             return true;
@@ -1976,6 +1999,22 @@ std::string disassemble(uint32_t instruction)
             return name + " " + vr(rs2) + ", " +
                 std::to_string(immS()) + "(" + xr(rs1) + ")";
 
+        break;
+    }
+
+
+
+     case 0b1101010:
+    { // Loads
+        std::string name;
+        switch (funct3)
+        {
+        case 3:
+            name = "vld";
+            break;
+        }
+        if (!name.empty())
+            return name + " " + xr(rd) + ", " + std::to_string(immI()) + "(" + xr(rs1) + ")";
         break;
     }
 

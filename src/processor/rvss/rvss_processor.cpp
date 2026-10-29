@@ -416,25 +416,24 @@ void RVSSProcessor::ExecuteVector()
     uint8_t rs2    = (current_instruction_ >> 20) & 0b11111;
 
     // VSD: calculate effective address using a GPR base and S-type immediate.
-    if (opcode == 0b1101011)
+    if (opcode == 0b1101011||opcode == 0b1101010)
     {
-        if (funct3 != 0b011)
-            throw std::runtime_error("Invalid VSD instruction");
+        // if (funct3 != 0b011)
+        //     throw std::runtime_error("Invalid VSD instruction");
 
         int32_t imm = ImmGenerator(current_instruction_);
         uint64_t base = registers_.ReadGpr(rs1);
 
-        execution_result_ =
-            base + static_cast<uint64_t>(static_cast<int64_t>(imm));
+        execution_result_ =  base + static_cast<uint64_t>(static_cast<int64_t>(imm));
 
         return;
     }
 
     // Arithmetic vector instructions: VADD, VSUB, VMUL.
-    if (rd >= 8 || rs1 >= 8 || rs2 >= 8)
-    {
-        throw std::out_of_range("Invalid vector register index");
-    }
+    // if (rd >= 8 || rs1 >= 8 || rs2 >= 8)
+    // {
+    //     throw std::out_of_range("Invalid vector register index");
+    // }
 
     uint64_t a = registers_.ReadVpr(rs1);
     uint64_t b = registers_.ReadVpr(rs2);
@@ -1115,7 +1114,7 @@ void RVSSProcessor::WriteBackVector()
     }
 
     uint64_t old_reg = registers_.ReadVpr(rd);
-    uint64_t new_reg = execution_result_;
+    uint64_t new_reg =control_unit_.GetMemRead()? memory_result_: execution_result_;
 
     registers_.WriteVpr(rd, new_reg);
 

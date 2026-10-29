@@ -505,7 +505,8 @@ bool isValidExpainsionLine(const QString &line,
         {"vsub", {3, {}}},
     
         {"vmul", {3, {}}},
-        {"vsd", {3, {2}}}
+        {"vsd", {3, {2}}},
+        {"vld", {3, {2}}}
     };
 
     // const auto opcodeTable = getOpcodeTable();

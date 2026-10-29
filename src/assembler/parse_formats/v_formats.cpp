@@ -73,6 +73,7 @@ bool Parser::parse_O_VPR_C_I_LP_GPR_RP()
         block.setOpcode(currentToken().value);
         block.setLineNumber(currentToken().line_number);
         block.setInstructionIndex(instruction_index_);
+        std::string reg;
 
         if (instruction_set::isValidSVTypeInstruction(block.getOpcode()))
         {
@@ -106,6 +107,31 @@ bool Parser::parse_O_VPR_C_I_LP_GPR_RP()
             // GPR base register
             block.setRs1(reg_alias_to_name.at(peekToken(5).value));
         }
+         else if (instruction_set::isValidLVTypeInstruction(block.getOpcode()))
+        {
+            reg = reg_alias_to_name.at(peekToken(1).value);
+            block.setRd(reg);
+            int64_t imm = std::stoll(peekToken(3).value);
+            if (-2048 <= imm && imm <= 2047)
+            {
+                block.setImm(std::to_string(imm));
+            }
+            else
+            {
+                recordError(ParseError(peekToken(3).line_number, "Immediate value out of range"));
+                errors_.all_errors.emplace_back(errors::ImmediateOutOfRangeError(
+                    "Immediate value out of range", "Expected: -2048 <= imm <= 2047", filename_,
+                    peekToken(3).line_number, peekToken(3).column_number,
+                    GetLineFromFile(filename_, peekToken(3).line_number)));
+                skipCurrentLine();
+                return true;
+            }
+            reg = reg_alias_to_name.at(peekToken(5).value);
+            block.setRs1(reg);
+        }
+
+
+
         else
         {
             return false;
