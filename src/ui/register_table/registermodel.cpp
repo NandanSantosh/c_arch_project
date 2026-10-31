@@ -24,7 +24,7 @@ RegisterModel::RegisterModel(QObject *parent, RegisterFile *regfile) : QAbstract
 int RegisterModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 64;
+    return 72;
 }
 
 int RegisterModel::columnCount(const QModelIndex &parent) const
@@ -82,29 +82,23 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
         size_t row = static_cast<size_t>(index.row());
         switch (index.column())
         {
-        case 0: // Register Name
+       case 0: // Register name
             if (row < 32)
-            {
                 return QString("x%1").arg(row);
-            }
-            else if (row>=32 &&row < 64)
-            {
+            if (row < 64)
                 return QString("f%1").arg(row - 32);
-            }
-             else 
-            {
+            if (row < 72)
                 return QString("v%1").arg(row - 64);
-            }
+            return QString{};
         case 1: // Register Alias
         {
             if (row < 32)
                 return QString(register_names::kGprAliases[row]);
-            else if (row>=32 &&row < 64)
+            if (row < 64)
                 return QString(register_names::kFprAliases[row - 32]);
-            else if (row>=64 && row < 72)
+            if (row < 72)
                 return QString(register_names::kVprAliases[row - 64]);
-            else
-                return QString("");
+            return QString{};
         }
         case 2: // Register Value
         {
@@ -154,13 +148,31 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
                         return QString::number(dval, 'g', 16);
                     }
                 }
-
+                
                 case Base::Hexadecimal:
                 {
                     return QString("0x%1").arg(QString::number(raw, 16).toUpper());
                 }
                 }
             }
+            else if (row < 72)
+                {
+                    const uint64_t value =
+                        m_currentRegisterFile->ReadVpr(row - 64);
+
+                    switch (m_displayBase)
+                    {
+                    case Base::Binary:
+                        return QString("0b%1").arg(QString::number(value, 2));
+
+                    case Base::Decimal:
+                        return QString::number(value);
+
+                    case Base::Hexadecimal:
+                        return QString("0x%1")
+                            .arg(QString::number(value, 16).toUpper());
+                    }
+                }
             else
             {
                 return QString("");

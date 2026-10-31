@@ -1101,6 +1101,8 @@ void RVSSProcessor::WriteBackDouble()
 void RVSSProcessor::WriteBackVector()
 {
     uint8_t rd = (current_instruction_ >> 7) & 0b11111;
+    qDebug() << "RegWrite:" << control_unit_.GetRegWrite()
+         << "Instruction:" << Qt::hex << current_instruction_;
 
     // Only process instructions that write a destination register.
     if (!control_unit_.GetRegWrite())
@@ -1115,7 +1117,7 @@ void RVSSProcessor::WriteBackVector()
 
     uint64_t old_reg = registers_.ReadVpr(rd);
     uint64_t new_reg =control_unit_.GetMemRead()? memory_result_: execution_result_;
-
+    // uint64_t new_reg = execution_result_;
     registers_.WriteVpr(rd, new_reg);
 
     // Register change type 3 represents a vector register.
