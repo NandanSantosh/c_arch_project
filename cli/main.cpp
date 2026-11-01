@@ -14,11 +14,13 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QString>
-
+#include<chrono>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+
 
 namespace
 {
@@ -169,7 +171,19 @@ int main(int argc, char *argv[])
     // Known limitation: a program hitting a blocking read syscall will hang here
     // forever, since nothing in this CLI feeds terminal stdin into the VM's input
     // queue yet (that's separate, future work).
+    const auto start = std::chrono::steady_clock::now();
+
     manager.run();
+
+    const auto end = std::chrono::steady_clock::now();
+
+    const double elapsedMs =
+        std::chrono::duration<double, std::milli>(
+            end - start
+        ).count();
+
+    std::cout << "Execution time: "
+            << elapsedMs << " ms\n";
 
     if (runFailed)
     {
