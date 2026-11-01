@@ -1420,6 +1420,9 @@ InstructionType getInstructionType(const std::string &instruction)
     if (isValidSVTypeInstruction(instruction))
         return InstructionType::SV_TYPE;
 
+    if(isValidLVTypeInstruction(instruction))
+        return InstructionType::LV_TYPE;
+        
     return InstructionType::UNKNOWN;
 }
 
