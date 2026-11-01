@@ -1070,6 +1070,29 @@ namespace alu
             "Mask must contain only two lane bits");
     }
 
+    //Handling for the case VSWAP
+    // VSWAP exchanges the two 32-bit lanes of source register a.
+    if (op == AluOp::VSWAP) {
+        if (activeLanes != 2) {
+            throw std::invalid_argument(
+                "VSWAP requires exactly two active lanes");
+        }
+
+        // Preserve destination lanes that are masked off.
+        std::uint64_t result = destination;
+
+        if (mask & 0x01u) {
+            result = (result & 0xFFFFFFFF00000000ULL) |
+                    ((a >> 32) & 0xFFFFFFFFULL);
+        }
+
+        if (mask & 0x02u) {
+            result = (result & 0x00000000FFFFFFFFULL) |
+                    ((a & 0xFFFFFFFFULL) << 32);
+        }
+
+        return result;
+    }
     // Map the vector operation to the existing scalar float operation.
     AluOp scalarOp;
 

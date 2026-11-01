@@ -192,7 +192,8 @@ enum class Instruction
     //added for mul and sd vector instructions
     kvmul,
     kvsd,
-    kvld
+    kvld,
+    kvswap
     
 };
 
@@ -505,7 +506,8 @@ enum class SyntaxType
 
     O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register          
     //  O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register 
-    O_VPR_C_I_LP_GPR_RP, ///< Opcode vector-register, immediate, lparen (general-register) rparen          
+    O_VPR_C_I_LP_GPR_RP, ///< Opcode vector-register, immediate, lparen (general-register) rparen   
+    O_VPR_C_VPR, ///< Opcode vector-register, vector-register       
 };
 
 extern std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map;

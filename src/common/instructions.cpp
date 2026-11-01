@@ -193,10 +193,11 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
 
     {Instruction::kvadd, {0b0101011, -1, 0b001, -1, -1, 0b0000000}},
     {Instruction::kvsub, {0b0101011, -1, 0b001, -1, -1, 0b0000001}},
+    {Instruction::kvswap, {0b0101011, -1, 0b010, -1, -1, 0b0000010}},
 
     {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
     {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
-     {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
+    {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
 
 };
 
@@ -363,6 +364,7 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
 
     {"vadd", Instruction::kvadd},
     {"vsub", Instruction::kvsub},
+    {"vswap", Instruction::kvswap},
 
     {"vmul", Instruction::kvmul},
     {"vsd", Instruction::kvsd},
@@ -398,7 +400,7 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x",
     
     // RVV
-    "vadd","vsub",
+    "vadd","vsub","vswap",
 
     //MV
     "vmul",
@@ -550,7 +552,7 @@ static const std::unordered_set<std::string> DExtensionInstructions = {
 
 
 static const std::unordered_set<std::string> RVTypeInstructions = {
-    "vadd","vsub"
+    "vadd","vsub","vswap"
 };
 
 static const std::unordered_set<std::string> MVTypeInstructions = {
@@ -780,6 +782,7 @@ std::unordered_map<std::string, FDSTypeInstructionEncoding> F_D_S_type_instructi
 std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_encoding_map = {
     {"vadd", {0b0101011, 0b001, 0b0000000}},  // O_VPR_C_VPR_C_VPR
     {"vsub", {0b0101011, 0b001, 0b0000001}},  // O_VPR_C_VPR_C_VPR
+    {"vswap", {0b0101011, 0b010, 0b0000010}}, // O_VPR_C_VPR
 };
 
 std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_encoding_map = {
@@ -1038,6 +1041,7 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
 
     {"vadd",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsub",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vswap",{SyntaxType::O_VPR_C_VPR}}, //but we don't use one of the registers
 
     {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
 
@@ -1257,11 +1261,15 @@ bool isVInstruction(const uint32_t &instruction)
 
     switch (opcode)
     {
-    case 0b0101011: // vadd, vsub
+    case 0b0101011: // vadd, vsub , vswap
         if (funct3 == 0b001 &&
             (funct7 == 0b0000000 || funct7 == 0b0000001))
         {
             return true;
+        }
+        else if(funct3 == 0b010 && funct7 == 0b0000010)
+        {
+            return true; // vswap
         }
         break;
 
@@ -1347,7 +1355,8 @@ std::string getExpectedSyntaxes(const std::string &opcode)
         {SyntaxType::O_GPR_C_FPR_C_FPR, "<gp-reg>, <fp-reg>, <fp-reg>"},
         {SyntaxType::O_FPR_C_I_LP_GPR_RP, "<fp-reg>, <imm>(<gp-reg>)"},
         {SyntaxType::O_VPR_C_VPR_C_VPR, "<vp-reg>, <vp-reg>,<vp-reg>"},
-        {SyntaxType::O_VPR_C_I_LP_GPR_RP, "<vp-reg>, <imm>(<gp-reg>)"}
+        {SyntaxType::O_VPR_C_I_LP_GPR_RP, "<vp-reg>, <imm>(<gp-reg>)"},
+        {SyntaxType::O_VPR_C_VPR, "<vp-reg>, <vp-reg>"}
     };
 
     std::string syntaxes;
@@ -1957,22 +1966,36 @@ std::string disassemble(uint32_t instruction)
 
 
 
-    case 0b0101011:
-    { //RV-type vector instructions
-        std::string name;
-        switch (funct7)
-        {
-        case 0:
+case 0b0101011:
+{ // RV-type vector instructions
+    std::string name;
+
+    switch (funct7)
+    {
+    case 0b0000000:
+        if (funct3 == 0b001)
             name = "vadd";
-            break;
-        case 1:
+        break;
+
+    case 0b0000001:
+        if (funct3 == 0b001)
             name = "vsub";
-            break;
-        }
-         if (!name.empty())
-            return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
+        break;
+
+    case 0b0000010:
+        if (funct3 == 0b010)
+            name = "vswap";
         break;
     }
+
+    if (name == "vswap")
+        return name + " " + vr(rd) + ", " + vr(rs1);
+
+    if (name == "vadd" || name == "vsub")
+        return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
+
+    break;
+}
 
     case 0b1011011:
     { //MV-type vector instructions

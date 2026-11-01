@@ -46,6 +46,42 @@ TEST(VectorAluTest, MultipliesTwoFloatLanes) {
     EXPECT_EQ(result, 0x41F0000040700000ULL);
 }
 
+TEST(VectorAluTest, SwapsTwoFloatLanes) {
+    // Lane 0 (lower) = 1.5, lane 1 (upper) = 10.0
+    const std::uint64_t a = 0x412000003FC00000ULL;
+
+    const auto result =
+        Alu::executeVector32(AluOp::VSWAP, 0, a, 0);
+
+    // Lane 0 = 10.0, lane 1 = 1.5
+    EXPECT_EQ(result, 0x3FC0000041200000ULL);
+}
+
+TEST(VectorAluTest, SwapsLanesRegardlessOfDestination) {
+    const std::uint64_t destination = 0xDEADBEEFCAFEBABEULL;
+    const std::uint64_t a = 0x412000003FC00000ULL;
+
+    const auto result =
+        Alu::executeVector32(AluOp::VSWAP, destination, a, 0);
+
+    // VSWAP replaces both lanes, so the old destination is ignored.
+    EXPECT_EQ(result, 0x3FC0000041200000ULL);
+}
+
+TEST(VectorAluTest, SwapsZeroAndNonzeroLanes) {
+    const std::uint64_t a = 0x000000003F800000ULL;
+
+    const auto result =
+        Alu::executeVector32(AluOp::VSWAP, 0, a, 0);
+
+    EXPECT_EQ(result, 0x3F80000000000000ULL);
+}
+
+TEST(VectorAluTest, RejectsVSwapWithInvalidActiveLaneCount) {
+    EXPECT_THROW(
+        Alu::executeVector32(AluOp::VSWAP, 0, 0, 0, 1, 0b11),
+        std::invalid_argument);
+}
 
 TEST(VectorMemoryTest, Stores64BitVectorRegister) {
     // Example packed vector value:

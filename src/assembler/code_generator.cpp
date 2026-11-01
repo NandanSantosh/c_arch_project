@@ -53,10 +53,19 @@ printIntermediateCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCo
                    block.getLabel() + ">";
         }
         // Vector
+        // Vector RV-type instructions
         else if (instruction_set::isValidRVTypeInstruction(block.getOpcode()))
         {
-            code = block.getOpcode() + " " + block.getRd() + " " + block.getRs1() + " " +
-                   block.getRs2();
+            if (block.getOpcode() == "vswap")
+            {
+                code = block.getOpcode() + " " + block.getRd() + " " +
+                    block.getRs1();
+            }
+            else
+            {
+                code = block.getOpcode() + " " + block.getRd() + " " +
+                    block.getRs1() + " " + block.getRs2();
+            }
         }
         else if(instruction_set::isValidMVTypeInstruction(block.getOpcode()))
         {
@@ -384,13 +393,22 @@ uint32_t generateFDSTypeMachineCode(const ICUnit &block)
 
 uint32_t generateRVTypeMachineCode(const ICUnit &block)
 {
-    const auto &encoding = instruction_set::RV_type_instruction_encoding_map.at(block.getOpcode());
+    const auto &encoding =
+        instruction_set::RV_type_instruction_encoding_map.at(block.getOpcode());
+
     const uint32_t rd = extractRegisterIndex(block.getRd());
     const uint32_t rs1 = extractRegisterIndex(block.getRs1());
-    const uint32_t rs2 = extractRegisterIndex(block.getRs2());
+
+    // VSWAP reserves rs2 as zero; other RV-type instructions use rs2.
+    const uint32_t rs2 =
+        (block.getOpcode() == "vswap")
+            ? 0
+            : extractRegisterIndex(block.getRs2());
+
     const uint32_t funct3 = encoding.funct3.to_ulong();
     const uint32_t funct7 = encoding.funct7.to_ulong();
     const uint32_t opcode = encoding.opcode.to_ulong();
+
     uint32_t machineCode = 0;
     machineCode |= (funct7 << 25);
     machineCode |= (rs2 << 20);
@@ -398,6 +416,7 @@ uint32_t generateRVTypeMachineCode(const ICUnit &block)
     machineCode |= (funct3 << 12);
     machineCode |= (rd << 7);
     machineCode |= opcode;
+
     return machineCode;
 }
 

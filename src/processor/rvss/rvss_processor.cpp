@@ -414,35 +414,37 @@ void RVSSProcessor::ExecuteVector()
     uint8_t funct3 = (current_instruction_ >> 12) & 0b111;
     uint8_t rs1    = (current_instruction_ >> 15) & 0b11111;
     uint8_t rs2    = (current_instruction_ >> 20) & 0b11111;
+    uint8_t funct7 = (current_instruction_ >> 25) & 0b1111111;
 
-    // VSD: calculate effective address using a GPR base and S-type immediate.
-    if (opcode == 0b1101011||opcode == 0b1101010)
+    // VSD / VLD: calculate effective address using a GPR base and immediate.
+    if (opcode == 0b1101011 || opcode == 0b1101010)
     {
-        // if (funct3 != 0b011)
-        //     throw std::runtime_error("Invalid VSD instruction");
-
         int32_t imm = ImmGenerator(current_instruction_);
         uint64_t base = registers_.ReadGpr(rs1);
 
-        execution_result_ =  base + static_cast<uint64_t>(static_cast<int64_t>(imm));
+        execution_result_ =
+            base + static_cast<uint64_t>(static_cast<int64_t>(imm));
 
         return;
     }
 
-    // Arithmetic vector instructions: VADD, VSUB, VMUL.
-    // if (rd >= 8 || rs1 >= 8 || rs2 >= 8)
-    // {
-    //     throw std::out_of_range("Invalid vector register index");
-    // }
-
-    uint64_t a = registers_.ReadVpr(rs1);
-    uint64_t b = registers_.ReadVpr(rs2);
-    uint64_t old_destination = registers_.ReadVpr(rd);
-
+    // Get the vector operation from the instruction encoding.
     alu::AluOp aluOperation =
         control_unit_.GetAluSignal(
             current_instruction_,
             control_unit_.GetAluOp());
+
+    // Read source and old destination registers.
+    uint64_t a = registers_.ReadVpr(rs1);
+    uint64_t old_destination = registers_.ReadVpr(rd);
+
+    // VSWAP doesn't use rs2.
+    uint64_t b = 0;
+    // for VADD, VSUB, and VMUL, read the second source register.
+    if (aluOperation != alu::AluOp::VSWAP)
+    {
+        b = registers_.ReadVpr(rs2);
+    }
 
     execution_result_ = alu::Alu::executeVector32(
         aluOperation,

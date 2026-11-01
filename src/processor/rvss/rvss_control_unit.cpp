@@ -134,7 +134,7 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
     }
 
     case 0b0101011:
-    { // RV-type (kvAdd, kvSub)
+    { // RV-type (kvAdd, kvSub, kvSwap)
         reg_write_ = true;
         alu_op_ = true;
         break;
@@ -998,22 +998,33 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
     }
 
     case 0b0101011:
-    { // RV-type (kvAdd, kvSub)
+    { // RV-type vector instructions
         switch (funct7)
         {
-        case 0b0000000:
-        { // 
-            return alu::AluOp::VADD;
-            break;
+            case 0b0000000:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VADD;
+                break;
+            }
+
+            case 0b0000001:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VSUB;
+                break;
+            }
+
+            case 0b0000010:
+            {
+                if (funct3 == 0b010)
+                    return alu::AluOp::VSWAP;
+                break;
+            }
         }
-        case 0b0000001:
-        { // FSD
-            return alu::AluOp::VSUB;
-            break;
-        }
-        }
-    break;
-}
+
+        break;
+    }
 
     case 0b1011011: // MV-type: vmul
 {

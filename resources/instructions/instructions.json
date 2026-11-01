@@ -188,7 +188,8 @@
     ],
     "RVInstruction":[
         "vadd",
-        "vsub"
+        "vsub",
+        "vswap"
     ],
     "MVInstruction":[
         "vmul"

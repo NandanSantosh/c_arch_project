@@ -51,6 +51,44 @@ bool Parser::parse_O_VPR_C_VPR_C_VPR()
 
 }
 
+bool Parser::parse_O_VPR_C_VPR()
+{
+    if (peekToken(1).line_number == currentToken().line_number &&
+        peekToken(1).type == TokenType::VP_REGISTER &&
+        peekToken(2).line_number == currentToken().line_number &&
+        peekToken(2).type == TokenType::COMMA &&
+        peekToken(3).line_number == currentToken().line_number &&
+        peekToken(3).type == TokenType::VP_REGISTER &&
+        (peekToken(4).type == TokenType::EOF_ ||
+         peekToken(4).line_number != currentToken().line_number))
+    {
+        ICUnit block;
+        block.setOpcode(currentToken().value);
+        block.setLineNumber(currentToken().line_number);
+        block.setInstructionIndex(instruction_index_);
+
+        // First operand: destination vector register (rd)
+        std::string reg = reg_alias_to_name.at(peekToken(1).value);
+        block.setRd(reg);
+
+        // Second operand: source vector register (rs1)
+        reg = reg_alias_to_name.at(peekToken(3).value);
+        block.setRs1(reg);
+
+        // rs2 is not supplied by the assembly syntax.
+        // The machine-code generator must encode rs2 = 0 for vswap.
+
+        skipCurrentLine();
+        intermediate_code_.emplace_back(block, true);
+        instruction_number_line_number_mapping_[instruction_index_] =
+            block.getLineNumber();
+        instruction_index_++;
+
+        return true;
+    }
+
+    return false;
+}
 
 bool Parser::parse_O_VPR_C_I_LP_GPR_RP()
 {
