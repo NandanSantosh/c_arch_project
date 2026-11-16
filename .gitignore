@@ -24,3 +24,4 @@ gtest_filter.py
 
 build-debug/
 src.zip
+.DS_Store

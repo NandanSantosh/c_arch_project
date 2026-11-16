@@ -24,7 +24,7 @@ RegisterModel::RegisterModel(QObject *parent, RegisterFile *regfile) : QAbstract
 int RegisterModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 72;
+    return  96;
 }
 
 int RegisterModel::columnCount(const QModelIndex &parent) const

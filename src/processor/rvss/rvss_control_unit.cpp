@@ -1031,6 +1031,8 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
     if (funct3 == 0b001 && funct7 == 0b0000010)
         return alu::AluOp::VMUL;
 
+    if (funct3 == 0b010 && funct7 == 0b0000010)
+        return alu::AluOp::VCMPL;
     break;
 }
 

@@ -1108,6 +1108,14 @@ namespace alu
         case AluOp::VMUL:
             scalarOp = AluOp::FMUL_S;
             break;
+
+        case AluOp::VCMPL:
+            scalarOp = AluOp::VCMPL;
+            break;
+
+        //  case AluOp::VMUL:
+        //     scalarOp = AluOp::FMUL_S;
+        //     break;
         
             
         default:
@@ -1117,6 +1125,46 @@ namespace alu
 
     // Start with the old destination so inactive lanes are preserved.
     std::uint64_t result = destination;
+
+
+    if (AluOp::VCMPL == scalarOp) {
+
+    int numlanes = activeLanes / 2;
+
+    for (int i = 0; i < numlanes; i++) {
+        unsigned shift = static_cast<unsigned>(i * 64);
+
+        const std::uint32_t Aj =
+            static_cast<std::uint32_t>((a >> (shift + 32)) & LANE_MASK);
+
+        const std::uint32_t Ai =
+            static_cast<std::uint32_t>((a >> shift) & LANE_MASK);
+        const std::uint32_t Bj =
+            static_cast<std::uint32_t>((b >> (shift + 32)) & LANE_MASK);
+
+        const std::uint32_t Bi =
+            static_cast<std::uint32_t>((b >> shift) & LANE_MASK);
+        auto [l1, fcsr1] = Alu::fpexecute(AluOp::FMUL_S, Ai, Bi, 0, 0);
+        auto [l2, fcsr2] = Alu::fpexecute(AluOp::FMUL_S, Aj, Bj, 0, 0);
+        auto [l3, fcsr3] = Alu::fpexecute(AluOp::FMUL_S, Ai, Bj, 0, 0);
+        auto [l4, fcsr4] = Alu::fpexecute(AluOp::FMUL_S, Aj, Bi, 0, 0);
+        auto [realResult, fcsr5] =
+            Alu::fpexecute(AluOp::FSUB_S, l1, l2, 0, 0);
+        auto [imagResult, fcsr6] =
+            Alu::fpexecute(AluOp::FADD_S, l3, l4, 0, 0);
+        std::uint64_t complexResult =
+            (static_cast<std::uint64_t>(imagResult) << 32) |
+            (static_cast<std::uint64_t>(realResult) & LANE_MASK);
+        std::uint64_t shiftedMask =
+            static_cast<std::uint64_t>(UINT64_MAX) << shift;
+
+        result = (result & ~shiftedMask) |
+                 (complexResult << shift);
+    }
+
+    return result;
+}
+
 
     for (std::size_t lane = 0; lane < activeLanes; ++lane) {
         // Skip this lane if its mask bit is disabled.

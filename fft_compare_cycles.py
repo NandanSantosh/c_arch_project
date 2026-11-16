@@ -21,6 +21,7 @@ EXACT_LATENCIES = {
     "vld": 2, "vsd": 1,
     "vadd": 4, "vsub": 4,
     "vmul": 5, "vswap": 1,
+    "vcmpl": 8
 }
 
 LOAD_MNEMONICS = {

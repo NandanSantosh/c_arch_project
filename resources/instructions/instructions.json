@@ -192,7 +192,7 @@
         "vswap"
     ],
     "MVInstruction":[
-        "vmul"
+        "vmul","vcmpl"
     ],
     "SVInstruction":[
         "vsd"

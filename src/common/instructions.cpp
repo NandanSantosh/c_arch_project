@@ -367,6 +367,7 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"vswap", Instruction::kvswap},
 
     {"vmul", Instruction::kvmul},
+    {"vcmpl", Instruction::kvcmpl},
     {"vsd", Instruction::kvsd},
     {"vld", Instruction::kvld}
 
@@ -403,7 +404,7 @@ static const std::unordered_set<std::string> valid_instructions = {
     "vadd","vsub","vswap",
 
     //MV
-    "vmul",
+    "vmul","vcmpl",
     
     //SV
     "vsd",
@@ -556,7 +557,7 @@ static const std::unordered_set<std::string> RVTypeInstructions = {
 };
 
 static const std::unordered_set<std::string> MVTypeInstructions = {
-    "vmul"
+    "vmul","vcmpl"
 };
 
 static const std::unordered_set<std::string> SVTypeInstructions = {
@@ -787,6 +788,7 @@ std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_e
 
 std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_encoding_map = {
     {"vmul", {0b1011011, 0b001, 0b0000010}},  // O_VPR_C_VPR_C_VPR
+    {"vcmpl", {0b1011011, 0b010, 0b0000010}},  // O_VPR_C_VPR_C_VPR
 };
 
 std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_encoding_map = {
@@ -796,6 +798,9 @@ std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_e
 std::unordered_map<std::string, LVTypeInstructionEncoding> LV_type_instruction_encoding_map = {
     {"vld", {0b1101010, 0b011}},  // O_VPR_C_I_LP_GPR_RP
 };
+
+
+
 
 /*
     O_GPR_C_GPR_C_GPR,       ///< Opcode general-register , general-register , register
@@ -1044,7 +1049,7 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
     {"vswap",{SyntaxType::O_VPR_C_VPR}}, //but we don't use one of the registers
 
     {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
-
+    {"vcmpl",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
 
      {"vld",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
@@ -1275,6 +1280,10 @@ bool isVInstruction(const uint32_t &instruction)
 
     case 0b1011011: // vmul
         if (funct3 == 0b001 && funct7 == 0b0000010)
+        {
+            return true;
+        }
+        if (funct3 == 0b010 && funct7 == 0b0000010)
         {
             return true;
         }
@@ -2000,13 +2009,17 @@ case 0b0101011:
     case 0b1011011:
     { //MV-type vector instructions
         std::string name;
-        switch (funct7)
+        switch (funct3)
         {
-        case 2:
+        case 0b001:
             name = "vmul";
             break;
+        case 0b010:
+            name = "vcmpl";
+            break;
         }
-         if (!name.empty())
+        
+        if (!name.empty())
             return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
         break;
     }

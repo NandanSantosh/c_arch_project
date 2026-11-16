@@ -191,6 +191,7 @@ enum class Instruction
     kvsub,
     //added for mul and sd vector instructions
     kvmul,
+    kvcmpl,
     kvsd,
     kvld,
     kvswap
