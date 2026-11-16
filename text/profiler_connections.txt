@@ -1,0 +1,89 @@
+src/assembler/parser.h:93:        instruction_number_line_number_mapping_; ///< Maps instruction numbers to line numbers.
+src/assembler/parser.cpp:903:    return instruction_number_line_number_mapping_;
+src/assembler/parse_formats/pseudo_formats.cpp:61:                instruction_number_line_number_mapping_[instruction_index_] =
+src/assembler/parse_formats/pseudo_formats.cpp:67:                instruction_number_line_number_mapping_[instruction_index_] =
+src/assembler/parse_formats/pseudo_formats.cpp:102:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:137:                instruction_number_line_number_mapping_[instruction_index_++] = addiBlock.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:149:                instruction_number_line_number_mapping_[instruction_index_++] = luiBlock.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:162:                instruction_number_line_number_mapping_[instruction_index_++] = slliBlock.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:178:                    instruction_number_line_number_mapping_[instruction_index_++] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:278:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:308:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:330:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:361:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:392:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:423:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:454:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:485:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:516:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:545:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:575:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:605:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:635:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:665:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:695:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:725:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:760:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:795:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:831:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:867:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:916:                instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:922:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:946:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:972:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:1002:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/pseudo_formats.cpp:1025:            instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/v_formats.cpp:46:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/v_formats.cpp:83:        instruction_number_line_number_mapping_[instruction_index_] =
+src/assembler/parse_formats/v_formats.cpp:180:        instruction_number_line_number_mapping_[instruction_index_] =
+src/assembler/parse_formats/csr_formats.cpp:45:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/csr_formats.cpp:95:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:27:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:64:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:174:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:254:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:315:                instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:323:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:382:                instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:390:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:466:        instruction_number_line_number_mapping_[instruction_index_] = auipc_instr.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:470:        instruction_number_line_number_mapping_[instruction_index_] = load_instr.getLineNumber();
+src/assembler/parse_formats/i_m_formats.cpp:548:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:52:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:102:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:138:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:182:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:212:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:250:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:280:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:318:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:348:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:386:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:421:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/parse_formats/f_d_formats.cpp:498:        instruction_number_line_number_mapping_[instruction_index_] = block.getLineNumber();
+src/assembler/assembler.cpp:35:    program.instruction_number_line_number_mapping =
+src/assembler/assembler.cpp:41:        if (program.instruction_number_line_number_mapping.empty())
+src/assembler/assembler.cpp:48:        for (const auto &[instruction, line] : program.instruction_number_line_number_mapping)
+src/profiler/profiler.cpp:20:void Profiler::setInstructionToLineMapping(const AssembledProgram &program)
+src/profiler/profiler.cpp:22:    m_instructionNumberToLineNumber = program.instruction_number_line_number_mapping;
+src/profiler/profiler.cpp:55:void Profiler::setLineNumberToInstructionTypeMapping(const AssembledProgram &program)
+src/profiler/profiler.cpp:73:void Profiler::processorClockedSlot(const ProcessorState &processorState)
+src/profiler/profiler.h:27:    void setInstructionToLineMapping(const AssembledProgram &program);
+src/profiler/profiler.h:29:    void setLineNumberToInstructionTypeMapping(const AssembledProgram &program);
+src/profiler/profiler.h:37:    void processorClockedSlot(const ProcessorState& processorState);
+src/common/assembled_program.h:24:    std::map<unsigned int, unsigned int> instruction_number_line_number_mapping;
+src/processor/processor_base.cpp:351:    unsigned int current_line = program_.instruction_number_line_number_mapping[instruction_number];
+src/processor/processor_base.cpp:370:        program_.instruction_number_line_number_mapping[breakpoints_[i] / 4];
+src/processor/processor_base.cpp:371:        file << program_.instruction_number_line_number_mapping[breakpoints_[i] / 4];
+src/processor/processor_manager.h:85:    void processorClockedSlot(const ProcessorState &processorState);
+src/processor/processor_manager.cpp:44:            &ProcessorManager::processorClockedSlot, Qt::DirectConnection);
+src/processor/processor_manager.cpp:49:            &Profiler::processorClockedSlot, Qt::DirectConnection);
+src/processor/processor_manager.cpp:60:            &ProcessorManager::processorClockedSlot, Qt::DirectConnection);        
+src/processor/processor_manager.cpp:72:    m_profiler.setInstructionToLineMapping(program);
+src/processor/processor_manager.cpp:73:    m_profiler.setLineNumberToInstructionTypeMapping(program);
+src/processor/processor_manager.cpp:99:void ProcessorManager::processorClockedSlot(const ProcessorState &processorState)
+src/processor/processor_manager.cpp:133:        addHighlightIfMapped(m_currentProgram.instruction_number_line_number_mapping,
+src/processor/processor_manager.cpp:153:            addHighlightIfMapped(m_currentProgram.instruction_number_line_number_mapping,
+src/processor/processor_manager.cpp:174:            m_currentProgram.instruction_number_line_number_mapping.at(programCounter / 4));
+src/utils/utils.cpp:301://   // const auto& instruction_number_line_number_mapping =
+src/utils/utils.cpp:302://   program.instruction_number_line_number_mapping; std::vector<std::pair<ICUnit, bool>>

@@ -1,0 +1,80 @@
+grep: ./output_grep_instruction.txt: input file is also the output
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/lexer.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/code_generator.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/parser.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/parse_formats/pseudo_formats.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/parse_formats/csr_formats.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/parse_formats/f_d_formats.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/assembler/parse_formats/i_m_formats.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/profiler/profiler.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/common/instructions.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/command_handler/command_handler.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rvss/rvss_processor.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/processor_manager.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_control_unit.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_processor_nh_f.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_processor_nh_nf.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_processor_h_nf.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_processor_base.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/processor/rv5s/rv5s_processor_h_f.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/mainwindow/mainwindow.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/profiler_tab/profilertab.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/profiler_tab/profiler_editor.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/profiler_tab/instruction_type_count_model.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/editor_tab/editortab.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/processor_tab/vm_state_table_model.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/src/ui/processor_tab/processortab.cpp.o: binary file matches
+grep: ./build-debug/CMakeFiles/kites_core.dir/kites_core_autogen/mocs_compilation.cpp.o: binary file matches
+grep: ./build-debug/libkites_core.a: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_fp_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_undo_redo_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/custom_policy_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_nh_nf_fp_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/cache_matrix_mul_l1_l2_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/div_rem_edge_cases_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_nh_nf_fp_memory_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_f_extension_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_h_nf_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_h_f_test.cpp.o: binary file matches
+grep: ./build-debug/test/CMakeFiles/kites_test.dir/rv5s_nh_f_test.cpp.o: binary file matches
+grep: ./build-debug/test/kites_test: binary file matches
+./external/lua-5.5.0/src/lvm.c:1218:    Instruction i;  /* instruction being executed */
+./external/lua-5.5.0/src/ldebug.c:448:    lastpc--;  /* previous instruction was not actually executed */
+./cli/repl.cpp:101:       << "  undo | u                      step backward through executed instructions\n"
+./src/assembler/code_generator.cpp:397:        instruction_set::RV_type_instruction_encoding_map.at(block.getOpcode());
+./src/assembler/code_generator.cpp:470:    const auto &encoding = instruction_set::LV_type_instruction_encoding_map.at(block.getOpcode());
+./src/profiler/profiler.cpp:75:    int executedLine = m_instructionNumberToLineNumber
+./src/profiler/profiler.cpp:78:             << ", Instruction number: " << (processorState.lastExecutedPC / 4)
+./src/common/instructions.h:542:    RV_type_instruction_encoding_map;
+./src/common/instructions.h:548:    LV_type_instruction_encoding_map;
+./src/common/instructions.h:597: * @return A string describing the instruction type (e.g., "R-Type", "I-Type", "S-Type", "Pseudo")
+./src/common/instruction_types.h:31:    RV_TYPE,
+./src/common/instruction_types.h:34:    LV_TYPE,
+./src/common/instruction_types.h:44:    "I-Type", 
+./src/common/instruction_types.h:50:    "RV_TYPE",
+./src/common/instruction_types.h:53:    "LV_TYPE"
+./src/common/instructions.cpp:782:std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_encoding_map = {
+./src/common/instructions.cpp:796:std::unordered_map<std::string, LVTypeInstructionEncoding> LV_type_instruction_encoding_map = {
+./src/common/instructions.cpp:1424:        return InstructionType::RV_TYPE;
+./src/common/instructions.cpp:1433:        return InstructionType::LV_TYPE;
+./src/common/instructions.cpp:1624:    { // I-type integer
+./src/common/instructions.cpp:1658:    { // I-type integer word (RV64)
+./src/processor/rvss/rvss_control_unit.cpp:51:    { // I-type alu instructions (ADDI, ANDI, ORI, XORI, SLTI, SLLI, SRLI)
+./src/processor/rvss/rvss_control_unit.cpp:97:    { // I-type OP-32 (ADDIW, SLLIW, SRLIW, SRAIW)
+./src/processor/rvss/rvss_control_unit.cpp:340:    { // I-Type
+./src/processor/rvss/rvss_processor.cpp:967:        case 0b0010011: // I-Type
+./src/processor/rvss/rvss_processor.cpp:970:        case 0b0011011: // I-type OP-32 (ADDIW, SLLIW, SRLIW, SRAIW)
+./src/processor/processor_base.cpp:166:    /*** I-TYPE (Load, alu Immediate, JALR, FPU Loads) ***/
+./src/processor/rv5s/rv5s_control_unit.cpp:28:    case 0b0010011: // I-type ALU (ADDI, ANDI, etc.)
+./src/processor/rv5s/rv5s_control_unit.cpp:31:        alu_op_ = 1; // ALUOp code '1' for I-type/Branch.
+./src/processor/rv5s/rv5s_control_unit.cpp:47:        alu_op_ = 1; // ALUOp code '1' for I-type/Branch.
+./src/processor/rv5s/rv5s_control_unit.cpp:61:    case 0b1100111: // I-type JALR
+./src/processor/rv5s/rv5s_control_unit.cpp:121:    case 1: // ALUOp=1 -> Decode for Branch comparison or I-type ALU.
+./src/processor/rv5s/rv5s_control_unit.cpp:143:        { // I-type ALU (opcode 0b0010011)
+./src/processor/rv5s/rv5s_processor_nh_f.cpp:78:    // we executed an instruction that will write to register file in this cycle
+./src/processor/rv5s/rv5s_processor_nh_f.cpp:247:        // If AluSrc is true (I-type ALU, Load, Store), override reg2_data with the immediate
+./src/processor/rv5s/rv5s_processor_base.cpp:356:    case 0b0010011: // I-Type
+./src/processor/rv5s/rv5s_processor_base.cpp:571:        case 0b0010011: // I-Type
+./src/processor/rv5s/rv5s_processor_base.cpp:574:        case 0b0011011: // OP-32 I-type (ADDIW, SLLIW, SRLIW, SRAIW)
+./src/custom_pseudo_manager/custom_pseudo_manager.cpp:328:         // I-type: rd, rs1, imm

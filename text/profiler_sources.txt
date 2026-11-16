@@ -1,0 +1,319 @@
+]633;E;echo "========== profiler.cpp ==========";914bfb0f-4bb4-45d5-81ad-233dd842d34d]633;C========== profiler.cpp ==========
+#include "profiler/profiler.h"
+#include "common/instructions.h"
+
+namespace Kites
+{
+
+namespace instr = instruction_set;
+
+Profiler::Profiler(QObject *parent) : QObject(parent)
+{
+}
+
+void Profiler::Reset()
+{
+    m_lineNumberToExecutionCounts.clear();
+    m_instructionTypeCounts.fill(0);
+    emit profilerReset();
+}
+
+void Profiler::setInstructionToLineMapping(const AssembledProgram &program)
+{
+    m_instructionNumberToLineNumber = program.instruction_number_line_number_mapping;
+}
+
+// void Profiler::setInstructionTypeCounts(const AssembledProgram &program)
+// {
+//     m_instructionTypeCounts.fill(0);
+//     for (const auto &[icUnit, _] : program.intermediate_code)
+//     {
+//         const auto mnemonic = icUnit.getOpcode();
+//         if (!mnemonic.empty())
+//         {
+//             instr::InstructionType instrType = instr::getInstructionType(mnemonic);
+//             m_instructionTypeCounts[toIndex(instrType)]++;
+//         }
+//     }
+//     emit updateInstructionTypeCountsSignal(m_instructionTypeCounts);
+// }
+
+const InstructionTypeCounts &Profiler::getInstructionTypeCounts() const
+{
+    return m_instructionTypeCounts;
+}
+
+int Profiler::getLineExecutionCount(int lineNumber) const
+{
+    const auto it = m_lineNumberToExecutionCounts.find(lineNumber);
+    if (it != m_lineNumberToExecutionCounts.end())
+    {
+        return it->second;
+    }
+    return 0;
+}
+
+void Profiler::setLineNumberToInstructionTypeMapping(const AssembledProgram &program)
+{
+    m_lineNumberToinstructionType.clear();
+    qDebug() << "Setting line number to instruction type mapping for program" ;
+    for (const auto &[icUnit, _] : program.intermediate_code)
+    {
+        const auto lineNumber = icUnit.getLineNumber();
+        const auto mnemonic = icUnit.getOpcode();
+        if (!mnemonic.empty())
+        {
+            instr::InstructionType instrType = instr::getInstructionType(mnemonic);
+            m_lineNumberToinstructionType[lineNumber] = instrType;
+            m_instructionTypeCounts[toIndex(instrType)]++;
+        }
+    }
+    emit updateLineInstructionTypeSignal(m_lineNumberToinstructionType);
+}
+
+void Profiler::processorClockedSlot(const ProcessorState &processorState)
+{
+    int executedLine = m_instructionNumberToLineNumber
+    [static_cast<unsigned int>(processorState.lastExecutedPC / 4)];
+    qDebug() << "Processor clocked. Last executed PC: " << processorState.lastExecutedPC
+             << ", Instruction number: " << (processorState.lastExecutedPC / 4)
+             << ", Mapped line number: " << executedLine;
+    emit incrementLineExecutionCountSignal(executedLine);
+}
+
+// uint64_t Profiler::resolveExecutedLineFromState(const ProcessorState& processorState) const
+// {
+//     if (processorState.programCounters.empty())
+//     {
+//         return -1; // No program counters available
+//     }
+
+//     uint64_t programCounter = processorState.programCounters[0];
+//     unsigned int instructionNumber = static_cast<unsigned int>(programCounter / 4);
+
+//     const auto it = m_instructionNumberToLineNumber.find(instructionNumber);
+//     if (it != m_instructionNumberToLineNumber.end())
+//     {
+//         return static_cast<int>(it->second);
+//     }
+//     return -1; // Not found
+// }
+
+instr::InstructionType Profiler::getInstructionTypeForLine(int lineNumber) const
+{
+    const auto it = m_lineNumberToinstructionType.find(lineNumber);
+    if (it != m_lineNumberToinstructionType.end())
+    {
+        return it->second;
+    }
+    return instr::InstructionType::UNKNOWN;
+}
+}//namespace Kites
+========== profiler.h ==========
+#pragma once
+
+#include <QMap>
+#include <QObject>
+#include <QVariant>
+#include <map>
+#include <string>
+#include "common/assembled_program.h"
+#include "common/instruction_types.h"
+#include "utils/to_index.h"
+#include "processor/processor_state.h"
+
+namespace Kites
+{
+
+using InstructionTypeCounts = std::array<size_t, 
+                            toIndex(instruction_set::InstructionType::INSTRUCTION_TYPE_COUNT)>;
+                            
+class Profiler : public QObject
+{
+    Q_OBJECT
+  
+public:
+    explicit Profiler(QObject *parent = nullptr);
+
+    void Reset();
+    void setInstructionToLineMapping(const AssembledProgram &program);
+     
+    void setLineNumberToInstructionTypeMapping(const AssembledProgram &program);
+    //void setInstructionTypeCounts(const AssembledProgram &program);
+
+    const InstructionTypeCounts& getInstructionTypeCounts() const;
+
+    int getLineExecutionCount(int lineNumber)const;
+
+public slots:
+    void processorClockedSlot(const ProcessorState& processorState);
+
+public:
+    // Get instruction type for a specific line
+    // uint64_t resolveExecutedLineFromState(const ProcessorState& processorState) const;
+    instruction_set::InstructionType getInstructionTypeForLine(int lineNumber) const;
+    // Get all instruction types mapped by line number
+    const std::map<int, instruction_set::InstructionType> getLineInstructionTypes() const
+    {
+      return m_lineNumberToinstructionType;
+    }
+
+private:
+   
+    std::map<unsigned int, unsigned int> m_instructionNumberToLineNumber{};       
+    std::map<int, int>                   m_lineNumberToExecutionCounts{}; 
+    std::map<int, instruction_set::InstructionType>       m_lineNumberToinstructionType{};
+
+    InstructionTypeCounts m_instructionTypeCounts{};
+signals:
+    void profilerReset();
+    void incrementLineExecutionCountSignal(int lineNumber);
+    void updateLineInstructionTypeSignal(std::map<int, instruction_set::InstructionType> lineInstructionTypes = {});
+    void updateInstructionTypeCountsSignal();
+};
+}//namespace Kites
+========== instruction_type_count_model.cpp ==========
+#include "instruction_type_count_model.h"
+#include "utils/to_index.h"
+namespace Kites
+{ 
+namespace instr = instruction_set;
+
+InstructionTypeCountModel::InstructionTypeCountModel(
+    QObject *parent, 
+    const std::array<size_t, toIndex(instr::InstructionType::INSTRUCTION_TYPE_COUNT)> 
+    &instruction_type_counts)
+    : QAbstractTableModel(parent), m_instructionTypeCounts(instruction_type_counts)
+{}
+
+int InstructionTypeCountModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return 2; // One column for the count
+}
+
+int InstructionTypeCountModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return static_cast<int>(instr::InstructionType::INSTRUCTION_TYPE_COUNT);
+}
+
+QVariant InstructionTypeCountModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != Qt::DisplayRole)
+    {
+        return QVariant();
+    }
+
+    if (orientation == Qt::Horizontal)
+    {
+        if (section == 0)
+        {
+            return QString("Instruction Type");
+        }
+        else if (section == 1)
+        {
+            return QString("Count");
+        }
+    }
+    return QVariant();
+}
+
+
+QVariant InstructionTypeCountModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || role != Qt::DisplayRole)
+    {
+        return QVariant();
+    }
+    Column column = static_cast<Column>(index.column());
+    if (column == Column::InstructionType)
+    {
+        std::string typeName = instr::instructionTypeNames[static_cast<size_t>(index.row())];
+        return QString::fromStdString(typeName);
+        
+    }
+    else if (column == Column::InstructionCount)
+    {
+        // Return the count
+        size_t count = m_instructionTypeCounts[static_cast<size_t>(index.row())];
+        return QString::number(count);
+    }
+
+    return QVariant();
+}
+
+void InstructionTypeCountModel::updateInstructionTypeCountsSlot()
+{
+    beginResetModel();
+    endResetModel();
+}
+} // namespace kites
+========== profiler tab ==========
+#include "profilertab.h"
+#include "ui_profilertab.h"
+#include "profiler/profiler.h"
+#include "common/instruction_types.h"
+#include "instruction_type_count_model.h"
+#include <QLineEdit>
+
+namespace Kites
+{
+ProfilerTab::ProfilerTab(QWidget *parent, const Profiler *profiler)
+    : KitesTab(parent), ui(new Ui::ProfilerTab), m_profiler(profiler)
+{
+    ui->setupUi(this);
+    ui->splitter->setStretchFactor(0, 1);
+    
+    ui->instructionTypeCountTableView->horizontalHeader()->
+    setSectionResizeMode(QHeaderView::Stretch);
+    ui->instructionTypeCountTableView->verticalHeader()->setVisible(false);
+    if (m_profiler)
+    {   
+        InstructionTypeCountModel *model = new InstructionTypeCountModel(this, 
+        m_profiler->getInstructionTypeCounts());
+        ui->instructionTypeCountTableView->setModel(model);
+        // connect(m_profiler, &Profiler::lineExecutionCountsUpdated, this,
+        //         &ProfilerTab::updateLineExecutionCounts);
+        connect(m_profiler, &Profiler::profilerReset, this,
+                &ProfilerTab::resetProfilerView);
+        connect(m_profiler, &Profiler::incrementLineExecutionCountSignal, ui->plainTextEdit,
+                &ProfilerEditor::incrementLineExecutionCountSlot);
+        connect(m_profiler, &Profiler::updateLineInstructionTypeSignal, ui->plainTextEdit,
+                &ProfilerEditor::updateLineInstructionTypeSlot);
+        connect(m_profiler, &Profiler::updateInstructionTypeCountsSignal, model,
+                &InstructionTypeCountModel::updateInstructionTypeCountsSlot);
+    }
+}
+
+ProfilerTab::~ProfilerTab()
+{
+    delete ui;
+}
+
+void ProfilerTab::setSourceText(const QString &sourceText)
+{
+    ui->plainTextEdit->setPlainText(sourceText);
+    ui->plainTextEdit->clearExecutionCount();
+}
+
+void ProfilerTab::updateLineExecutionCount(const std::map<int, int> &lineExecutionCounts)
+{
+    ui->plainTextEdit->setExecutionCount(lineExecutionCounts);
+}
+
+void ProfilerTab::updateLineInstructionType(const std::map<int, std::string> &lineInstructionTypes)
+{
+    ui->plainTextEdit->setInstructionTypes(lineInstructionTypes);
+}
+
+void ProfilerTab::updateStatistics(const std::map<std::string, int> &statistics)
+{
+    
+}
+
+void ProfilerTab::resetProfilerView()
+{
+
+}
+} // namespace Kites

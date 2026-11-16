@@ -1,0 +1,48 @@
+FFT Scalar vs Vector vs Hybrid comparison
+=================================================================
+
+WEIGHTED COST SUMMARY
+-----------------------------------------------------------------
+Implementation              Instructions       Weighted Cost
+-----------------------------------------------------------------
+Scalar                           211,798             523,048
+Vector                           273,308             522,126
+Hybrid                           199,576             479,114
+
+IMPROVEMENT RELATIVE TO SCALAR
+---------------------------------------------
+Vector: 0.176%
+Hybrid: 8.400%
+
+PER-MNEMONIC DYNAMIC INSTRUCTION COUNTS
+---------------------------------------------------------------------------
+Mnemonic                      Scalar            Vector            Hybrid
+---------------------------------------------------------------------------
+add                           27,615            27,615            27,615
+addi                           8,216             8,220             8,217
+and                            2,036             2,036             2,036
+auipc                              3                 7                 4
+beq                            2,036             2,036             2,036
+bge                            9,223             9,223             9,223
+blt                               11                11                11
+ebreak                             1                 1                 1
+fadd.s                        20,480            10,240            10,240
+flw                           24,530            43,026            12,306
+fmul.s                        40,960                 0            40,960
+fsgnj.s                       10,240            10,240            10,240
+fsub.s                        20,480            10,240            10,240
+fsw                           22,464            22,526            10,240
+jal                            8,189             8,189             8,189
+slli                          11,242            11,242            11,242
+srli                           2,036             2,036             2,036
+vadd                               0             5,120             5,120
+vld                                0            31,712            11,232
+vmul                               0            20,480                 0
+vsd                                0            31,712            11,232
+vsub                               0             5,120             5,120
+vswap                              0            10,240                 0
+xor                            2,036             2,036             2,036
+
+Formula: Weighted Cost = sum(Count x Assumed Latency)
+This is an estimate, not measured CPU cycles.
+It does not account for pipelining, overlap, or stalls.

@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <map>
 #include <string>
+#include <cstdint>
 #include "common/assembled_program.h"
 #include "common/instruction_types.h"
 #include "utils/to_index.h"
@@ -25,12 +26,16 @@ public:
 
     void Reset();
     void setInstructionToLineMapping(const AssembledProgram &program);
-     
+    void setInstructionToMnemonicMapping(const AssembledProgram &program);
+
     void setLineNumberToInstructionTypeMapping(const AssembledProgram &program);
     //void setInstructionTypeCounts(const AssembledProgram &program);
 
     const InstructionTypeCounts& getInstructionTypeCounts() const;
-
+    const std::map<std::string, uint64_t>&
+    getMnemonicExecutionCounts() const;
+    void exportMnemonicCountsToCSV(const std::string &filename) const;
+    
     int getLineExecutionCount(int lineNumber)const;
 
 public slots:
@@ -51,6 +56,11 @@ private:
     std::map<unsigned int, unsigned int> m_instructionNumberToLineNumber{};       
     std::map<int, int>                   m_lineNumberToExecutionCounts{}; 
     std::map<int, instruction_set::InstructionType>       m_lineNumberToinstructionType{};
+    // New: instruction number -> mnemonic
+    std::map<unsigned int, std::string> m_instructionNumberToMnemonic{};
+
+    // New: mnemonic -> dynamic execution count
+    std::map<std::string, uint64_t> m_mnemonicExecutionCounts{};
 
     InstructionTypeCounts m_instructionTypeCounts{};
 signals:

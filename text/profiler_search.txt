@@ -1,0 +1,211 @@
+src/profiler/profiler.cpp:1:#include "profiler/profiler.h"
+src/profiler/profiler.cpp:9:Profiler::Profiler(QObject *parent) : QObject(parent)
+src/profiler/profiler.cpp:13:void Profiler::Reset()
+src/profiler/profiler.cpp:15:    m_lineNumberToExecutionCounts.clear();
+src/profiler/profiler.cpp:16:    m_instructionTypeCounts.fill(0);
+src/profiler/profiler.cpp:17:    emit profilerReset();
+src/profiler/profiler.cpp:20:void Profiler::setInstructionToLineMapping(const AssembledProgram &program)
+src/profiler/profiler.cpp:25:// void Profiler::setInstructionTypeCounts(const AssembledProgram &program)
+src/profiler/profiler.cpp:27://     m_instructionTypeCounts.fill(0);
+src/profiler/profiler.cpp:33://             instr::InstructionType instrType = instr::getInstructionType(mnemonic);
+src/profiler/profiler.cpp:34://             m_instructionTypeCounts[toIndex(instrType)]++;
+src/profiler/profiler.cpp:37://     emit updateInstructionTypeCountsSignal(m_instructionTypeCounts);
+src/profiler/profiler.cpp:40:const InstructionTypeCounts &Profiler::getInstructionTypeCounts() const
+src/profiler/profiler.cpp:42:    return m_instructionTypeCounts;
+src/profiler/profiler.cpp:45:int Profiler::getLineExecutionCount(int lineNumber) const
+src/profiler/profiler.cpp:47:    const auto it = m_lineNumberToExecutionCounts.find(lineNumber);
+src/profiler/profiler.cpp:48:    if (it != m_lineNumberToExecutionCounts.end())
+src/profiler/profiler.cpp:55:void Profiler::setLineNumberToInstructionTypeMapping(const AssembledProgram &program)
+src/profiler/profiler.cpp:57:    m_lineNumberToinstructionType.clear();
+src/profiler/profiler.cpp:65:            instr::InstructionType instrType = instr::getInstructionType(mnemonic);
+src/profiler/profiler.cpp:66:            m_lineNumberToinstructionType[lineNumber] = instrType;
+src/profiler/profiler.cpp:67:            m_instructionTypeCounts[toIndex(instrType)]++;
+src/profiler/profiler.cpp:70:    emit updateLineInstructionTypeSignal(m_lineNumberToinstructionType);
+src/profiler/profiler.cpp:73:void Profiler::processorClockedSlot(const ProcessorState &processorState)
+src/profiler/profiler.cpp:80:    emit incrementLineExecutionCountSignal(executedLine);
+src/profiler/profiler.cpp:83:// uint64_t Profiler::resolveExecutedLineFromState(const ProcessorState& processorState) const
+src/profiler/profiler.cpp:85://     if (processorState.programCounters.empty())
+src/profiler/profiler.cpp:87://         return -1; // No program counters available
+src/profiler/profiler.cpp:90://     uint64_t programCounter = processorState.programCounters[0];
+src/profiler/profiler.cpp:91://     unsigned int instructionNumber = static_cast<unsigned int>(programCounter / 4);
+src/profiler/profiler.cpp:101:instr::InstructionType Profiler::getInstructionTypeForLine(int lineNumber) const
+src/profiler/profiler.cpp:103:    const auto it = m_lineNumberToinstructionType.find(lineNumber);
+src/profiler/profiler.cpp:104:    if (it != m_lineNumberToinstructionType.end())
+src/profiler/profiler.cpp:108:    return instr::InstructionType::UNKNOWN;
+src/profiler/profiler.h:9:#include "common/instruction_types.h"
+src/profiler/profiler.h:16:using InstructionTypeCounts = std::array<size_t, 
+src/profiler/profiler.h:17:                            toIndex(instruction_set::InstructionType::INSTRUCTION_TYPE_COUNT)>;
+src/profiler/profiler.h:19:class Profiler : public QObject
+src/profiler/profiler.h:24:    explicit Profiler(QObject *parent = nullptr);
+src/profiler/profiler.h:29:    void setLineNumberToInstructionTypeMapping(const AssembledProgram &program);
+src/profiler/profiler.h:30:    //void setInstructionTypeCounts(const AssembledProgram &program);
+src/profiler/profiler.h:32:    const InstructionTypeCounts& getInstructionTypeCounts() const;
+src/profiler/profiler.h:34:    int getLineExecutionCount(int lineNumber)const;
+src/profiler/profiler.h:42:    instruction_set::InstructionType getInstructionTypeForLine(int lineNumber) const;
+src/profiler/profiler.h:44:    const std::map<int, instruction_set::InstructionType> getLineInstructionTypes() const
+src/profiler/profiler.h:46:      return m_lineNumberToinstructionType;
+src/profiler/profiler.h:52:    std::map<int, int>                   m_lineNumberToExecutionCounts{}; 
+src/profiler/profiler.h:53:    std::map<int, instruction_set::InstructionType>       m_lineNumberToinstructionType{};
+src/profiler/profiler.h:55:    InstructionTypeCounts m_instructionTypeCounts{};
+src/profiler/profiler.h:57:    void profilerReset();
+src/profiler/profiler.h:58:    void incrementLineExecutionCountSignal(int lineNumber);
+src/profiler/profiler.h:59:    void updateLineInstructionTypeSignal(std::map<int, instruction_set::InstructionType> lineInstructionTypes = {});
+src/profiler/profiler.h:60:    void updateInstructionTypeCountsSignal();
+src/ui/profiler_tab/execution_count_gutter_column.h:4:#include "profiler_editor.h"
+src/ui/profiler_tab/execution_count_gutter_column.h:9:class ExecutionCountGutterColumn : public GutterColumn
+src/ui/profiler_tab/execution_count_gutter_column.h:12:    ExecutionCountGutterColumn(ProfilerEditor *editor) : GutterColumn(editor), m_profilerEditor(editor)
+src/ui/profiler_tab/execution_count_gutter_column.h:17:        int digits = QString::number(m_profilerEditor->m_maxExecutionCount).length();
+src/ui/profiler_tab/execution_count_gutter_column.h:39:                hits = m_profilerEditor->m_lineNumberToExecutionCounts.count(lineNumber) > 0 ? 
+src/ui/profiler_tab/execution_count_gutter_column.h:40:                m_profilerEditor->m_lineNumberToExecutionCounts[lineNumber] : 0;
+src/ui/profiler_tab/execution_count_gutter_column.h:57:    ProfilerEditor *m_profilerEditor;
+src/ui/profiler_tab/profilertab.h:1:#ifndef PROFILERTAB_H
+src/ui/profiler_tab/profilertab.h:2:#define PROFILERTAB_H
+src/ui/profiler_tab/profilertab.h:15:class Profiler; // Forward declaration to avoid including profiler header
+src/ui/profiler_tab/profilertab.h:19:class ProfilerTab;
+src/ui/profiler_tab/profilertab.h:22:class ProfilerTab : public KitesTab
+src/ui/profiler_tab/profilertab.h:27:    explicit ProfilerTab(QWidget *parent = nullptr, const Profiler *profiler = nullptr);
+src/ui/profiler_tab/profilertab.h:28:    ~ProfilerTab();
+src/ui/profiler_tab/profilertab.h:32:    void updateLineExecutionCount(const std::map<int, int> &lineExecutionCounts);
+src/ui/profiler_tab/profilertab.h:33:    void updateLineInstructionType(const std::map<int, std::string> &lineInstructionTypes);
+src/ui/profiler_tab/profilertab.h:35:    void resetProfilerView();
+src/ui/profiler_tab/profilertab.h:38:    Ui::ProfilerTab *ui;
+src/ui/profiler_tab/profilertab.h:39:    const Profiler *m_profiler = nullptr;
+src/ui/profiler_tab/profilertab.h:42:#endif // PROFILERTAB_H
+src/ui/profiler_tab/profilertab.ui:3: <class>Kites::ProfilerTab</class>
+src/ui/profiler_tab/profilertab.ui:4: <widget class="QWidget" name="Kites::ProfilerTab">
+src/ui/profiler_tab/profilertab.ui:22:     <widget class="ProfilerEditor" name="plainTextEdit"/>
+src/ui/profiler_tab/profilertab.ui:26:        <widget class="QTableView" name="instructionTypeCountTableView"/>
+src/ui/profiler_tab/profilertab.ui:36:   <class>ProfilerEditor</class>
+src/ui/profiler_tab/profilertab.ui:38:   <header>ui/profiler_tab/profiler_editor.h</header>
+src/ui/profiler_tab/instruction_type_count_model.cpp:1:#include "instruction_type_count_model.h"
+src/ui/profiler_tab/instruction_type_count_model.cpp:7:InstructionTypeCountModel::InstructionTypeCountModel(
+src/ui/profiler_tab/instruction_type_count_model.cpp:9:    const std::array<size_t, toIndex(instr::InstructionType::INSTRUCTION_TYPE_COUNT)> 
+src/ui/profiler_tab/instruction_type_count_model.cpp:10:    &instruction_type_counts)
+src/ui/profiler_tab/instruction_type_count_model.cpp:11:    : QAbstractTableModel(parent), m_instructionTypeCounts(instruction_type_counts)
+src/ui/profiler_tab/instruction_type_count_model.cpp:14:int InstructionTypeCountModel::columnCount(const QModelIndex &parent) const
+src/ui/profiler_tab/instruction_type_count_model.cpp:17:    return 2; // One column for the count
+src/ui/profiler_tab/instruction_type_count_model.cpp:20:int InstructionTypeCountModel::rowCount(const QModelIndex &parent) const
+src/ui/profiler_tab/instruction_type_count_model.cpp:23:    return static_cast<int>(instr::InstructionType::INSTRUCTION_TYPE_COUNT);
+src/ui/profiler_tab/instruction_type_count_model.cpp:26:QVariant InstructionTypeCountModel::headerData(int section, Qt::Orientation orientation, int role) const
+src/ui/profiler_tab/instruction_type_count_model.cpp:41:            return QString("Count");
+src/ui/profiler_tab/instruction_type_count_model.cpp:48:QVariant InstructionTypeCountModel::data(const QModelIndex &index, int role) const
+src/ui/profiler_tab/instruction_type_count_model.cpp:55:    if (column == Column::InstructionType)
+src/ui/profiler_tab/instruction_type_count_model.cpp:57:        std::string typeName = instr::instructionTypeNames[static_cast<size_t>(index.row())];
+src/ui/profiler_tab/instruction_type_count_model.cpp:61:    else if (column == Column::InstructionCount)
+src/ui/profiler_tab/instruction_type_count_model.cpp:63:        // Return the count
+src/ui/profiler_tab/instruction_type_count_model.cpp:64:        size_t count = m_instructionTypeCounts[static_cast<size_t>(index.row())];
+src/ui/profiler_tab/instruction_type_count_model.cpp:65:        return QString::number(count);
+src/ui/profiler_tab/instruction_type_count_model.cpp:71:void InstructionTypeCountModel::updateInstructionTypeCountsSlot()
+src/ui/profiler_tab/profilertab.cpp:1:#include "profilertab.h"
+src/ui/profiler_tab/profilertab.cpp:2:#include "ui_profilertab.h"
+src/ui/profiler_tab/profilertab.cpp:3:#include "profiler/profiler.h"
+src/ui/profiler_tab/profilertab.cpp:4:#include "common/instruction_types.h"
+src/ui/profiler_tab/profilertab.cpp:5:#include "instruction_type_count_model.h"
+src/ui/profiler_tab/profilertab.cpp:10:ProfilerTab::ProfilerTab(QWidget *parent, const Profiler *profiler)
+src/ui/profiler_tab/profilertab.cpp:11:    : KitesTab(parent), ui(new Ui::ProfilerTab), m_profiler(profiler)
+src/ui/profiler_tab/profilertab.cpp:16:    ui->instructionTypeCountTableView->horizontalHeader()->
+src/ui/profiler_tab/profilertab.cpp:18:    ui->instructionTypeCountTableView->verticalHeader()->setVisible(false);
+src/ui/profiler_tab/profilertab.cpp:19:    if (m_profiler)
+src/ui/profiler_tab/profilertab.cpp:21:        InstructionTypeCountModel *model = new InstructionTypeCountModel(this, 
+src/ui/profiler_tab/profilertab.cpp:22:        m_profiler->getInstructionTypeCounts());
+src/ui/profiler_tab/profilertab.cpp:23:        ui->instructionTypeCountTableView->setModel(model);
+src/ui/profiler_tab/profilertab.cpp:24:        // connect(m_profiler, &Profiler::lineExecutionCountsUpdated, this,
+src/ui/profiler_tab/profilertab.cpp:25:        //         &ProfilerTab::updateLineExecutionCounts);
+src/ui/profiler_tab/profilertab.cpp:26:        connect(m_profiler, &Profiler::profilerReset, this,
+src/ui/profiler_tab/profilertab.cpp:27:                &ProfilerTab::resetProfilerView);
+src/ui/profiler_tab/profilertab.cpp:28:        connect(m_profiler, &Profiler::incrementLineExecutionCountSignal, ui->plainTextEdit,
+src/ui/profiler_tab/profilertab.cpp:29:                &ProfilerEditor::incrementLineExecutionCountSlot);
+src/ui/profiler_tab/profilertab.cpp:30:        connect(m_profiler, &Profiler::updateLineInstructionTypeSignal, ui->plainTextEdit,
+src/ui/profiler_tab/profilertab.cpp:31:                &ProfilerEditor::updateLineInstructionTypeSlot);
+src/ui/profiler_tab/profilertab.cpp:32:        connect(m_profiler, &Profiler::updateInstructionTypeCountsSignal, model,
+src/ui/profiler_tab/profilertab.cpp:33:                &InstructionTypeCountModel::updateInstructionTypeCountsSlot);
+src/ui/profiler_tab/profilertab.cpp:37:ProfilerTab::~ProfilerTab()
+src/ui/profiler_tab/profilertab.cpp:42:void ProfilerTab::setSourceText(const QString &sourceText)
+src/ui/profiler_tab/profilertab.cpp:45:    ui->plainTextEdit->clearExecutionCount();
+src/ui/profiler_tab/profilertab.cpp:48:void ProfilerTab::updateLineExecutionCount(const std::map<int, int> &lineExecutionCounts)
+src/ui/profiler_tab/profilertab.cpp:50:    ui->plainTextEdit->setExecutionCount(lineExecutionCounts);
+src/ui/profiler_tab/profilertab.cpp:53:void ProfilerTab::updateLineInstructionType(const std::map<int, std::string> &lineInstructionTypes)
+src/ui/profiler_tab/profilertab.cpp:55:    ui->plainTextEdit->setInstructionTypes(lineInstructionTypes);
+src/ui/profiler_tab/profilertab.cpp:58:void ProfilerTab::updateStatistics(const std::map<std::string, int> &statistics)
+src/ui/profiler_tab/profilertab.cpp:63:void ProfilerTab::resetProfilerView()
+src/ui/profiler_tab/profiler_editor.cpp:1:#include "profiler_editor.h"
+src/ui/profiler_tab/profiler_editor.cpp:10:#include "instruction_type_gutter_column.h"
+src/ui/profiler_tab/profiler_editor.cpp:11:#include "execution_count_gutter_column.h"
+src/ui/profiler_tab/profiler_editor.cpp:15:ProfilerEditor::ProfilerEditor(QWidget *parent, Profiler* profiler) : KitesEditor(parent)
+src/ui/profiler_tab/profiler_editor.cpp:16:// m_lineStatsModel(new LineStatsModel(this, profiler))
+src/ui/profiler_tab/profiler_editor.cpp:23:    addRightGutterColumn(new ExecutionCountGutterColumn(this));
+src/ui/profiler_tab/profiler_editor.cpp:24:    addRightGutterColumn(new InstructionTypeGutterColumn(this));
+src/ui/profiler_tab/profiler_editor.cpp:28:void ProfilerEditor::setExecutionCount(const std::map<int, int> &hitCounts)
+src/ui/profiler_tab/profiler_editor.cpp:30:    m_lineNumberToExecutionCounts = hitCounts;
+src/ui/profiler_tab/profiler_editor.cpp:31:    m_maxExecutionCount = 0;
+src/ui/profiler_tab/profiler_editor.cpp:32:    for (const auto &pair : m_lineNumberToExecutionCounts)
+src/ui/profiler_tab/profiler_editor.cpp:34:        m_maxExecutionCount = std::max(m_maxExecutionCount, pair.second);
+src/ui/profiler_tab/profiler_editor.cpp:38:    for (const auto &pair : m_lineNumberToExecutionCounts)
+src/ui/profiler_tab/profiler_editor.cpp:64:void ProfilerEditor::setInstructionTypes(const std::map<int, std::string> &instructionTypes)
+src/ui/profiler_tab/profiler_editor.cpp:66:    m_lineNumberToInstructionType = instructionTypes;
+src/ui/profiler_tab/profiler_editor.cpp:69:void ProfilerEditor::clearExecutionCount()
+src/ui/profiler_tab/profiler_editor.cpp:71:    m_lineNumberToExecutionCounts.clear();
+src/ui/profiler_tab/profiler_editor.cpp:72:    m_maxExecutionCount = 0;
+src/ui/profiler_tab/profiler_editor.cpp:77:QColor ProfilerEditor::heatColor(int hitCount) const
+src/ui/profiler_tab/profiler_editor.cpp:79:    if (m_maxExecutionCount == 0 || hitCount == 0)
+src/ui/profiler_tab/profiler_editor.cpp:82:    double t = (double)hitCount / m_maxExecutionCount;
+src/ui/profiler_tab/profiler_editor.cpp:92:QColor ProfilerEditor::heatBackgroundColor(int hitCount) const
+src/ui/profiler_tab/profiler_editor.cpp:94:    if (m_maxExecutionCount == 0 || hitCount == 0)
+src/ui/profiler_tab/profiler_editor.cpp:97:    if (m_maxExecutionCount == 0 || hitCount == 0)
+src/ui/profiler_tab/profiler_editor.cpp:99:    double t = (double)hitCount / m_maxExecutionCount;
+src/ui/profiler_tab/profiler_editor.cpp:104:void ProfilerEditor::incrementLineExecutionCountSlot(int lineNumber)
+src/ui/profiler_tab/profiler_editor.cpp:106:    qDebug() << "Incrementing execution count for line: " << lineNumber;
+src/ui/profiler_tab/profiler_editor.cpp:107:    m_lineNumberToExecutionCounts[lineNumber]++;
+src/ui/profiler_tab/profiler_editor.cpp:109:    for (const auto &pair : m_lineNumberToExecutionCounts)
+src/ui/profiler_tab/profiler_editor.cpp:111:        m_maxExecutionCount = std::max(m_maxExecutionCount, pair.second);
+src/ui/profiler_tab/profiler_editor.cpp:115:    for (const auto &pair : m_lineNumberToExecutionCounts)
+src/ui/profiler_tab/profiler_editor.cpp:141:void ProfilerEditor::updateLineInstructionTypeSlot
+src/ui/profiler_tab/profiler_editor.cpp:142:(const std::map<int, instruction_set::InstructionType> &instructionTypes)
+src/ui/profiler_tab/profiler_editor.cpp:144:    m_lineNumberToInstructionType.clear();
+src/ui/profiler_tab/profiler_editor.cpp:145:    for (const auto &pair : instructionTypes)
+src/ui/profiler_tab/profiler_editor.cpp:148:        instruction_set::InstructionType instrType = pair.second;
+src/ui/profiler_tab/profiler_editor.cpp:149:        m_lineNumberToInstructionType[lineNumber] = 
+src/ui/profiler_tab/profiler_editor.cpp:150:        instruction_set::instructionTypeNames[toIndex(instrType)];
+src/ui/profiler_tab/profiler_editor.h:4:#include "profiler/profiler.h"
+src/ui/profiler_tab/profiler_editor.h:5:#include "common/instruction_types.h"
+src/ui/profiler_tab/profiler_editor.h:14:class ExecutionCountGutterColumn; 
+src/ui/profiler_tab/profiler_editor.h:15:class InstructionTypeGutterColumn; // forward declaration
+src/ui/profiler_tab/profiler_editor.h:16:class ProfilerEditor : public KitesEditor
+src/ui/profiler_tab/profiler_editor.h:19:    friend class ExecutionCountGutterColumn;
+src/ui/profiler_tab/profiler_editor.h:20:    friend class InstructionTypeGutterColumn;
+src/ui/profiler_tab/profiler_editor.h:22:    explicit ProfilerEditor(QWidget *parent = nullptr, Profiler* profiler = nullptr);
+src/ui/profiler_tab/profiler_editor.h:23:    ~ProfilerEditor() {};
+src/ui/profiler_tab/profiler_editor.h:25:    // called everytime profiler data is updated
+src/ui/profiler_tab/profiler_editor.h:26:    void setExecutionCount(const std::map<int, int> &hitCounts); // line number to hit count mapping
+src/ui/profiler_tab/profiler_editor.h:27:    void setInstructionTypes(const std::map<int, std::string>
+src/ui/profiler_tab/profiler_editor.h:28:                                 &instructionTypes); // line number to instruction type mapping
+src/ui/profiler_tab/profiler_editor.h:29:    void clearExecutionCount();
+src/ui/profiler_tab/profiler_editor.h:32:        void incrementLineExecutionCountSlot(int lineNumber);
+src/ui/profiler_tab/profiler_editor.h:33:        void updateLineInstructionTypeSlot(const std::map<int, 
+src/ui/profiler_tab/profiler_editor.h:34:            instruction_set::InstructionType> &instructionTypes);
+src/ui/profiler_tab/profiler_editor.h:35:    // int countAreaWidth() const;
+src/ui/profiler_tab/profiler_editor.h:38:    // void paintCountArea(QPaintEvent *event);
+src/ui/profiler_tab/profiler_editor.h:44:    std::map<int, int> m_lineNumberToExecutionCounts;
+src/ui/profiler_tab/profiler_editor.h:45:    std::map<int, std::string> m_lineNumberToInstructionType;
+src/ui/profiler_tab/profiler_editor.h:46:    int m_maxExecutionCount = 0; // to determine the color intensity for heatmap
+src/ui/profiler_tab/profiler_editor.h:48:    QColor heatColor(int hitCount) const; // Helper function to determine color based on hit count
+src/ui/profiler_tab/profiler_editor.h:50:        int hitCount) const; // Helper function to determine background color based on hit count
+src/ui/profiler_tab/instruction_type_gutter_column.h:3:#include "profiler_editor.h"
+src/ui/profiler_tab/instruction_type_gutter_column.h:7:class InstructionTypeGutterColumn : public GutterColumn
+src/ui/profiler_tab/instruction_type_gutter_column.h:10:    InstructionTypeGutterColumn(ProfilerEditor *editor) : GutterColumn(editor), m_profilerEditor(editor)
+src/ui/profiler_tab/instruction_type_gutter_column.h:37:                if (m_profilerEditor->m_lineNumberToInstructionType.count(lineNumber) > 0)
+src/ui/profiler_tab/instruction_type_gutter_column.h:39:                    const std::string &instrType = m_profilerEditor->m_lineNumberToInstructionType.at(lineNumber);
+src/ui/profiler_tab/instruction_type_gutter_column.h:55:    ProfilerEditor *m_profilerEditor;
+src/ui/profiler_tab/instruction_type_count_model.h:4:#include "common/instruction_types.h"
+src/ui/profiler_tab/instruction_type_count_model.h:10:class InstructionTypeCountModel : public QAbstractTableModel
+src/ui/profiler_tab/instruction_type_count_model.h:12:    using InstructionTypeCounts = std::array<size_t, 
+src/ui/profiler_tab/instruction_type_count_model.h:13:    toIndex(instruction_set::InstructionType::INSTRUCTION_TYPE_COUNT)>;
+src/ui/profiler_tab/instruction_type_count_model.h:15:    InstructionTypeCountModel(QObject *parent = nullptr,
+src/ui/profiler_tab/instruction_type_count_model.h:16:        const InstructionTypeCounts &instruction_type_counts = {});
+src/ui/profiler_tab/instruction_type_count_model.h:20:    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+src/ui/profiler_tab/instruction_type_count_model.h:21:    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+src/ui/profiler_tab/instruction_type_count_model.h:24:    void updateInstructionTypeCountsSlot();
+src/ui/profiler_tab/instruction_type_count_model.h:30:        InstructionType = 0,
+src/ui/profiler_tab/instruction_type_count_model.h:31:        InstructionCount = 1
+src/ui/profiler_tab/instruction_type_count_model.h:33:    // using const here because the model should not modify the counts, 
+src/ui/profiler_tab/instruction_type_count_model.h:35:    const InstructionTypeCounts &m_instructionTypeCounts;
