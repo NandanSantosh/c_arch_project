@@ -30,13 +30,21 @@ inline constexpr std::array<const char *, 32> kFprAliases = {
     "fa2", "fa3", "fa4", "fa5", "fa6", "fa7", "fs2", "fs3", "fs4", "fs5", "fs6", "fs7",
     "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
 
-// v0-v7 canonical names.
-inline constexpr std::array<const char *, 8> kVprNames = {
-    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7"
+// v0-v31 canonical names.
+inline constexpr std::array<const char *, 32> kVprNames = {
+    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7",
+    "v8",  "v9",  "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+    "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+    "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
+
 };
 
-inline constexpr std::array<const char *, 8> kVprAliases = {
-    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7"
+inline constexpr std::array<const char *, 32> kVprAliases = {
+    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7",
+    "v8",  "v9",  "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+    "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+    "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31"
+
 };
 
 } // namespace register_names

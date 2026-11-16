@@ -84,7 +84,7 @@ void RegisterContainer::setupRegisterTable()
     const std::array<SectionSpec, 3> sections = {
         SectionSpec{"General Purpose", 0, 32},
         SectionSpec{"Floating Point", 32, 64},
-        SectionSpec{"Vector ", 64, 72},
+        SectionSpec{"Vector ", 64, 96},
     };
 
     for (const SectionSpec &spec : sections)

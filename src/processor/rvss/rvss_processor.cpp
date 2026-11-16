@@ -1112,7 +1112,7 @@ void RVSSProcessor::WriteBackVector()
         return;
     }
 
-    if (rd >= 8)
+    if (rd >= 32)
     {
         throw std::out_of_range("Invalid vector destination register");
     }

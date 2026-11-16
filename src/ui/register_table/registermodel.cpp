@@ -87,7 +87,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
                 return QString("x%1").arg(row);
             if (row < 64)
                 return QString("f%1").arg(row - 32);
-            if (row < 72)
+            if (row < 96)
                 return QString("v%1").arg(row - 64);
             return QString{};
         case 1: // Register Alias
@@ -96,7 +96,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
                 return QString(register_names::kGprAliases[row]);
             if (row < 64)
                 return QString(register_names::kFprAliases[row - 32]);
-            if (row < 72)
+            if (row < 96)
                 return QString(register_names::kVprAliases[row - 64]);
             return QString{};
         }
@@ -155,7 +155,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
                 }
                 }
             }
-            else if (row < 72)
+            else if (row < 96)
                 {
                     const uint64_t value =
                         m_currentRegisterFile->ReadVpr(row - 64);

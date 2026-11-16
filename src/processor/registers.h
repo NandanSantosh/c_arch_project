@@ -28,7 +28,7 @@ class RegisterFile : public QObject
     static constexpr size_t NUM_GPR = 32; ///< Number of General-Purpose Registers (GPR).
     static constexpr size_t NUM_FPR = 32; ///< Number of Floating-Point Registers (FPR).
 
-    static constexpr size_t NUM_VPR = 8; ///< Number of Vector-Point Registers (FPR).
+    static constexpr size_t NUM_VPR = 32; ///< Number of Vector-Point Registers (FPR).
 
     std::array<uint64_t, NUM_GPR> gpr_ = {}; ///< Array for storing GPR values.
     std::array<uint64_t, NUM_FPR> fpr_ = {}; ///< Array for storing FPR values.
