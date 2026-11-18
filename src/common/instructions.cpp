@@ -783,12 +783,16 @@ std::unordered_map<std::string, FDSTypeInstructionEncoding> F_D_S_type_instructi
 std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_encoding_map = {
     {"vadd", {0b0101011, 0b001, 0b0000000}},  // O_VPR_C_VPR_C_VPR
     {"vsub", {0b0101011, 0b001, 0b0000001}},  // O_VPR_C_VPR_C_VPR
+    {"vadd.h", {0b0101011, 0b001, 0b1000000}},  // O_VPR_C_VPR_C_VPR
+    {"vsub.h", {0b0101011, 0b001, 0b1000001}},  // O_VPR_C_VPR_C_VPR
     {"vswap", {0b0101011, 0b010, 0b0000010}}, // O_VPR_C_VPR
 };
 
 std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_encoding_map = {
     {"vmul", {0b1011011, 0b001, 0b0000010}},  // O_VPR_C_VPR_C_VPR
     {"vcmpl", {0b1011011, 0b010, 0b0000010}},  // O_VPR_C_VPR_C_VPR
+    {"vmul.h", {0b1011011, 0b001, 0b1000010}},  // O_VPR_C_VPR_C_VPR
+    {"vcmpl.h", {0b1011011, 0b010, 0b1000010}},  // O_VPR_C_VPR_C_VPR
 };
 
 std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_encoding_map = {
