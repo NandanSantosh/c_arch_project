@@ -1053,6 +1053,7 @@ namespace alu
     return {result_bits, fcsr};
 }
 
+
 [[nodiscard]] std::uint64_t Alu::executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
                                                     std::uint64_t b, std::size_t activeLanes , std::uint8_t mask)
 {

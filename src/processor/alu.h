@@ -145,6 +145,8 @@ enum class AluOp
     VMUL,    ///< Vector Multiplication operation.
     VSWAP,  ///< Vector Swap operation.
     VCMPL,
+    VADD_H,
+    VSUB_H,
     // VDIV,    ///< Vector Division operation.
     // VREM,    ///< Vector Remainder operation.
     // VSD     ///< Vector Store Double operation.
@@ -366,9 +368,12 @@ inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
     case AluOp::VCMPL:
         os << "VCMPL";
         break;
-    // case AluOp::VREM:
-    //     os << "VREM";
-    //     break;
+    case AluOp::VADD_H:
+        os << "VADD_H";
+        break;
+    case AluOp::VSUB_H:
+        os << "VSUB_H";
+        break;
 
     default:
         os << "UNKNOWN";

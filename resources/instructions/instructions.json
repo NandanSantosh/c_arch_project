@@ -189,7 +189,9 @@
     "RVInstruction":[
         "vadd",
         "vsub",
-        "vswap"
+        "vswap",
+        "vadd.h",
+        "vsub.h"
     ],
     "MVInstruction":[
         "vmul","vcmpl"

@@ -195,6 +195,9 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kvsub, {0b0101011, -1, 0b001, -1, -1, 0b0000001}},
     {Instruction::kvswap, {0b0101011, -1, 0b010, -1, -1, 0b0000010}},
 
+    {Instruction::kvadd_h, {0b0101011, -1, 0b001, -1, -1, 0b1000000}},
+    {Instruction::kvsub_h, {0b0101011, -1, 0b001, -1, -1, 0b1000001}},
+
     {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
     {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
     {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
@@ -365,7 +368,8 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"vadd", Instruction::kvadd},
     {"vsub", Instruction::kvsub},
     {"vswap", Instruction::kvswap},
-
+    {"vadd.h", Instruction::kvadd_h},
+    {"vsub.h", Instruction::kvsub_h},
     {"vmul", Instruction::kvmul},
     {"vcmpl", Instruction::kvcmpl},
     {"vsd", Instruction::kvsd},
@@ -401,7 +405,7 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x",
     
     // RVV
-    "vadd","vsub","vswap",
+    "vadd","vsub","vswap","vadd.h","vsub.h",
 
     //MV
     "vmul","vcmpl",
@@ -553,7 +557,7 @@ static const std::unordered_set<std::string> DExtensionInstructions = {
 
 
 static const std::unordered_set<std::string> RVTypeInstructions = {
-    "vadd","vsub","vswap"
+    "vadd","vsub","vswap", "vadd.h", "vsub.h"
 };
 
 static const std::unordered_set<std::string> MVTypeInstructions = {
@@ -1050,6 +1054,8 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
 
     {"vadd",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsub",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vadd.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vsub.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vswap",{SyntaxType::O_VPR_C_VPR}}, //but we don't use one of the registers
 
     {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
@@ -1270,9 +1276,9 @@ bool isVInstruction(const uint32_t &instruction)
 
     switch (opcode)
     {
-    case 0b0101011: // vadd, vsub , vswap
+    case 0b0101011: // vadd, vsub , vswap, vadd.h, vsub.h
         if (funct3 == 0b001 &&
-            (funct7 == 0b0000000 || funct7 == 0b0000001))
+            (funct7 == 0b0000000 || funct7 == 0b0000001 || funct7==0b1000000 || funct7==0b1000001))
         {
             return true;
         }
@@ -1999,12 +2005,23 @@ case 0b0101011:
         if (funct3 == 0b010)
             name = "vswap";
         break;
+
+    case 0b1000000:
+        if (funct3 == 0b001)
+            name = "vadd.h";
+        break;
+    
+    case 0b1000001:
+        if (funct3 == 0b001)
+            name = "vsub.h";
+        break;
+
     }
 
     if (name == "vswap")
         return name + " " + vr(rd) + ", " + vr(rs1);
 
-    if (name == "vadd" || name == "vsub")
+    if (name == "vadd" || name == "vsub" || name == "vadd.h" || name == "vsub.h")
         return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
 
     break;

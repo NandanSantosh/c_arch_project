@@ -189,6 +189,8 @@ enum class Instruction
     kfmv_d_x,
     kvadd,
     kvsub,
+    kvadd_h,
+    kvsub_h,
     //added for mul and sd vector instructions
     kvmul,
     kvcmpl,
