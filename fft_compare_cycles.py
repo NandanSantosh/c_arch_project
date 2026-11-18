@@ -6,9 +6,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 CSV_FILES = {
-    "Scalar": ROOT / "text" / "scalar_counts.csv",
-    "Vector": ROOT / "text" / "vector_counts.csv",
-    "Hybrid": ROOT / "text" / "hybrid_counts.csv",
+    "Basic FFT": ROOT / "text" / "basic_fft_counts.csv",
+
+    "Without vmul/vswap - 8R": ROOT / "text" / "without_vmul_vswap_8_counts.csv",
+    "With vmul/vswap - 8R": ROOT / "text" / "with_vmul_vswap_8_counts.csv",
+
+    "Without vmul/vswap - 32R": ROOT / "text" / "without_vmul_vswap_32_counts.csv",
+    "With vmul/vswap - 32R": ROOT / "text" / "with_vmul_vswap_32_counts.csv",
+
+    "With cmpl - 8R": ROOT / "text" / "with_cmpl_8_counts.csv",
+    "With cmpl - 32R": ROOT / "text" / "with_cmpl_32_counts.csv",
 }
 
 # Assumed instruction latencies in cycles
@@ -125,8 +132,8 @@ def analyse(name, csv_path):
 
 
 def main():
-    print("FFT Scalar vs Vector vs Hybrid comparison")
-    print("=" * 65)
+    print("FFT Implementation Comparison")
+    print("=" * 100)
 
     results = []
 
@@ -145,51 +152,60 @@ def main():
         return 1
 
     print("\nWEIGHTED COST SUMMARY")
-    print("-" * 65)
-    print(f"{'Implementation':<20}{'Instructions':>20}{'Weighted Cost':>20}")
-    print("-" * 65)
+    print("-" * 100)
+
+    print(
+        f"{'Implementation':<35}"
+        f"{'Instructions':>20}"
+        f"{'Weighted Cost':>20}"
+    )
+
+    print("-" * 100)
 
     for result in results:
         print(
-            f"{result['name']:<20}"
+            f"{result['name']:<35}"
             f"{result['total']:>20,}"
             f"{result['cost']:>20,}"
         )
 
-    scalar = next(
-        (r for r in results if r["name"] == "Scalar"),
+    # Basic FFT is the baseline
+    baseline = next(
+        (r for r in results if r["name"] == "Basic FFT"),
         None
     )
 
-    if scalar and scalar["cost"] != 0:
-        print("\nIMPROVEMENT RELATIVE TO SCALAR")
-        print("-" * 45)
+    if baseline and baseline["cost"] != 0:
+
+        print("\nIMPROVEMENT RELATIVE TO BASIC FFT")
+        print("-" * 65)
 
         for result in results:
-            if result["name"] == "Scalar":
+            if result["name"] == "Basic FFT":
                 continue
 
             improvement = (
-                (scalar["cost"] - result["cost"])
-                / scalar["cost"]
+                (baseline["cost"] - result["cost"])
+                / baseline["cost"]
             ) * 100
 
             print(
-                f"{result['name']}: {improvement:.3f}%"
+                f"{result['name']:<35}"
+                f"{improvement:>10.3f}%"
             )
 
     print("\nPER-MNEMONIC DYNAMIC INSTRUCTION COUNTS")
-    print("-" * 75)
+    print("-" * 150)
 
     names = [r["name"] for r in results]
 
     print(f"{'Mnemonic':<18}", end="")
 
     for name in names:
-        print(f"{name:>18}", end="")
+        print(f"{name:>22}", end="")
 
     print()
-    print("-" * 75)
+    print("-" * 150)
 
     all_mnemonics = sorted({
         mnemonic
@@ -204,7 +220,7 @@ def main():
 
         for name in names:
             count = by_name[name]["counts"].get(mnemonic, 0)
-            print(f"{count:>18,}", end="")
+            print(f"{count:>22,}", end="")
 
         print()
 
@@ -217,5 +233,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
-PY
