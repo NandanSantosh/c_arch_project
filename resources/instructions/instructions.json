@@ -194,7 +194,7 @@
         "vsub.h"
     ],
     "MVInstruction":[
-        "vmul","vcmpl"
+        "vmul","vcmpl","vmul.h","vcmpl.h"
     ],
     "SVInstruction":[
         "vsd"

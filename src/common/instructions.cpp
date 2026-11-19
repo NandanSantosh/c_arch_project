@@ -199,6 +199,10 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kvsub_h, {0b0101011, -1, 0b001, -1, -1, 0b1000001}},
 
     {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
+    {Instruction::kvcmpl, {0b1011011, -1, 0b010, -1, -1, 0b0000010}},
+    {Instruction::kvmul_h, {0b1011011, -1, 0b001, -1, -1, 0b1000010}},
+    {Instruction::kvcmpl_h, {0b1011011, -1, 0b010, -1, -1, 0b1000010}},
+
     {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
     {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
 
@@ -372,6 +376,8 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"vsub.h", Instruction::kvsub_h},
     {"vmul", Instruction::kvmul},
     {"vcmpl", Instruction::kvcmpl},
+    {"vmul.h", Instruction::kvmul_h},
+    {"vcmpl.h", Instruction::kvcmpl_h},
     {"vsd", Instruction::kvsd},
     {"vld", Instruction::kvld}
 
@@ -408,7 +414,7 @@ static const std::unordered_set<std::string> valid_instructions = {
     "vadd","vsub","vswap","vadd.h","vsub.h",
 
     //MV
-    "vmul","vcmpl",
+    "vmul","vcmpl", "vmul.h","vcmpl.h",
     
     //SV
     "vsd",
@@ -561,7 +567,7 @@ static const std::unordered_set<std::string> RVTypeInstructions = {
 };
 
 static const std::unordered_set<std::string> MVTypeInstructions = {
-    "vmul","vcmpl"
+    "vmul","vcmpl","vmul.h","vcmpl.h"
 };
 
 static const std::unordered_set<std::string> SVTypeInstructions = {
@@ -1060,6 +1066,8 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
 
     {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vcmpl",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+     {"vmul.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vcmpl.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
 
      {"vld",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
@@ -1293,7 +1301,15 @@ bool isVInstruction(const uint32_t &instruction)
         {
             return true;
         }
-        if (funct3 == 0b010 && funct7 == 0b0000010)
+        if (funct3 == 0b010 && funct7 == 0b0000010) // vcmpl
+        {
+            return true;
+        }
+        if (funct3 == 0b001 && funct7 == 0b1000010) // vmul.h
+        {
+            return true;
+        }
+        if (funct3 == 0b010 && funct7 == 0b1000010) // vcmpl.h
         {
             return true;
         }
@@ -2034,9 +2050,15 @@ case 0b0101011:
         {
         case 0b001:
             name = "vmul";
+        if(funct7==0b1000010){
+            name = "vmul.h";
+        }
             break;
         case 0b010:
             name = "vcmpl";
+        if(funct7==0b1000010){
+            name = "vcmpl.h";
+        }
             break;
         }
         

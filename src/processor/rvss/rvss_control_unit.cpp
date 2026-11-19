@@ -140,7 +140,7 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
         break;
     }
     case 0b1011011:
-    { // MV-type (kvMul)
+    { // MV-type (kvMul,kvcmpl,kvmul.h,kvcmpl.h)
         reg_write_ = true;
         alu_op_ = true;
         break;
@@ -1044,9 +1044,13 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
 {
     if (funct3 == 0b001 && funct7 == 0b0000010)
         return alu::AluOp::VMUL;
+    if (funct3 == 0b001 && funct7 == 0b0000010)
+        return alu::AluOp::VMUL_H;
 
     if (funct3 == 0b010 && funct7 == 0b0000010)
         return alu::AluOp::VCMPL;
+    if (funct3 == 0b010 && funct7 == 0b0000010)
+        return alu::AluOp::VCMPL_H;
     break;
 }
 

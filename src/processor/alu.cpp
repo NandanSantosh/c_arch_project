@@ -1197,12 +1197,144 @@ namespace alu
 }
 
 
+
+
+
+[[nodiscard]] std::uint64_t Alu::executeVector16(AluOp op, std::uint64_t destination, std::uint64_t a,
+                                                    std::uint64_t b, std::size_t activeLanes , std::uint8_t mask)
+{
+    constexpr std::uint64_t LANE_MASK = 0xFFFFULL;
+
+    // A 64-bit register contains at most two 32-bit lanes.
+    if (activeLanes > 4) {
+        throw std::invalid_argument(
+            "activeLanes must be 0, 1, 3, 4, or 2");
+    }
+
+    std::uint8_t  flags  = 0;   
+
+    // Only mask bits 0 and 1 are valid.
+    // if ((mask & ~0x03u) != 0) {
+    //     throw std::invalid_argument(
+    //         "Mask must contain only two lane bits");
+    // }
+
+   
+    AluOp scalarOp;
+
+    switch (op) {
+        case AluOp::VADD:
+            scalarOp = AluOp::FADD_S;
+            break;
+
+        case AluOp::VSUB:
+            scalarOp = AluOp::FSUB_S;
+            break;
+
+        case AluOp::VMUL:
+            scalarOp = AluOp::FMUL_S;
+            break;
+
+        case AluOp::VCMPL:
+            scalarOp = AluOp::VCMPL;
+            break;
+        
+            
+        default:
+            throw std::invalid_argument(
+                "Unsupported vector operation");
+    }
+
+
+    std::uint64_t result = destination;
+
+    for (std::size_t lane = 0; lane < activeLanes; ++lane) {
+        // Skip this lane if its mask bit is disabled.
+        if ((mask & (1u << lane)) == 0) {
+            continue;
+        }
+
+        const unsigned shift = static_cast<unsigned>(lane * 16);
+        constexpr std::uint64_t LANE16 = 0xFFFFULL;
+
+        const std::uint16_t laneA16 = static_cast<std::uint16_t>(a >> shift);
+        const std::uint16_t laneB16 = static_cast<std::uint16_t>(b >> shift);
+        _Float16 ha, hb;
+        std::memcpy(&ha, &laneA16, sizeof(_Float16));
+        std::memcpy(&hb, &laneB16, sizeof(_Float16));
+
+        const float fa = static_cast<float>(ha);
+        const float fb = static_cast<float>(hb);
+
+        std::uint32_t fa_bits, fb_bits;
+        std::memcpy(&fa_bits, &fa, sizeof(float));
+        std::memcpy(&fb_bits, &fb, sizeof(float));
+
+        const auto [r32, f32flags] = Alu::fpexecute(scalarOp, fa_bits, fb_bits, 0, 0);
+         flags |= (f32flags & FCSR_INVALID_OP); 
+   
+        const std::uint16_t r16 = f2h(static_cast<std::uint32_t>(r32), flags);
+
+        result = (result & ~(LANE16 << shift)) |
+            (static_cast<std::uint64_t>(r16) << shift);
+        }
+
+    return result;
+}
+
+
+
+
 void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)
 {
     carry_ = carry;
     zero_ = zero;
     negative_ = negative;
     overflow_ = overflow;
+}
+
+// fp32 bits -> fp16 bits, round-to-nearest-even.
+// Raises FCSR_OVERFLOW / FCSR_UNDERFLOW / FCSR_INEXACT into `fl` (ORed, sticky).
+static std::uint16_t f2h(std::uint32_t f, std::uint8_t& fl)
+{
+    const std::uint32_t sign = (f >> 16) & 0x8000u;                 // move sign to bit 15
+    const std::uint32_t exp8 = (f >> 23) & 0xFFu;                   // fp32 exponent field
+    const std::int32_t  e    = static_cast<std::int32_t>(exp8) - 127 + 15;  // rebias 127 -> 15
+    std::uint32_t       m    = f & 0x7FFFFFu;                       // 23-bit mantissa
+
+    // 1) Inf / NaN: keep the class, make NaN quiet
+    if (exp8 == 0xFFu)
+        return static_cast<std::uint16_t>(sign | 0x7C00u | (m ? 0x200u : 0u));
+
+    // 2) Too large for fp16 -> inf
+    if (e >= 31) {
+        fl |= FCSR_OVERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | 0x7C00u);
+    }
+
+    // 3) Too small for a normal fp16 -> subnormal or zero
+    if (e <= 0) {
+        if (e < -10) {                                              // below half the smallest subnormal
+            if (f & 0x7FFFFFFFu) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+            return static_cast<std::uint16_t>(sign);                // signed zero
+        }
+        m |= 0x800000u;                                             // make the hidden 1 explicit
+        const std::uint32_t sh  = static_cast<std::uint32_t>(14 - e);
+        std::uint32_t       hm  = m >> sh;                          // kept bits
+        const std::uint32_t rem = m & ((1u << sh) - 1u);            // dropped bits
+        const std::uint32_t mid = 1u << (sh - 1u);                  // exactly half an ulp
+        if (rem > mid || (rem == mid && (hm & 1u))) ++hm;           // RNE
+        if (rem) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | hm);               // carry into exponent is correct
+    }
+
+
+    std::uint32_t       hm  = (static_cast<std::uint32_t>(e) << 10) | (m >> 13);
+    const std::uint32_t rem = m & 0x1FFFu;                          // 13 dropped bits
+    if (rem > 0x1000u || (rem == 0x1000u && (hm & 1u))) ++hm;       // RNE, tie -> even
+    if (rem) fl |= FCSR_INEXACT;
+    if ((hm & 0x7C00u) == 0x7C00u) fl |= FCSR_OVERFLOW;             // rounded up into inf
+    return static_cast<std::uint16_t>(sign | hm);
 }
 
 } // namespace alu

@@ -194,6 +194,8 @@ enum class Instruction
     //added for mul and sd vector instructions
     kvmul,
     kvcmpl,
+    kvmul_h,
+    kvcmpl_h,
     kvsd,
     kvld,
     kvswap

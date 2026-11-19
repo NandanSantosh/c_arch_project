@@ -509,6 +509,8 @@ bool isValidExpainsionLine(const QString &line,
 
         {"vmul", {3, {}}},
         {"vcmpl", {3, {}}},
+        {"vmul.h", {3, {}}},
+        {"vcmpl.h", {3, {}}},
         {"vsd", {3, {2}}},
         {"vld", {3, {2}}}
     };
