@@ -16,6 +16,54 @@ namespace Kites
 namespace alu
 {
 
+
+
+
+
+ [[nodiscard]]  std::uint16_t Alu::f2h(std::uint32_t f, std::uint8_t& fl)
+{
+    const std::uint32_t sign = (f >> 16) & 0x8000u;                 // move sign to bit 15
+    const std::uint32_t exp8 = (f >> 23) & 0xFFu;                   // fp32 exponent field
+    const std::int32_t  e    = static_cast<std::int32_t>(exp8) - 127 + 15;  // rebias 127 -> 15
+    std::uint32_t       m    = f & 0x7FFFFFu;                       // 23-bit mantissa
+
+    // 1) Inf / NaN: keep the class, make NaN quiet
+    if (exp8 == 0xFFu)
+        return static_cast<std::uint16_t>(sign | 0x7C00u | (m ? 0x200u : 0u));
+
+    // 2) Too large for fp16 -> inf
+    if (e >= 31) {
+        fl |= FCSR_OVERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | 0x7C00u);
+    }
+
+    // 3) Too small for a normal fp16 -> subnormal or zero
+    if (e <= 0) {
+        if (e < -10) {                                              // below half the smallest subnormal
+            if (f & 0x7FFFFFFFu) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+            return static_cast<std::uint16_t>(sign);                // signed zero
+        }
+        m |= 0x800000u;                                             // make the hidden 1 explicit
+        const std::uint32_t sh  = static_cast<std::uint32_t>(14 - e);
+        std::uint32_t       hm  = m >> sh;                          // kept bits
+        const std::uint32_t rem = m & ((1u << sh) - 1u);            // dropped bits
+        const std::uint32_t mid = 1u << (sh - 1u);                  // exactly half an ulp
+        if (rem > mid || (rem == mid && (hm & 1u))) ++hm;           // RNE
+        if (rem) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | hm);               // carry into exponent is correct
+    }
+
+
+    std::uint32_t       hm  = (static_cast<std::uint32_t>(e) << 10) | (m >> 13);
+    const std::uint32_t rem = m & 0x1FFFu;                          // 13 dropped bits
+    if (rem > 0x1000u || (rem == 0x1000u && (hm & 1u))) ++hm;       // RNE, tie -> even
+    if (rem) fl |= FCSR_INEXACT;
+    if ((hm & 0x7C00u) == 0x7C00u) fl |= FCSR_OVERFLOW;             // rounded up into inf
+    return static_cast<std::uint16_t>(sign | hm);
+}
+
+
+
 [[nodiscard]] std::pair<uint64_t, bool> Alu::execute(AluOp op, uint64_t a, uint64_t b)
 {
     switch (op)
@@ -1130,19 +1178,17 @@ namespace alu
 
     if (AluOp::VCMPL == scalarOp) {
 
-    int numlanes = activeLanes / 2;
+    // int numlanes = activeLanes / 2;
 
-    for (int i = 0; i < numlanes; i++) {
-        unsigned shift = static_cast<unsigned>(i * 64);
+    // for (int i = 0; i < numlanes; i++) {
+        unsigned shift = static_cast<unsigned>(0 * 64);
 
         const std::uint32_t Aj =
             static_cast<std::uint32_t>((a >> (shift + 32)) & LANE_MASK);
-
         const std::uint32_t Ai =
             static_cast<std::uint32_t>((a >> shift) & LANE_MASK);
         const std::uint32_t Bj =
             static_cast<std::uint32_t>((b >> (shift + 32)) & LANE_MASK);
-
         const std::uint32_t Bi =
             static_cast<std::uint32_t>((b >> shift) & LANE_MASK);
         auto [l1, fcsr1] = Alu::fpexecute(AluOp::FMUL_S, Ai, Bi, 0, 0);
@@ -1161,7 +1207,7 @@ namespace alu
 
         result = (result & ~shiftedMask) |
                  (complexResult << shift);
-    }
+    // }
 
     return result;
 }
@@ -1223,20 +1269,20 @@ namespace alu
     AluOp scalarOp;
 
     switch (op) {
-        case AluOp::VADD:
+        case AluOp::VADD_H:
             scalarOp = AluOp::FADD_S;
             break;
 
-        case AluOp::VSUB:
+        case AluOp::VSUB_H:
             scalarOp = AluOp::FSUB_S;
             break;
 
-        case AluOp::VMUL:
+        case AluOp::VMUL_H:
             scalarOp = AluOp::FMUL_S;
             break;
 
-        case AluOp::VCMPL:
-            scalarOp = AluOp::VCMPL;
+        case AluOp::VCMPL_H:
+            scalarOp = AluOp::VCMPL_H;
             break;
         
             
@@ -1247,6 +1293,8 @@ namespace alu
 
 
     std::uint64_t result = destination;
+
+
 
     for (std::size_t lane = 0; lane < activeLanes; ++lane) {
         // Skip this lane if its mask bit is disabled.
@@ -1295,47 +1343,6 @@ void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)
 
 // fp32 bits -> fp16 bits, round-to-nearest-even.
 // Raises FCSR_OVERFLOW / FCSR_UNDERFLOW / FCSR_INEXACT into `fl` (ORed, sticky).
-static std::uint16_t f2h(std::uint32_t f, std::uint8_t& fl)
-{
-    const std::uint32_t sign = (f >> 16) & 0x8000u;                 // move sign to bit 15
-    const std::uint32_t exp8 = (f >> 23) & 0xFFu;                   // fp32 exponent field
-    const std::int32_t  e    = static_cast<std::int32_t>(exp8) - 127 + 15;  // rebias 127 -> 15
-    std::uint32_t       m    = f & 0x7FFFFFu;                       // 23-bit mantissa
-
-    // 1) Inf / NaN: keep the class, make NaN quiet
-    if (exp8 == 0xFFu)
-        return static_cast<std::uint16_t>(sign | 0x7C00u | (m ? 0x200u : 0u));
-
-    // 2) Too large for fp16 -> inf
-    if (e >= 31) {
-        fl |= FCSR_OVERFLOW | FCSR_INEXACT;
-        return static_cast<std::uint16_t>(sign | 0x7C00u);
-    }
-
-    // 3) Too small for a normal fp16 -> subnormal or zero
-    if (e <= 0) {
-        if (e < -10) {                                              // below half the smallest subnormal
-            if (f & 0x7FFFFFFFu) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
-            return static_cast<std::uint16_t>(sign);                // signed zero
-        }
-        m |= 0x800000u;                                             // make the hidden 1 explicit
-        const std::uint32_t sh  = static_cast<std::uint32_t>(14 - e);
-        std::uint32_t       hm  = m >> sh;                          // kept bits
-        const std::uint32_t rem = m & ((1u << sh) - 1u);            // dropped bits
-        const std::uint32_t mid = 1u << (sh - 1u);                  // exactly half an ulp
-        if (rem > mid || (rem == mid && (hm & 1u))) ++hm;           // RNE
-        if (rem) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
-        return static_cast<std::uint16_t>(sign | hm);               // carry into exponent is correct
-    }
-
-
-    std::uint32_t       hm  = (static_cast<std::uint32_t>(e) << 10) | (m >> 13);
-    const std::uint32_t rem = m & 0x1FFFu;                          // 13 dropped bits
-    if (rem > 0x1000u || (rem == 0x1000u && (hm & 1u))) ++hm;       // RNE, tie -> even
-    if (rem) fl |= FCSR_INEXACT;
-    if ((hm & 0x7C00u) == 0x7C00u) fl |= FCSR_OVERFLOW;             // rounded up into inf
-    return static_cast<std::uint16_t>(sign | hm);
-}
 
 } // namespace alu
 }//namespace Kites

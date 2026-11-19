@@ -145,10 +145,13 @@ enum class AluOp
     VMUL,    ///< Vector Multiplication operation.
     VSWAP,  ///< Vector Swap operation.
     VCMPL,
+    VADD_H,
+    VSUB_H,
+    VMUL_H,
+    VCMPL_H
     // VDIV,    ///< Vector Division operation.
     // VREM,    ///< Vector Remainder operation.
     // VSD     ///< Vector Store Double operation.
-    
 };
 
 inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
@@ -368,9 +371,19 @@ inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
     case AluOp::VCMPL:
         os << "VCMPL";
         break;
-    // case AluOp::VREM:
-    //     os << "VREM";
-    //     break;
+     case AluOp::VADD_H:
+        os << "VADD_H";
+        break;
+    case AluOp::VSUB_H:
+        os << "VSUB_H";
+        break;
+     case AluOp::VMUL_H:
+        os << "VMUL_H";
+        break;
+    case AluOp::VCMPL_H:
+        os << "VCMPL_H";
+        break;
+   
 
     default:
         os << "UNKNOWN";
@@ -415,6 +428,8 @@ class Alu
 
      [[nodiscard]] static std::uint64_t executeVector16(AluOp op, std::uint64_t destination, std::uint64_t a,
     std::uint64_t b, std::size_t activeLanes = 4, std::uint8_t mask = 0b1111);
+
+     [[nodiscard]]static std::uint16_t f2h(std::uint32_t f, std::uint8_t& fl);
 
 
     void setFlags(bool carry, bool zero, bool negative, bool overflow);

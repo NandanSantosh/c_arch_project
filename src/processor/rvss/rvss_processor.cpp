@@ -440,24 +440,32 @@ void RVSSProcessor::ExecuteVector()
 
     // VSWAP doesn't use rs2.
     uint64_t b = 0;
-    // for VADD, VSUB, and VMUL, read the second source register.
+    // VADD, VSUB, and VMUL read the second source register.
     if (aluOperation != alu::AluOp::VSWAP)
     {
         b = registers_.ReadVpr(rs2);
     }
 
-
-    uint8_t temp = funct7>>7;
-    if(temp==1){
+    if ((funct7 & 0b1000000) != 0)
+    {
         execution_result_ = alu::Alu::executeVector16(
-        aluOperation,old_destination,a,b,4,0b1111);
+            aluOperation,
+            old_destination,
+            a,
+            b,
+            4,
+            0b1111);
     }
-    else{
+    else
+    {
         execution_result_ = alu::Alu::executeVector32(
-        aluOperation,old_destination,a,b,2,0b11);
+            aluOperation,
+            old_destination,
+            a,
+            b,
+            2,
+            0b11);
     }
-
-    
 }
 
 void RVSSProcessor::ExecuteCsr()

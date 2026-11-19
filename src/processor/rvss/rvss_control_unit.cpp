@@ -1042,15 +1042,21 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
 
     case 0b1011011: // MV-type: vmul
 {
-    if (funct3 == 0b001 && funct7 == 0b0000010)
-        return alu::AluOp::VMUL;
-    if (funct3 == 0b001 && funct7 == 0b0000010)
-        return alu::AluOp::VMUL_H;
+        if (funct3 == 0b001)
+        {
+            if (funct7 == 0b0000010)
+                return alu::AluOp::VMUL;
+            if (funct7 == 0b1000010)
+                return alu::AluOp::VMUL_H;
+        }
 
-    if (funct3 == 0b010 && funct7 == 0b0000010)
-        return alu::AluOp::VCMPL;
-    if (funct3 == 0b010 && funct7 == 0b0000010)
-        return alu::AluOp::VCMPL_H;
+        if (funct3 == 0b010)
+        {
+            if (funct7 == 0b0000010)
+                return alu::AluOp::VCMPL;
+            if (funct7 == 0b1000010)
+                return alu::AluOp::VCMPL_H;
+        }
     break;
 }
 
