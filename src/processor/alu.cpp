@@ -1282,11 +1282,35 @@ namespace alu
 
     std::uint8_t  flags  = 0;   
 
-    // Only mask bits 0 and 1 are valid.
-    // if ((mask & ~0x03u) != 0) {
-    //     throw std::invalid_argument(
-    //         "Mask must contain only two lane bits");
-    // }
+if (op == AluOp::VCMPL_H) {
+    auto get = [](std::uint64_t v, unsigned lane) {
+        std::uint16_t bits = static_cast<std::uint16_t>(v >> (lane * 16));
+        _Float16 h;
+        std::memcpy(&h, &bits, 2);
+        return static_cast<float>(h);
+    };
+
+    auto put = [&](std::uint64_t& r, unsigned lane, float f) {
+        if (!(mask & (1u << lane))) return;
+        _Float16 h = static_cast<_Float16>(f);
+        std::uint16_t bits;
+        std::memcpy(&bits, &h, 2);
+        const unsigned shift = lane * 16;
+        r = (r & ~(LANE_MASK << shift)) | (static_cast<std::uint64_t>(bits) << shift);
+    };
+
+    std::uint64_t result = destination;
+
+    for (unsigned re = 0; re + 1 < activeLanes; re += 2) {
+        const float ar = get(a, re), ai = get(a, re + 1);
+        const float br = get(b, re), bi = get(b, re + 1);
+
+        put(result, re,     ar * br - ai * bi);   
+        put(result, re + 1, ar * bi + ai * br);  
+    }
+
+    return result;
+}
 
    
     AluOp scalarOp;
