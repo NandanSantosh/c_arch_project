@@ -198,7 +198,9 @@ enum class Instruction
     kvcmpl_h,
     kvsd,
     kvld,
-    kvswap
+    kvswap,
+    kvmulj,
+    kvconj
     
 };
 
@@ -468,6 +470,20 @@ struct LVTypeInstructionEncoding
     }
 };
 
+
+struct QVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<5> funct5;
+    std::bitset<7> funct7;
+
+    QVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7,unsigned int funct5)
+        : opcode(opcode), funct3(funct3), funct5(funct5),funct7(funct7)
+    {
+    }
+};
+
 /**
  * @brief Enum that represents different syntax types for instructions.
  */
@@ -551,6 +567,8 @@ extern std::unordered_map<std::string, SVTypeInstructionEncoding>
     SV_type_instruction_encoding_map;
 extern std::unordered_map<std::string, LVTypeInstructionEncoding>
     LV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, QVTypeInstructionEncoding>
+    QV_type_instruction_encoding_map;
 /**
  * @brief A map that associates instruction names with their expected syntax.
  *
@@ -593,6 +611,7 @@ bool isValidRVTypeInstruction(const std::string &name);
 bool isValidMVTypeInstruction(const std::string &name);
 bool isValidSVTypeInstruction(const std::string &name);
 bool isValidLVTypeInstruction(const std::string &name);
+bool isValidQVTypeInstruction(const std::string &name);
 std::string getExpectedSyntaxes(const std::string &opcode);
 
 /**

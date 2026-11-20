@@ -1142,6 +1142,22 @@ namespace alu
 
         return result;
     }
+
+ if (op == AluOp::VCONJ || op == AluOp::VMULJ) {
+    constexpr std::uint32_t SIGN = 0x80000000u;
+
+    const std::uint32_t re = static_cast<std::uint32_t>(a);        
+    const std::uint32_t im = static_cast<std::uint32_t>(a >> 32);  
+
+    if (op == AluOp::VCONJ) {
+        return (static_cast<std::uint64_t>(im ^ SIGN) << 32) | re;
+    }
+
+
+    return (static_cast<std::uint64_t>(re) << 32) | (im ^ SIGN);
+}
+
+
     // Map the vector operation to the existing scalar float operation.
     AluOp scalarOp;
 
@@ -1149,7 +1165,7 @@ namespace alu
         case AluOp::VADD:
             scalarOp = AluOp::FADD_S;
             break;
-
+            
         case AluOp::VSUB:
             scalarOp = AluOp::FSUB_S;
             break;
@@ -1160,6 +1176,12 @@ namespace alu
 
         case AluOp::VCMPL:
             scalarOp = AluOp::VCMPL;
+            break;
+         case AluOp::VMULJ:
+            scalarOp = AluOp::VMULJ;
+            break;
+        case AluOp::VCONJ:
+            scalarOp = AluOp::VCONJ;
             break;
 
         //  case AluOp::VMUL:
@@ -1212,6 +1234,7 @@ namespace alu
     return result;
 }
 
+    
 
     for (std::size_t lane = 0; lane < activeLanes; ++lane) {
         // Skip this lane if its mask bit is disabled.

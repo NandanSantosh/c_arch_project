@@ -206,6 +206,9 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
     {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
 
+     {Instruction::kvmulj,  {0b0101001, -1, 0b010,-1,0b00010 ,0b0000001}},
+    {Instruction::kvconj,  {0b0101001, -1, 0b010, -1, 0b00001, 0b0000010}},
+
 };
 
 std::unordered_map<std::string, Instruction> instruction_string_map = {
@@ -379,7 +382,9 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"vmul.h", Instruction::kvmul_h},
     {"vcmpl.h", Instruction::kvcmpl_h},
     {"vsd", Instruction::kvsd},
-    {"vld", Instruction::kvld}
+    {"vld", Instruction::kvld},
+    {"vmulj", Instruction::kvmulj},
+    {"vconj", Instruction::kvconj},
 
 };
 
@@ -418,7 +423,13 @@ static const std::unordered_set<std::string> valid_instructions = {
     
     //SV
     "vsd",
-    "vld"
+    // LV
+    "vld",
+
+    // QV
+
+    "vmulj","vconj"
+
 };
 
 static const std::unordered_set<std::string> RTypeInstructions = {
@@ -574,10 +585,14 @@ static const std::unordered_set<std::string> SVTypeInstructions = {
     "vsd"
 };
 
-
 static const std::unordered_set<std::string> LVTypeInstructions = {
     "vld"
 };
+
+static const std::unordered_set<std::string> QVTypeInstructions = {
+    "vmulj","vconj"
+};
+
 
 std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map = {
     {"add", {0b0110011, 0b000, 0b0000000}},  // O_GPR_C_GPR_C_GPR
@@ -814,7 +829,10 @@ std::unordered_map<std::string, LVTypeInstructionEncoding> LV_type_instruction_e
 };
 
 
-
+std::unordered_map<std::string, QVTypeInstructionEncoding> QV_type_instruction_encoding_map = {
+    {"vconj", {0b0101001, 0b010,0b00001, 0b0000010}}, // O_VPR_C_VPR
+    {"vmulj", {0b0101001, 0b010,0b00010 ,0b0000001}}, // O_VPR_C_VPR
+};
 
 /*
     O_GPR_C_GPR_C_GPR,       ///< Opcode general-register , general-register , register
@@ -1063,13 +1081,13 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
     {"vadd.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsub.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vswap",{SyntaxType::O_VPR_C_VPR}}, //but we don't use one of the registers
-
+    {"vmulj",{SyntaxType::O_VPR_C_VPR}},
+    {"vconj",{SyntaxType::O_VPR_C_VPR}},
     {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vcmpl",{SyntaxType::O_VPR_C_VPR_C_VPR}},
      {"vmul.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vcmpl.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
     {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
-
      {"vld",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
 
 };
@@ -1207,6 +1225,11 @@ bool isValidLVTypeInstruction(const std::string &instruction)
     return LVTypeInstructions.find(instruction) != LVTypeInstructions.end();
 }
 
+bool isValidQVTypeInstruction(const std::string &instruction)
+{
+    return QVTypeInstructions.find(instruction) != QVTypeInstructions.end();
+}
+
 bool isFInstruction(const uint32_t &instruction)
 {
     uint8_t opcode = (instruction & 0b1111111);
@@ -1322,6 +1345,15 @@ bool isVInstruction(const uint32_t &instruction)
         }
     case 0b1101010: // vld
         if (funct3 == 0b011)
+        {
+            return true;
+        }
+    case 0b0101001: // vconj,vmulj
+        if (funct7 == 0b0000010)
+        {
+            return true;
+        }
+         if (funct7 == 0b0000001)
         {
             return true;
         }
@@ -1466,6 +1498,9 @@ InstructionType getInstructionType(const std::string &instruction)
 
     if(isValidLVTypeInstruction(instruction))
         return InstructionType::LV_TYPE;
+
+    if (isValidQVTypeInstruction(instruction))
+        return InstructionType::QV_TYPE;
         
     return InstructionType::UNKNOWN;
 }
@@ -2096,7 +2131,24 @@ case 0b0101011:
             break;
         }
         if (!name.empty())
-            return name + " " + xr(rd) + ", " + std::to_string(immI()) + "(" + xr(rs1) + ")";
+            return name + " " + vr(rd) + ", " + std::to_string(immI()) + "(" + xr(rs1) + ")";
+        break;
+    }
+
+     case 0b0101001:
+    { // Loads
+        std::string name;
+        switch (funct7)
+        {
+        case  0b0000010:
+            name = "vconj";
+            break;
+        case  0b0000001:
+            name = "vmulj";
+            break;
+        }
+        if (!name.empty())
+            return  name + " " + vr(rd) + ", " + vr(rs1);
         break;
     }
 

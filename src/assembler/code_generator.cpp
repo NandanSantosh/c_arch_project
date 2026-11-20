@@ -82,6 +82,10 @@ printIntermediateCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCo
             code = block.getOpcode() + " " + block.getRd() + " " + block.getRs1() + " " +
                    block.getImm();
         }
+         else if (instruction_set::isValidQVTypeInstruction(block.getOpcode()))
+        {
+            code = block.getOpcode() + " " + block.getRd() + " " + block.getRs1() ;
+        }
 
         else
         {
@@ -483,6 +487,35 @@ uint32_t generateLVTypeMachineCode(const ICUnit &block)
 }
 
 
+
+uint32_t generateQVTypeMachineCode(const ICUnit &block)
+{
+    const auto &encoding =
+        instruction_set::QV_type_instruction_encoding_map.at(block.getOpcode());
+
+    const uint32_t rd = extractRegisterIndex(block.getRd());
+    const uint32_t rs1 = extractRegisterIndex(block.getRs1());
+
+    // VSWAP reserves rs2 as zero; other RV-type instructions use rs2.
+
+    const uint32_t funct3 = encoding.funct3.to_ulong();
+    const uint32_t funct7 = encoding.funct7.to_ulong();
+    const uint32_t funct5 = encoding.funct5.to_ulong();
+    const uint32_t opcode = encoding.opcode.to_ulong();
+
+    uint32_t machineCode = 0;
+    machineCode |= (funct7 << 25);
+    machineCode |= (funct5 << 20);
+    machineCode |= (rs1 << 15);
+    machineCode |= (funct3 << 12);
+    machineCode |= (rd << 7);
+    machineCode |= opcode;
+
+    return machineCode;
+}
+
+
+
 std::vector<uint32_t>
 generateMachineCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCode)
 {
@@ -576,6 +609,10 @@ generateMachineCode(const std::vector<std::pair<ICUnit, bool>> &IntermediateCode
         else if(instruction_set::isValidLVTypeInstruction(block.getOpcode()))
         {
             code = generateLVTypeMachineCode(block);
+        }
+        else if(instruction_set::isValidQVTypeInstruction(block.getOpcode()))
+        {
+            code = generateQVTypeMachineCode(block);
         }
         
         else

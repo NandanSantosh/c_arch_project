@@ -201,6 +201,10 @@
     ],
     "LVInstruction":[
         "vld"
+    ],
+    "QVInstruction":[
+        "vmulj",
+        "vconj"
     ]
 
 }
