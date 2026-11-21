@@ -1,0 +1,60 @@
+FFT Implementation Comparison
+=========================================================================================================
+[SKIP] With FMA: CSV not found: /home/nalla-nandan-santosh/Documents/C.arch_project/c_arch_project/text/with_fma_counts.csv
+
+WEIGHTED COST SUMMARY
+---------------------------------------------------------------------------------------------------------
+Implementation                    Instructions          Optimistic            Moderate        Conservative
+---------------------------------------------------------------------------------------------------------
+Basic FFT                              211,798             523,048             523,048             523,048
+With cmpl - 32R                         83,101             183,012             215,310             280,150
+With vconj/vmulj                        73,139             159,992             188,194             246,384
+
+IMPROVEMENT RELATIVE TO BASIC FFT
+------------------------------------------------------------------------------------------
+Implementation                          Optimistic            Moderate        Conservative
+------------------------------------------------------------------------------------------
+With cmpl - 32R                            65.010%             58.836%             46.439%
+With vconj/vmulj                           69.412%             64.020%             52.895%
+
+BREAK-EVEN vcmpl LATENCY (Moderate values for everything else)
+------------------------------------------------------------------------------------------
+With cmpl - 32R                vcmpl must cost more than 36.9 cycles to lose to Basic FFT (assumed: 9)
+With vconj/vmulj               vcmpl must cost more than 46.3 cycles to lose to Basic FFT (assumed: 9)
+
+PER-MNEMONIC DYNAMIC INSTRUCTION COUNTS
+------------------------------------------------------------------------
+Mnemonic                   Basic FFT   With cmpl - 32R  With vconj/vmulj
+------------------------------------------------------------------------
+add                           27,615             9,182             6,110
+addi                           8,216             5,156             4,907
+and                            2,036                 0                 0
+auipc                              3                 3                 3
+beq                            2,036                 0                19
+bge                            9,223             7,164             5,372
+blt                               11             1,044             1,034
+ebreak                             1                 1                 1
+fadd.s                        20,480                 0                 0
+flw                           24,530             1,984             1,984
+fmul.s                        40,960                 0                 0
+fsgnj.s                       10,240                 0                 0
+fsub.s                        20,480                 0                 0
+fsw                           22,464             1,984             1,984
+jal                            8,189             6,667             5,643
+slli                          11,242             5,098             3,818
+srli                           2,036             1,023             1,023
+sub                                0             1,013             1,013
+vadd                               0             5,120             5,120
+vcmpl                              0            11,029             8,981
+vconj                              0                 0                 8
+vld                                0            11,273            10,503
+vmulj                              0                 0               256
+vsd                                0            10,240            10,240
+vsub                               0             5,120             5,120
+xor                            2,036                 0                 0
+
+Formula: Weighted Cost = sum(Count x Assumed Latency)
+Vector latencies are assumed (Optimistic / Moderate / Conservative).
+This is an estimate, not measured CPU cycles.
+It does not model pipelining, overlap, dependencies, or stalls,
+so the baseline is costed without overlap and gains are likely an upper bound.

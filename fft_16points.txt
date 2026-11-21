@@ -1,0 +1,48 @@
+FFT Implementation Comparison
+====================================================================================================
+
+WEIGHTED COST SUMMARY
+----------------------------------------------------------------------------------------------------
+Implementation                             Instructions       Weighted Cost
+----------------------------------------------------------------------------------------------------
+Basic FFT                                         1,595               3,577
+With vconj/vmulj                                    655               1,269
+
+IMPROVEMENT RELATIVE TO BASIC FFT
+-----------------------------------------------------------------
+With vconj/vmulj                       64.523%
+
+PER-MNEMONIC DYNAMIC INSTRUCTION COUNTS
+----------------------------------------------------------------------------------------------------
+Mnemonic                            Basic FFT           With vconj/vmulj
+----------------------------------------------------------------------------------------------------
+add                                       187                         54
+addi                                       92                         68
+and                                        26                          0
+auipc                                       3                          3
+beq                                        26                          7
+bge                                        97                         42
+blt                                         5                         46
+ebreak                                      1                          1
+fadd.s                                    128                          0
+flw                                       190                         24
+fmul.s                                    256                          0
+fsgnj.s                                    64                          0
+fsub.s                                    128                          0
+fsw                                       152                         24
+jal                                        77                         58
+slli                                       80                         36
+srli                                       57                         31
+sub                                         0                         11
+vadd                                        0                         32
+vcmpl                                       0                         47
+vconj                                       0                          2
+vld                                         0                         69
+vmulj                                       0                          4
+vsd                                         0                         64
+vsub                                        0                         32
+xor                                        26                          0
+
+Formula: Weighted Cost = sum(Count x Assumed Latency)
+This is an estimate, not measured CPU cycles.
+It does not account for pipelining, overlap, or stalls.
