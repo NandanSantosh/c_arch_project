@@ -106,11 +106,7 @@ void ProcessorManager::runSlot()
     run();
 
     // Export counts after execution finishes
-    std::filesystem::path csvPath =
-        globals::vm_state_dump_file_path.parent_path()
-        / "instruction_counts.csv";
-
-    m_profiler.exportMnemonicCountsToCSV(csvPath.string());
+    exportCSV();
 
     emit runFinishedSignal();
 }
@@ -259,6 +255,17 @@ void ProcessorManager::setStepDelay(unsigned int delay)
     m_stepDelayMs = delay;
     m_currentProcessor->step_delay_ = delay;
 }
+
+void ProcessorManager::setCSVOutputPath(const std::string &path)
+{
+    m_csvOutputPath = path;
+}
+
+void ProcessorManager::exportCSV() const
+{
+    m_profiler.exportMnemonicCountsToCSV(m_csvOutputPath);
+}
+
 
 void ProcessorManager::setBreakpoints(const std::vector<uint64_t> &breakpoints)
 {

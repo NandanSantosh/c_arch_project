@@ -28,9 +28,10 @@ void printUsage(const char *programName)
 {
     std::cerr
         << "Usage: " << programName
-        << " [assembly-file] [--vm <name>] [--mem-dump <hex_addr> <row_count>]... [--repl|-i]\n"
+        << " [assembly-file] [output.csv] [--vm <name>] [--mem-dump <hex_addr> <row_count>]... [--repl|-i]\n"
         << "  assembly-file   optional; if given without --repl, assembles, runs to\n"
         << "                  completion, and dumps state (batch mode)\n"
+        << "  output.csv      optional; destination for instruction execution counts\n"
         << "  --vm <name>     rvss (default) | rv5-nh-nf | rv5-h-nf | rv5-nh-f | rv5-h-f\n"
         << "  --mem-dump      dump <row_count> 8-byte rows starting at <hex_addr>; "
            "repeatable (batch mode only)\n"
@@ -55,7 +56,10 @@ int main(int argc, char *argv[])
     Kites::setupVmStateDirectory();
 
     std::string assemblyFile;
+    std::string csvOutputFile = "instructions_count/instruction_counts.csv";
     std::string processorTypeStr = "rvss";
+
+    bool csvOutputProvided = false;
     std::vector<std::string> memDumpArgs;
     bool replRequested = false;
 
@@ -96,6 +100,11 @@ int main(int argc, char *argv[])
         else if (assemblyFile.empty())
         {
             assemblyFile = arg;
+        }
+        else if (!csvOutputProvided)
+        {
+            csvOutputFile = arg;
+            csvOutputProvided = true;
         }
         else
         {
@@ -152,6 +161,7 @@ int main(int argc, char *argv[])
     }
 
     Kites::ProcessorManager manager(nullptr, processorTypeIt->second);
+    manager.setCSVOutputPath("instructions_count/" + csvOutputFile);
 
     bool runFailed = false;
     std::string runErrorMsg;
@@ -174,6 +184,7 @@ int main(int argc, char *argv[])
     const auto start = std::chrono::steady_clock::now();
 
     manager.run();
+    manager.exportCSV();
 
     const auto end = std::chrono::steady_clock::now();
 
