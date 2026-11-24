@@ -69,8 +69,11 @@ void ProcessorManager::loadProgram(const AssembledProgram &program)
 {
     m_currentProgram = program;
     m_currentProcessor->LoadProgram(program);
+
     m_profiler.setInstructionToLineMapping(program);
+    m_profiler.setInstructionToMnemonicMapping(program);
     m_profiler.setLineNumberToInstructionTypeMapping(program);
+
     updateEditorHighlight({0});
 }
 
@@ -81,6 +84,11 @@ void ProcessorManager::loadProgram(const std::string &sourceText)
     out.close();
     m_currentProgram = assemble(globals::temporary_assembly_file_path.string());
     m_currentProcessor->LoadProgram(m_currentProgram);
+
+    m_profiler.setInstructionToLineMapping(m_currentProgram);
+    m_profiler.setInstructionToMnemonicMapping(m_currentProgram);
+    m_profiler.setLineNumberToInstructionTypeMapping(m_currentProgram);
+    
     DumpDisasssembly(globals::disassembly_file_path, m_currentProgram);
     std::ifstream in(globals::disassembly_file_path);
     std::stringstream buffer;
@@ -92,7 +100,14 @@ void ProcessorManager::loadProgram(const std::string &sourceText)
 
 void ProcessorManager::runSlot()
 {
+    // Reset counts before starting a new execution
+    m_profiler.Reset();
+
     run();
+
+    // Export counts after execution finishes
+    exportCSV();
+
     emit runFinishedSignal();
 }
 
@@ -240,6 +255,17 @@ void ProcessorManager::setStepDelay(unsigned int delay)
     m_stepDelayMs = delay;
     m_currentProcessor->step_delay_ = delay;
 }
+
+void ProcessorManager::setCSVOutputPath(const std::string &path)
+{
+    m_csvOutputPath = path;
+}
+
+void ProcessorManager::exportCSV() const
+{
+    m_profiler.exportMnemonicCountsToCSV(m_csvOutputPath);
+}
+
 
 void ProcessorManager::setBreakpoints(const std::vector<uint64_t> &breakpoints)
 {

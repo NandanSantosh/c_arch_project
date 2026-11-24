@@ -7,6 +7,8 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
+#include <cstddef>
+#include <cstdint>
 #include <QObject>
 #include <array>
 #include <string>
@@ -26,8 +28,12 @@ class RegisterFile : public QObject
     static constexpr size_t NUM_GPR = 32; ///< Number of General-Purpose Registers (GPR).
     static constexpr size_t NUM_FPR = 32; ///< Number of Floating-Point Registers (FPR).
 
+    static constexpr size_t NUM_VPR = 32; ///< Number of Vector-Point Registers (FPR).
+
     std::array<uint64_t, NUM_GPR> gpr_ = {}; ///< Array for storing GPR values.
     std::array<uint64_t, NUM_FPR> fpr_ = {}; ///< Array for storing FPR values.
+    std::array<uint64_t, NUM_VPR> vpr_ = {}; ///< Array for storing FPR values for vector registers.
+
 
     static constexpr size_t NUM_CSR = 4096; ///< Number of Control and Status Registers (CSR).
 
@@ -79,6 +85,22 @@ class RegisterFile : public QObject
      */
     void WriteFpr(size_t reg, uint64_t value);
 
+    /**
+     * @brief Reads the value of a Vector Register (VPR).
+     * @param reg The index of the VPR to read.
+     * @return The value of the VPR at the specified index.
+     */
+    [[nodiscard]] uint64_t ReadVpr(size_t reg) const;
+
+    /**
+     * @brief Writes a value to a Vector-Purpose Register (VPR).
+     * @param reg The index of the VPR to write.
+     * @param value The value to write.
+     */
+
+    void WriteVpr(size_t reg, uint64_t value);
+
+
     [[nodiscard]] uint64_t ReadCsr(size_t reg) const;
 
     void WriteCsr(size_t reg, uint64_t value);
@@ -95,17 +117,27 @@ class RegisterFile : public QObject
      */
     [[nodiscard]] std::vector<uint64_t> GetFprValues() const;
 
+    /**
+     * @brief Retrieves the values of all Vector Registers (VPR).
+     * @return A vector containing the values of all VPRs.
+     */
+    [[nodiscard]] std::vector<uint64_t> GetVprValues() const;
+
     void ModifyRegister(const std::string &reg_name, uint64_t value);
 
   signals:
     void updateRegister(size_t regIndex, uint64_t value);
     void updateFRegister(size_t regIndex, uint64_t value);
+    void updateVRegister(size_t regIndex, uint64_t value);
     void registerResetSignal();
+
 };
 
 extern const std::unordered_set<std::string> valid_general_purpose_registers;
 
 extern const std::unordered_set<std::string> valid_floating_point_registers;
+
+extern const std::unordered_set<std::string> valid_vector_registers;
 
 extern const std::unordered_set<std::string> valid_csr_registers;
 
@@ -119,6 +151,8 @@ extern const std::unordered_map<std::string, std::string> reg_alias_to_name;
 bool IsValidGeneralPurposeRegister(const std::string &reg);
 
 bool IsValidFloatingPointRegister(const std::string &reg);
+
+bool IsValidVectorRegister(const std::string &reg);
 
 bool IsValidCsr(const std::string &reg);
 }//namespace Kites

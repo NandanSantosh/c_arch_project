@@ -111,6 +111,9 @@ Token Lexer::identifier()
     }
     std::string value = current_line_.substr(start_pos, pos_ - start_pos);
 
+    
+    std ::cout<<value<<" "<<" \n";
+
     std::regex label_regex("^[a-zA-Z][a-zA-Z0-9_]*:$");
 
     if (pos_ < current_line_.size() && current_line_[pos_] == ':')
@@ -134,6 +137,12 @@ Token Lexer::identifier()
     {
         return {TokenType::FP_REGISTER, value, line_number_, start_column};
     }
+
+    if (IsValidVectorRegister(value))
+    {
+        return {TokenType::VP_REGISTER, value, line_number_, start_column};
+    }
+
     if (IsValidCsr(value))
     {
         return {TokenType::CSR_REGISTER, value, line_number_, start_column};
@@ -155,6 +164,7 @@ Token Lexer::identifier()
 
     if (instruction_set::isValidInstruction(value))
     {
+     
         return {TokenType::OPCODE, value, line_number_, start_column};
     }
 

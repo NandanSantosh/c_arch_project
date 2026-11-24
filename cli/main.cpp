@@ -14,11 +14,13 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QString>
-
+#include<chrono>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+
 
 namespace
 {
@@ -26,12 +28,15 @@ void printUsage(const char *programName)
 {
     std::cerr
         << "Usage: " << programName
-        << " [assembly-file] [--vm <name>] [--mem-dump <hex_addr> <row_count>]... [--repl|-i]\n"
+        << " [assembly-file] [output.csv] [--vm <name>] [--mem-dump <hex_addr> <row_count>]... [--repl|-i]\n"
         << "  assembly-file   optional; if given without --repl, assembles, runs to\n"
         << "                  completion, and dumps state (batch mode)\n"
+        << "  output.csv      optional; destination for instruction execution counts\n"
         << "  --vm <name>     rvss (default) | rv5-nh-nf | rv5-h-nf | rv5-nh-f | rv5-h-f\n"
         << "  --mem-dump      dump <row_count> 8-byte rows starting at <hex_addr>; "
            "repeatable (batch mode only)\n"
+        << "  --mem-output    destination for memory dump (default path otherwise)\n"
+        << "  -o, --output    CSV filename (saved inside instructions_count/)\n"
         << "  --repl, -i      drop into the interactive REPL instead of auto-running;\n"
         << "                  if assembly-file is given it is loaded before the prompt\n"
         << "  (running with no assembly-file also enters the REPL)\n";
@@ -53,56 +58,108 @@ int main(int argc, char *argv[])
     Kites::setupVmStateDirectory();
 
     std::string assemblyFile;
+    std::string csvOutputFile = "instructions_count/instruction_counts.csv";
     std::string processorTypeStr = "rvss";
+
+    bool csvOutputProvided = false;
     std::vector<std::string> memDumpArgs;
     bool replRequested = false;
+    
 
-    for (int i = 1; i < argc; ++i)
+   for (int i = 1; i < argc; ++i)
+{
+    std::string arg = argv[i];
+
+    if (arg == "--vm")
     {
-        std::string arg = argv[i];
-        if (arg == "--vm")
+        if (i + 1 >= argc)
         {
-            if (i + 1 >= argc)
-            {
-                std::cerr << "Error: --vm requires a value.\n";
-                printUsage(argv[0]);
-                return 1;
-            }
-            processorTypeStr = argv[++i];
-        }
-        else if (arg == "--mem-dump")
-        {
-            if (i + 2 >= argc)
-            {
-                std::cerr << "Error: --mem-dump requires <hex_addr> <row_count>.\n";
-                printUsage(argv[0]);
-                return 1;
-            }
-            memDumpArgs.push_back(argv[++i]);
-            memDumpArgs.push_back(argv[++i]);
-        }
-        else if (arg == "--repl" || arg == "-i")
-        {
-            replRequested = true;
-        }
-        else if (!arg.empty() && arg[0] == '-')
-        {
-            std::cerr << "Error: unknown argument '" << arg << "'.\n";
+            std::cerr << "Error: --vm requires a value.\n";
             printUsage(argv[0]);
             return 1;
         }
-        else if (assemblyFile.empty())
-        {
-            assemblyFile = arg;
-        }
-        else
-        {
-            std::cerr << "Error: unexpected extra argument '" << arg << "'.\n";
-            printUsage(argv[0]);
-            return 1;
-        }
+
+        processorTypeStr = argv[++i];
     }
 
+    else if (arg == "--mem-dump")
+    {
+        if (i + 2 >= argc)
+        {
+            std::cerr << "Error: --mem-dump requires <hex_addr> <row_count>.\n";
+            printUsage(argv[0]);
+            return 1;
+        }
+
+        memDumpArgs.push_back(argv[++i]);
+        memDumpArgs.push_back(argv[++i]);
+    }
+
+    else if (arg == "--repl" || arg == "-i")
+    {
+        replRequested = true;
+    }
+    else if (arg == "--mem-output")
+{
+    if (i + 1 >= argc)
+    {
+        std::cerr << "Error: --mem-output requires a filename.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    memDumpArgs.push_back("--mem-output");
+    memDumpArgs.push_back(argv[++i]);
+}
+
+
+
+    // Explicit CSV output option
+    else if (arg == "--output" || arg == "-o")
+    {
+        if (i + 1 >= argc)
+        {
+            std::cerr << "Error: --output requires a CSV filename.\n";
+            printUsage(argv[0]);
+            return 1;
+        }
+
+        if (csvOutputProvided)
+        {
+            std::cerr << "Error: CSV output specified more than once.\n";
+            return 1;
+        }
+
+        csvOutputFile = "instructions_count/" + std::string(argv[++i]);
+        csvOutputProvided = true;
+    }
+
+    else if (!arg.empty() && arg[0] == '-')
+    {
+        std::cerr << "Error: unknown argument '" << arg << "'.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    else if (assemblyFile.empty())
+    {
+        assemblyFile = arg;
+    }
+
+    // Optional positional CSV filename
+    else if (!csvOutputProvided)
+    {
+        csvOutputFile = "instructions_count/" + arg;
+        csvOutputProvided = true;
+    }
+
+    else
+    {
+        std::cerr << "Error: unexpected extra argument '" << arg << "'.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+}
     auto processorTypeIt = processorTypes.find(processorTypeStr);
     if (processorTypeIt == processorTypes.end())
     {
@@ -149,7 +206,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Kites::ProcessorManager manager(nullptr, processorTypeIt->second);
+   Kites::ProcessorManager manager(nullptr, processorTypeIt->second);
+    manager.setCSVOutputPath(csvOutputFile);
 
     bool runFailed = false;
     std::string runErrorMsg;
@@ -169,7 +227,20 @@ int main(int argc, char *argv[])
     // Known limitation: a program hitting a blocking read syscall will hang here
     // forever, since nothing in this CLI feeds terminal stdin into the VM's input
     // queue yet (that's separate, future work).
+    const auto start = std::chrono::steady_clock::now();
+
     manager.run();
+    manager.exportCSV();
+
+    const auto end = std::chrono::steady_clock::now();
+
+    const double elapsedMs =
+        std::chrono::duration<double, std::milli>(
+            end - start
+        ).count();
+
+    std::cout << "Execution time: "
+            << elapsedMs << " ms\n";
 
     if (runFailed)
     {

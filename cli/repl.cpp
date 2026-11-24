@@ -38,6 +38,14 @@ void PrintRegisters(std::ostream &os, RegisterFile &registers)
            << std::setfill('0') << fpr[i] << std::dec << std::setfill(' ') << "\n";
     }
 
+    std::vector<uint64_t> vpr = registers.GetVprValues();
+    os << "Vector registers:\n";
+    for (size_t i = 0; i < vpr.size(); ++i)
+    {
+        os << "  v" << std::left << std::setw(3) << i << " = 0x" << std::hex << std::setw(16)
+           << std::setfill('0') << gpr[i] << std::dec << std::setfill(' ') << "\n";
+    }
+
     os << "Control and status registers:\n";
     for (const auto &[name, address] : csr_to_address)
     {

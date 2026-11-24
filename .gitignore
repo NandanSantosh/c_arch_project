@@ -21,3 +21,7 @@ CMakeLists.txt.user
 gtest_filter.
 .vs/
 gtest_filter.py
+
+build-debug/
+src.zip
+.DS_Store

@@ -18,6 +18,11 @@ namespace Kites
 namespace instruction_set
 {
 
+std::string vr(uint8_t r)
+{
+    return "v" + std::to_string(r);
+}
+
 std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = {
     {Instruction::kadd, {0b0110011, -1, 0b000, -1, -1, 0b0000000}},
     {Instruction::ksub, {0b0110011, -1, 0b000, -1, -1, 0b0100000}},
@@ -186,6 +191,24 @@ std::unordered_map<Instruction, InstructionEncoding> instruction_encoding_map = 
     {Instruction::kfnmsub_d, {0b1001011, 0b01, -1, -1, -1, -1}},
     {Instruction::kfnmadd_d, {0b1001111, 0b01, -1, -1, -1, -1}},
 
+    {Instruction::kvadd, {0b0101011, -1, 0b001, -1, -1, 0b0000000}},
+    {Instruction::kvsub, {0b0101011, -1, 0b001, -1, -1, 0b0000001}},
+    {Instruction::kvswap, {0b0101011, -1, 0b010, -1, -1, 0b0000010}},
+
+    {Instruction::kvadd_h, {0b0101011, -1, 0b001, -1, -1, 0b1000000}},
+    {Instruction::kvsub_h, {0b0101011, -1, 0b001, -1, -1, 0b1000001}},
+
+    {Instruction::kvmul, {0b1011011, -1, 0b001, -1, -1, 0b0000010}},
+    {Instruction::kvcmpl, {0b1011011, -1, 0b010, -1, -1, 0b0000010}},
+    {Instruction::kvmul_h, {0b1011011, -1, 0b001, -1, -1, 0b1000010}},
+    {Instruction::kvcmpl_h, {0b1011011, -1, 0b010, -1, -1, 0b1000010}},
+
+    {Instruction::kvsd,  {0b1101011, -1, 0b011, -1, -1, -1}},
+    {Instruction::kvld,  {0b1101010, -1, 0b011, -1, -1, -1}},
+
+     {Instruction::kvmulj,  {0b0101001, -1, 0b010,-1,0b00010 ,0b0000001}},
+    {Instruction::kvconj,  {0b0101001, -1, 0b010, -1, 0b00001, 0b0000010}},
+
 };
 
 std::unordered_map<std::string, Instruction> instruction_string_map = {
@@ -346,7 +369,22 @@ std::unordered_map<std::string, Instruction> instruction_string_map = {
     {"flw", Instruction::kflw},
     {"fsw", Instruction::kfsw},
     {"fld", Instruction::kfld},
-    {"fsd", Instruction::kfsd}
+    {"fsd", Instruction::kfsd},
+
+
+    {"vadd", Instruction::kvadd},
+    {"vsub", Instruction::kvsub},
+    {"vswap", Instruction::kvswap},
+    {"vadd.h", Instruction::kvadd_h},
+    {"vsub.h", Instruction::kvsub_h},
+    {"vmul", Instruction::kvmul},
+    {"vcmpl", Instruction::kvcmpl},
+    {"vmul.h", Instruction::kvmul_h},
+    {"vcmpl.h", Instruction::kvcmpl_h},
+    {"vsd", Instruction::kvsd},
+    {"vld", Instruction::kvld},
+    {"vmulj", Instruction::kvmulj},
+    {"vconj", Instruction::kvconj},
 
 };
 
@@ -375,7 +413,22 @@ static const std::unordered_set<std::string> valid_instructions = {
     "fld", "fsd", "fmadd.d", "fmsub.d", "fnmsub.d", "fnmadd.d", "fadd.d", "fsub.d", "fmul.d",
     "fdiv.d", "fsqrt.d", "fsgnj.d", "fsgnjn.d", "fsgnjx.d", "fmin.d", "fmax.d", "fcvt.s.d",
     "fcvt.d.s", "feq.d", "flt.d", "fle.d", "fclass.d", "fcvt.w.d", "fcvt.wu.d", "fcvt.d.w",
-    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x"
+    "fcvt.d.wu", "fcvt.l.d", "fcvt.lu.d", "fmv.x.d", "fcvt.d.l", "fcvt.d.lu", "fmv.d.x",
+    
+    // RVV
+    "vadd","vsub","vswap","vadd.h","vsub.h",
+
+    //MV
+    "vmul","vcmpl", "vmul.h","vcmpl.h",
+    
+    //SV
+    "vsd",
+    // LV
+    "vld",
+
+    // QV
+
+    "vmulj","vconj"
 
 };
 
@@ -515,6 +568,31 @@ static const std::unordered_set<std::string> DExtensionInstructions = {
     "feq.d",    "flt.d",    "fle.d",     "fclass.d", "fcvt.w.d",  "fcvt.wu.d",
     "fmv.x.d",  "fcvt.l.d", "fcvt.lu.d", "fcvt.d.l", "fcvt.d.lu",
 };
+
+
+
+
+
+static const std::unordered_set<std::string> RVTypeInstructions = {
+    "vadd","vsub","vswap", "vadd.h", "vsub.h"
+};
+
+static const std::unordered_set<std::string> MVTypeInstructions = {
+    "vmul","vcmpl","vmul.h","vcmpl.h"
+};
+
+static const std::unordered_set<std::string> SVTypeInstructions = {
+    "vsd"
+};
+
+static const std::unordered_set<std::string> LVTypeInstructions = {
+    "vld"
+};
+
+static const std::unordered_set<std::string> QVTypeInstructions = {
+    "vmulj","vconj"
+};
+
 
 std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map = {
     {"add", {0b0110011, 0b000, 0b0000000}},  // O_GPR_C_GPR_C_GPR
@@ -725,6 +803,35 @@ std::unordered_map<std::string, FDITypeInstructionEncoding> F_D_I_type_instructi
 std::unordered_map<std::string, FDSTypeInstructionEncoding> F_D_S_type_instruction_encoding_map = {
     {"fsw", {0b0100111, 0b010}}, // O_FPR_C_I_LP_GPR_RP
     {"fsd", {0b0100111, 0b011}}, // O_FPR_C_I_LP_GPR_RP
+};
+
+std::unordered_map<std::string, RVTypeInstructionEncoding> RV_type_instruction_encoding_map = {
+    {"vadd", {0b0101011, 0b001, 0b0000000}},  // O_VPR_C_VPR_C_VPR
+    {"vsub", {0b0101011, 0b001, 0b0000001}},  // O_VPR_C_VPR_C_VPR
+    {"vadd.h", {0b0101011, 0b001, 0b1000000}},  // O_VPR_C_VPR_C_VPR
+    {"vsub.h", {0b0101011, 0b001, 0b1000001}},  // O_VPR_C_VPR_C_VPR
+    {"vswap", {0b0101011, 0b010, 0b0000010}}, // O_VPR_C_VPR
+};
+
+std::unordered_map<std::string, MVTypeInstructionEncoding> MV_type_instruction_encoding_map = {
+    {"vmul", {0b1011011, 0b001, 0b0000010}},  // O_VPR_C_VPR_C_VPR
+    {"vcmpl", {0b1011011, 0b010, 0b0000010}},  // O_VPR_C_VPR_C_VPR
+    {"vmul.h", {0b1011011, 0b001, 0b1000010}},  // O_VPR_C_VPR_C_VPR
+    {"vcmpl.h", {0b1011011, 0b010, 0b1000010}},  // O_VPR_C_VPR_C_VPR
+};
+
+std::unordered_map<std::string, SVTypeInstructionEncoding> SV_type_instruction_encoding_map = {
+    {"vsd", {0b1101011, 0b011}},  // O_VPR_C_I_LP_GPR_RP
+};
+
+std::unordered_map<std::string, LVTypeInstructionEncoding> LV_type_instruction_encoding_map = {
+    {"vld", {0b1101010, 0b011}},  // O_VPR_C_I_LP_GPR_RP
+};
+
+
+std::unordered_map<std::string, QVTypeInstructionEncoding> QV_type_instruction_encoding_map = {
+    {"vconj", {0b0101001, 0b010,0b00001, 0b0000010}}, // O_VPR_C_VPR
+    {"vmulj", {0b0101001, 0b010,0b00010 ,0b0000001}}, // O_VPR_C_VPR
 };
 
 /*
@@ -967,11 +1074,27 @@ std::unordered_map<std::string, std::vector<SyntaxType>> instruction_syntax_map 
                                             // from an x (integer) register into an f
                                             // (floating-point) register without conversion
 
+    /////////////
+
+    {"vadd",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vsub",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vadd.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vsub.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vswap",{SyntaxType::O_VPR_C_VPR}}, //but we don't use one of the registers
+    {"vmulj",{SyntaxType::O_VPR_C_VPR}},
+    {"vconj",{SyntaxType::O_VPR_C_VPR}},
+    {"vmul",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vcmpl",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+     {"vmul.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vcmpl.h",{SyntaxType::O_VPR_C_VPR_C_VPR}},
+    {"vsd",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
+     {"vld",{SyntaxType::O_VPR_C_I_LP_GPR_RP}},
+
 };
 
 bool isValidInstruction(const std::string &instruction)
 {
-    return valid_instructions.find(instruction) != valid_instructions.end();
+    return valid_instructions.contains(instruction);
 }
 
 bool isValidRTypeInstruction(const std::string &instruction)
@@ -1082,6 +1205,31 @@ bool isValidFDSTypeInstruction(const std::string &instruction)
     return (FDExtensionSTypeInstructions.find(instruction) != FDExtensionSTypeInstructions.end());
 }
 
+bool isValidRVTypeInstruction(const std::string &instruction)
+{
+    return RVTypeInstructions.find(instruction) != RVTypeInstructions.end();
+}
+
+bool isValidMVTypeInstruction(const std::string &instruction)
+{
+    return MVTypeInstructions.find(instruction) != MVTypeInstructions.end();
+}
+
+bool isValidSVTypeInstruction(const std::string &instruction)
+{
+    return SVTypeInstructions.find(instruction) != SVTypeInstructions.end();
+}
+
+bool isValidLVTypeInstruction(const std::string &instruction)
+{
+    return LVTypeInstructions.find(instruction) != LVTypeInstructions.end();
+}
+
+bool isValidQVTypeInstruction(const std::string &instruction)
+{
+    return QVTypeInstructions.find(instruction) != QVTypeInstructions.end();
+}
+
 bool isFInstruction(const uint32_t &instruction)
 {
     uint8_t opcode = (instruction & 0b1111111);
@@ -1151,6 +1299,73 @@ bool isDInstruction(const uint32_t &instruction)
     return false;
 }
 
+bool isVInstruction(const uint32_t &instruction)
+{
+    uint8_t opcode = instruction & 0b1111111;
+    uint8_t funct3 = (instruction >> 12) & 0b111;
+    uint8_t funct7 = (instruction >> 25) & 0b1111111;
+
+    switch (opcode)
+    {
+    case 0b0101011: // vadd, vsub , vswap, vadd.h, vsub.h
+        if (funct3 == 0b001 &&
+            (funct7 == 0b0000000 || funct7 == 0b0000001 || funct7==0b1000000 || funct7==0b1000001))
+        {
+            return true;
+        }
+        else if(funct3 == 0b010 && funct7 == 0b0000010)
+        {
+            return true; // vswap
+        }
+        break;
+
+    case 0b1011011: // vmul
+        if (funct3 == 0b001 && funct7 == 0b0000010)
+        {
+            return true;
+        }
+        if (funct3 == 0b010 && funct7 == 0b0000010) // vcmpl
+        {
+            return true;
+        }
+        if (funct3 == 0b001 && funct7 == 0b1000010) // vmul.h
+        {
+            return true;
+        }
+        if (funct3 == 0b010 && funct7 == 0b1000010) // vcmpl.h
+        {
+            return true;
+        }
+        break;
+
+    case 0b1101011: // vsd
+        if (funct3 == 0b011)
+        {
+            return true;
+        }
+    case 0b1101010: // vld
+        if (funct3 == 0b011)
+        {
+            return true;
+        }
+    case 0b0101001: // vconj,vmulj
+        if (funct7 == 0b0000010)
+        {
+            return true;
+        }
+         if (funct7 == 0b0000001)
+        {
+            return true;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return false;
+}
+
 std::string getExpectedSyntaxes(const std::string &opcode)
 {
     static const std::unordered_map<std::string, std::string> opcodeSyntaxMap = {
@@ -1206,6 +1421,9 @@ std::string getExpectedSyntaxes(const std::string &opcode)
         {SyntaxType::O_GPR_C_FPR_C_RM, "<gp-reg>, <fp-reg>, <rm>"},
         {SyntaxType::O_GPR_C_FPR_C_FPR, "<gp-reg>, <fp-reg>, <fp-reg>"},
         {SyntaxType::O_FPR_C_I_LP_GPR_RP, "<fp-reg>, <imm>(<gp-reg>)"},
+        {SyntaxType::O_VPR_C_VPR_C_VPR, "<vp-reg>, <vp-reg>,<vp-reg>"},
+        {SyntaxType::O_VPR_C_I_LP_GPR_RP, "<vp-reg>, <imm>(<gp-reg>)"},
+        {SyntaxType::O_VPR_C_VPR, "<vp-reg>, <vp-reg>"}
     };
 
     std::string syntaxes;
@@ -1268,6 +1486,22 @@ InstructionType getInstructionType(const std::string &instruction)
     // if (isValidBaseExtensionInstruction(instruction))
     //     return InstructionType::BASE_EXT;
 
+
+    if (isValidRVTypeInstruction(instruction))
+        return InstructionType::RV_TYPE;
+
+    if (isValidMVTypeInstruction(instruction))
+        return InstructionType::MV_TYPE;
+
+    if (isValidSVTypeInstruction(instruction))
+        return InstructionType::SV_TYPE;
+
+    if(isValidLVTypeInstruction(instruction))
+        return InstructionType::LV_TYPE;
+
+    if (isValidQVTypeInstruction(instruction))
+        return InstructionType::QV_TYPE;
+        
     return InstructionType::UNKNOWN;
 }
 
@@ -1314,7 +1548,9 @@ std::string disassemble(uint32_t instruction)
     // B: name rs1, rs2, imm
     // U: name rd, imm
     // J: name rd, imm
-
+    // RV : name rd , rs1, rs2
+    // MV : name rd , rs1, rs2
+    // SV : name rd , rs1, rs2
     switch (opcode)
     {
 
@@ -1798,7 +2034,123 @@ std::string disassemble(uint32_t instruction)
         break;
     }
 
-    } // end switch
+
+
+case 0b0101011:
+{ // RV-type vector instructions
+    std::string name;
+
+    switch (funct7)
+    {
+    case 0b0000000:
+        if (funct3 == 0b001)
+            name = "vadd";
+        break;
+
+    case 0b0000001:
+        if (funct3 == 0b001)
+            name = "vsub";
+        break;
+
+    case 0b0000010:
+        if (funct3 == 0b010)
+            name = "vswap";
+        break;
+
+    case 0b1000000:
+        if (funct3 == 0b001)
+            name = "vadd.h";
+        break;
+    
+    case 0b1000001:
+        if (funct3 == 0b001)
+            name = "vsub.h";
+        break;
+
+    }
+
+    if (name == "vswap")
+        return name + " " + vr(rd) + ", " + vr(rs1);
+
+    if (name == "vadd" || name == "vsub" || name == "vadd.h" || name == "vsub.h")
+        return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
+
+    break;
+}
+
+    case 0b1011011:
+    { //MV-type vector instructions
+        std::string name;
+        switch (funct3)
+        {
+        case 0b001:
+            name = "vmul";
+        if(funct7==0b1000010){
+            name = "vmul.h";
+        }
+            break;
+        case 0b010:
+            name = "vcmpl";
+        if(funct7==0b1000010){
+            name = "vcmpl.h";
+        }
+            break;
+        }
+        
+        if (!name.empty())
+            return name + " " + vr(rd) + ", " + vr(rs1) + ", " + vr(rs2);
+        break;
+    }
+
+    case 0b1101011:
+    { // SV-type vector stores
+        std::string name;
+        switch (funct3)
+        {
+        case 3:
+            name = "vsd";
+            break;
+        }
+
+        if (!name.empty())
+            return name + " " + vr(rs2) + ", " +
+                std::to_string(immS()) + "(" + xr(rs1) + ")";
+
+        break;
+    }
+
+
+
+     case 0b1101010:
+    { // Loads
+        std::string name;
+        switch (funct3)
+        {
+        case 3:
+            name = "vld";
+            break;
+        }
+        if (!name.empty())
+            return name + " " + vr(rd) + ", " + std::to_string(immI()) + "(" + xr(rs1) + ")";
+        break;
+    }
+
+     case 0b0101001:
+    { // Loads
+        std::string name;
+        switch (funct7)
+        {
+        case  0b0000010:
+            name = "vconj";
+            break;
+        case  0b0000001:
+            name = "vmulj";
+            break;
+        }
+        if (!name.empty())
+            return  name + " " + vr(rd) + ", " + vr(rs1);
+        break;
+    }
 
     char buf[32];
     snprintf(buf, sizeof(buf), "unknown(0x%08x)", instruction);
@@ -1806,4 +2158,5 @@ std::string disassemble(uint32_t instruction)
 }
 
 } // namespace instruction_set
+}
 }// namespace Kites

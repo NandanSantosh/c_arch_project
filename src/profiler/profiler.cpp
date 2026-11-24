@@ -1,5 +1,6 @@
 #include "profiler/profiler.h"
 #include "common/instructions.h"
+#include <fstream>
 
 namespace Kites
 {
@@ -14,6 +15,10 @@ void Profiler::Reset()
 {
     m_lineNumberToExecutionCounts.clear();
     m_instructionTypeCounts.fill(0);
+
+    // New: reset dynamic mnemonic counts
+    m_mnemonicExecutionCounts.clear();
+
     emit profilerReset();
 }
 
@@ -22,6 +27,17 @@ void Profiler::setInstructionToLineMapping(const AssembledProgram &program)
     m_instructionNumberToLineNumber = program.instruction_number_line_number_mapping;
 }
 
+void Profiler::setInstructionToMnemonicMapping(const AssembledProgram &program)
+{
+    m_instructionNumberToMnemonic.clear();
+
+    for (unsigned int i = 0; i < program.intermediate_code.size(); i++)
+    {
+        const auto &icUnit = program.intermediate_code[i].first;
+
+        m_instructionNumberToMnemonic[i] = icUnit.getOpcode();
+    }
+}
 // void Profiler::setInstructionTypeCounts(const AssembledProgram &program)
 // {
 //     m_instructionTypeCounts.fill(0);
@@ -40,6 +56,36 @@ void Profiler::setInstructionToLineMapping(const AssembledProgram &program)
 const InstructionTypeCounts &Profiler::getInstructionTypeCounts() const
 {
     return m_instructionTypeCounts;
+}
+
+const std::map<std::string, uint64_t>&
+Profiler::getMnemonicExecutionCounts() const
+{
+    return m_mnemonicExecutionCounts;
+}
+
+void Profiler::exportMnemonicCountsToCSV(const std::string &filename) const
+{
+    std::ofstream file(filename);
+
+    if (!file.is_open())
+    {
+        qDebug() << "Could not open CSV file:"
+                 << QString::fromStdString(filename);
+        return;
+    }
+
+    file << "Mnemonic,Execution_Count\n";
+
+    for (const auto &[mnemonic, count] : m_mnemonicExecutionCounts)
+    {
+        file << mnemonic << "," << count << "\n";
+    }
+
+    file.close();
+
+    qDebug() << "Mnemonic counts exported to:"
+             << QString::fromStdString(filename);
 }
 
 int Profiler::getLineExecutionCount(int lineNumber) const
@@ -72,12 +118,27 @@ void Profiler::setLineNumberToInstructionTypeMapping(const AssembledProgram &pro
 
 void Profiler::processorClockedSlot(const ProcessorState &processorState)
 {
-    int executedLine = m_instructionNumberToLineNumber
-    [static_cast<unsigned int>(processorState.lastExecutedPC / 4)];
-    qDebug() << "Processor clocked. Last executed PC: " << processorState.lastExecutedPC
-             << ", Instruction number: " << (processorState.lastExecutedPC / 4)
-             << ", Mapped line number: " << executedLine;
+    unsigned int instructionNumber =
+        static_cast<unsigned int>(processorState.lastExecutedPC / 4);
+
+    // Existing line profiling
+    auto lineIt = m_instructionNumberToLineNumber.find(instructionNumber);
+
+    if (lineIt == m_instructionNumberToLineNumber.end())
+        return;
+
+    int executedLine = lineIt->second;
+
     emit incrementLineExecutionCountSignal(executedLine);
+
+    // New: dynamic mnemonic counting
+    auto mnemonicIt = m_instructionNumberToMnemonic.find(instructionNumber);
+
+    if (mnemonicIt != m_instructionNumberToMnemonic.end())
+    {
+        m_mnemonicExecutionCounts[mnemonicIt->second]++;
+
+    }
 }
 
 // uint64_t Profiler::resolveExecutedLineFromState(const ProcessorState& processorState) const

@@ -4,9 +4,9 @@
  * @author Vishank Singh, https://github.com/VishankSingh
  */
 
+#include <array>
 #include "processor/registers.h"
 #include <QDebug>
-#include <array>
 #include <cstdint>
 #include <stdexcept>
 #include <unordered_map>
@@ -23,6 +23,7 @@ void RegisterFile::Reset()
 {
     gpr_.fill(0);
     fpr_.fill(0.0);
+    vpr_.fill(0);// Reset vector registers to 0. 0 and 0.0 are both same. so using 0 for simplicity.
     csr_.fill(0);
     csr_[0x002] = 0b000; // Default: RNE (IEEE 754)
     emit registerResetSignal();
@@ -63,6 +64,23 @@ void RegisterFile::WriteFpr(size_t reg, uint64_t value)
     emit updateFRegister(reg, value);
 }
 
+uint64_t RegisterFile::ReadVpr(size_t reg) const
+{
+    if (reg >= NUM_VPR)
+        throw std::out_of_range("Invalid VPR index");
+    return vpr_[reg];
+}
+
+void RegisterFile::WriteVpr(size_t reg, uint64_t value)
+{
+    if (reg >= NUM_VPR)
+        throw std::out_of_range("Invalid VPR index");
+    vpr_[reg] = value;
+    emit updateVRegister(reg, value);
+}
+
+
+
 uint64_t RegisterFile::ReadCsr(size_t reg) const
 {
     if (reg >= NUM_CSR)
@@ -87,6 +105,11 @@ std::vector<uint64_t> RegisterFile::GetFprValues() const
     return {fpr_.begin(), fpr_.end()};
 }
 
+std::vector<uint64_t> RegisterFile::GetVprValues() const
+{
+    return {vpr_.begin(), vpr_.end()};
+}
+
 void RegisterFile::ModifyRegister(const std::string &reg_name, uint64_t value)
 {
     std::string reg_name_n = reg_alias_to_name.at(reg_name);
@@ -97,6 +120,10 @@ void RegisterFile::ModifyRegister(const std::string &reg_name, uint64_t value)
     else if (IsValidFloatingPointRegister(reg_name_n))
     {
         WriteFpr(std::stoi(reg_name_n.substr(1)), value);
+    }
+    else if (IsValidVectorRegister(reg_name_n))
+    {
+        WriteVpr(std::stoi(reg_name_n.substr(1)), value);
     }
     else if (IsValidCsr(reg_name_n))
     {
@@ -128,6 +155,13 @@ const std::unordered_set<std::string> valid_floating_point_registers = {
     "fs6",  "fs7",  "fs8",  "fs9",  "fs10", "fs11", "ft8",  "ft9",  "ft10", "ft11", "ft12",
     "ft13", "ft14", "ft15", "ft16", "ft17", "ft18", "ft19", "ft20", "ft21", "ft22", "ft23",
     "ft24", "ft25", "ft26", "ft27", "ft28", "ft29", "ft30", "ft31",
+};
+
+const std::unordered_set<std::string> valid_vector_registers = {
+    "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7",
+    "v8",  "v9",  "v10",  "v11",  "v12",  "v13",  "v14",  "v15",
+    "v16",  "v17",  "v18",  "v19",  "v20",  "v21",  "v22",  "v23",
+    "v24",  "v25",  "v26",  "v27",  "v28",  "v29",  "v30",  "v31",
 };
 
 const std::unordered_set<std::string> valid_csr_registers = {"fflags", "frm", "fcsr"};
@@ -173,6 +207,15 @@ const std::unordered_map<std::string, std::string> reg_alias_to_name = {
 
     {"fflags", "fflags"}, {"frm", "frm"},  {"fcsr", "fcsr"},
 
+    {"v0", "v0"},          {"v1", "v1"},            {"v2", "v2"},           {"v3", "v3"},
+    {"v4", "v4"},          {"v5", "v5"},            {"v6", "v6"},           {"v7", "v7"},
+    {"v8", "v8"},          {"v9", "v9"},            {"v10", "v10"},           {"v11", "v11"},
+    {"v12", "v12"},          {"v13", "v13"},            {"v14", "v14"},           {"v15", "v15"},
+    {"v16", "v16"},          {"v17", "v17"},            {"v18", "v18"},           {"v19", "v19"},
+    {"v20", "v20"},          {"v21", "v21"},            {"v22", "v22"},           {"v23", "v23"},
+    {"v24", "v24"},          {"v25", "v25"},            {"v26", "v26"},           {"v27", "v27"},
+    {"v28", "v28"},          {"v29", "v29"},            {"v30", "v30"},           {"v31", "v31"},
+
 };
 
 bool IsValidGeneralPurposeRegister(const std::string &reg)
@@ -183,6 +226,11 @@ bool IsValidGeneralPurposeRegister(const std::string &reg)
 bool IsValidFloatingPointRegister(const std::string &reg)
 {
     return valid_floating_point_registers.find(reg) != valid_floating_point_registers.end();
+}
+
+bool IsValidVectorRegister(const std::string &reg)
+{
+    return valid_vector_registers.find(reg) != valid_vector_registers.end();
 }
 
 bool IsValidCsr(const std::string &reg)

@@ -25,7 +25,7 @@ enum class TokenType
     OPCODE,       ///< Opcode in an instruction
     GP_REGISTER,  ///< General-purpose register
     FP_REGISTER,  ///< Floating-point register
-    VEC_REGISTER, ///< Vector register
+    // VEC_REGISTER, ///< Vector register
     CSR_REGISTER, ///< Control and Status Register
     NUM,          ///< Numeric value
     FLOAT,        ///< Floating-point value
@@ -36,6 +36,8 @@ enum class TokenType
     RPAREN,       ///< Right parenthesis ')'
     STRING,       ///< String literal
     RM,           ///< Rounding mode
+    // VECTOR , ///<Vector 
+    VP_REGISTER ///< Vector registers
 };
 
 /**

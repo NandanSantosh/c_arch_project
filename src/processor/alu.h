@@ -3,11 +3,13 @@
  * @brief Contains the definition of the alu class for performing arithmetic and logic operations.
  * @author Vishank Singh, httpa://github.com/VishankSingh
  */
+
 #ifndef ALU_H
 #define ALU_H
 
 #include <cfenv>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <ostream>
 
@@ -136,6 +138,22 @@ enum class AluOp
 
     FMV_D_X, ///< Floating point move to integer double operation.
     FMV_X_D, ///< Floating point move from integer double operation.
+
+    //vector operations
+    VADD,    ///< Vector Addition operation.
+    VSUB,    ///< Vector Subtraction operation.
+    VMUL,    ///< Vector Multiplication operation.
+    VSWAP,  ///< Vector Swap operation.
+    VCMPL,
+    VADD_H,
+    VSUB_H,
+    VMUL_H,
+    VCMPL_H,
+    VCONJ,
+    VMULJ
+    // VDIV,    ///< Vector Division operation.
+    // VREM,    ///< Vector Remainder operation.
+    // VSD     ///< Vector Store Double operation.
 };
 
 inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
@@ -337,6 +355,43 @@ inline std::ostream &operator<<(std::ostream &os, const AluOp &op)
     case AluOp::FSGNJ_D:
         os << "FSGNJ_D";
         break;
+    
+    
+    //vector operations
+    case AluOp::VADD:
+        os << "VADD";
+        break;
+    case AluOp::VSUB:
+        os << "VSUB";
+        break;
+    case AluOp::VSWAP:
+        os << "VSWAP";
+        break;
+    case AluOp::VCONJ:
+        os << "VCONJ";
+        break;
+    case AluOp::VMULJ:
+        os << "VMULJ";
+        break;
+    case AluOp::VMUL:
+        os << "VMUL";
+        break;
+    case AluOp::VCMPL:
+        os << "VCMPL";
+        break;
+     case AluOp::VADD_H:
+        os << "VADD_H";
+        break;
+    case AluOp::VSUB_H:
+        os << "VSUB_H";
+        break;
+     case AluOp::VMUL_H:
+        os << "VMUL_H";
+        break;
+    case AluOp::VCMPL_H:
+        os << "VCMPL_H";
+        break;
+   
 
     default:
         os << "UNKNOWN";
@@ -375,6 +430,15 @@ class Alu
 
     [[nodiscard]] static std::pair<uint64_t, bool> dfpexecute(AluOp op, uint64_t ina, uint64_t inb,
                                                               uint64_t inc, uint8_t rm);
+
+    [[nodiscard]] static std::uint64_t executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+    std::uint64_t b, std::size_t activeLanes = 2, std::uint8_t mask = 0b11);
+
+     [[nodiscard]] static std::uint64_t executeVector16(AluOp op, std::uint64_t destination, std::uint64_t a,
+    std::uint64_t b, std::size_t activeLanes = 4, std::uint8_t mask = 0b1111);
+
+     [[nodiscard]]static std::uint16_t f2h(std::uint32_t f, std::uint8_t& fl);
+
 
     void setFlags(bool carry, bool zero, bool negative, bool overflow);
 };

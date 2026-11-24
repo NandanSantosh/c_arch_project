@@ -290,57 +290,123 @@ void MainMemory::printMemory(const uint64_t address, unsigned int rows)
     std::cout << "-----------------------------------------------------------------\n";
 }
 
+// void MainMemory::dumpMemory(std::vector<std::string> args)
+// {
+//     std::ofstream file(globals::memory_dump_file_path);
+//     if (!file.is_open())
+//     {
+//         throw std::runtime_error("Unable to open memory dump file: " +
+//                                  globals::memory_dump_file_path.string());
+//     }
+//     file << "{\n";
+
+//     for (size_t i = 0; i < args.size(); i += 2)
+//     {
+//         if (i + 1 >= args.size())
+//         {
+//             throw std::invalid_argument("Invalid number of arguments for memory dump.");
+//         }
+//         uint64_t address = std::stoull(args[i], nullptr, 16);
+//         uint64_t rows = std::stoull(args[i + 1]);
+//         for (uint64_t j = 0; j < rows; ++j)
+//         {
+//             uint64_t current_address = address + (j * 8);
+//             if (current_address >= memory_size_)
+//             {
+//                 break;
+//             }
+//             file << R"(    "0x)" << std::hex << std::setw(16) << std::setfill('0')
+//                  << current_address << R"(": )";
+
+//             file << R"("0x)";
+//             for (int k = 7; k >= 0; k--)
+//             {
+//                 file << std::hex << std::setw(2) << std::setfill('0')
+//                      << static_cast<int>(read(address + j * 8 + k));
+//             }
+//             file << R"(")";
+//             if (j < rows - 1 || i < args.size() - 2)
+//             {
+//                 file << ",";
+//             }
+//             file << std::setfill(' ') << "\n";
+//         }
+//         if (i < args.size() - 2)
+//         {
+//             file << "\n";
+//         }
+//     }
+
+//     file << "}\n";
+//     file.close();
+
+//     std::cout << "VM_MEMORY_DUMPED" << std::endl;
+// }
+
+
+
+
 void MainMemory::dumpMemory(std::vector<std::string> args)
 {
-    std::ofstream file(globals::memory_dump_file_path);
-    if (!file.is_open())
+    // Pull out optional memory dump output path
+    std::filesystem::path out_path = globals::memory_dump_file_path;
+
+    for (auto it = args.begin(); it != args.end(); )
     {
-        throw std::runtime_error("Unable to open memory dump file: " +
-                                 globals::memory_dump_file_path.string());
+        if (*it == "--mem-output")
+        {
+            if (std::next(it) == args.end())
+                throw std::invalid_argument("Missing path after --mem-output");
+
+            out_path = *std::next(it);
+            it = args.erase(it, it + 2);
+        }
+        else
+        {
+            ++it;
+        }
     }
+
+    // Keep the remaining code of your existing function unchanged.
+
+    if (args.size() % 2 != 0)
+        throw std::invalid_argument("Invalid number of arguments for memory dump.");
+
+    if (out_path.has_parent_path())
+        std::filesystem::create_directories(out_path.parent_path());
+
+    std::ofstream file(out_path);
+    if (!file.is_open())
+        throw std::runtime_error("Unable to open memory dump file: " + out_path.string());
+
     file << "{\n";
+    bool first = true;
 
     for (size_t i = 0; i < args.size(); i += 2)
     {
-        if (i + 1 >= args.size())
-        {
-            throw std::invalid_argument("Invalid number of arguments for memory dump.");
-        }
         uint64_t address = std::stoull(args[i], nullptr, 16);
-        uint64_t rows = std::stoull(args[i + 1]);
+        uint64_t rows    = std::stoull(args[i + 1]);
+
+        if (!first) file << "\n";   // blank line between blocks
         for (uint64_t j = 0; j < rows; ++j)
         {
-            uint64_t current_address = address + (j * 8);
+            uint64_t current_address = address + j * 8;
             if (current_address >= memory_size_)
-            {
                 break;
-            }
-            file << R"(    "0x)" << std::hex << std::setw(16) << std::setfill('0')
-                 << current_address << R"(": )";
 
-            file << R"("0x)";
+            if (!first) file << ",\n";
+            first = false;
+
+            file << R"(    "0x)" << std::hex << std::setw(16) << std::setfill('0')
+                 << current_address << R"(": "0x)";
             for (int k = 7; k >= 0; k--)
-            {
-                file << std::hex << std::setw(2) << std::setfill('0')
-                     << static_cast<int>(read(address + j * 8 + k));
-            }
-            file << R"(")";
-            if (j < rows - 1 || i < args.size() - 2)
-            {
-                file << ",";
-            }
-            file << std::setfill(' ') << "\n";
-        }
-        if (i < args.size() - 2)
-        {
-            file << "\n";
+                file << std::setw(2) << static_cast<int>(read(current_address + k));
+            file << '"';
         }
     }
 
-    file << "}\n";
-    file.close();
-
-    std::cout << "VM_MEMORY_DUMPED" << std::endl;
+    file << "\n}\n";
+    std::cout << "VM_MEMORY_DUMPED " << out_path.string() << std::endl;
 }
 
 void MainMemory::getMemoryPoint(std::string addr_str)

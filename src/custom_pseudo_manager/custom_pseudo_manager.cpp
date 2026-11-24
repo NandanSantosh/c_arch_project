@@ -499,7 +499,23 @@ bool isValidExpainsionLine(const QString &line,
          {"fmv.x.d", {2, {}}},
          {"fcvt.d.l", {2, {}}},
          {"fcvt.d.lu", {2, {}}},
-         {"fmv.d.x", {2, {}}}};
+         {"fmv.d.x", {2, {}}},
+        // Vextension
+        {"vadd", {3, {}}},
+        {"vsub", {3, {}}},
+        {"vswap", {2, {}}},
+        {"vadd.h", {3, {}}},
+        {"vsub.h", {3, {}}},
+        {"vmulj", {2, {}}},
+        {"vconj", {2, {}}},
+
+        {"vmul", {3, {}}},
+        {"vcmpl", {3, {}}},
+        {"vmul.h", {3, {}}},
+        {"vcmpl.h", {3, {}}},
+        {"vsd", {3, {2}}},
+        {"vld", {3, {2}}}
+    };
 
     // const auto opcodeTable = getOpcodeTable();
 

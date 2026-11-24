@@ -4,7 +4,7 @@
  */
 
 #pragma once
-
+#include <string>
 #include "common/assembled_program.h"
 #include "config/config.h"
 #include "processor/processor_base.h"
@@ -68,6 +68,8 @@ public:
     unsigned int getStallCycles() const;
     unsigned int getCycles() const;
     unsigned int getInstructionsRetired() const;
+    void setCSVOutputPath(const std::string &path);
+    void exportCSV() const;
 private:
     void updateEditorHighlight(const std::vector<uint64_t>& programCounters);
     // Maps the current program counter back to a 1-based editor source line,
@@ -78,6 +80,7 @@ private:
     std::unique_ptr<ProcessorBase> m_currentProcessor{};
     ProcessorType m_currentProcessorType;
     Profiler m_profiler{};
+    std::string m_csvOutputPath = "instruction_counts.csv";
     // we need this as when we chage vm we need preserve the step delay
     unsigned int m_stepDelayMs{1000};
 public slots:

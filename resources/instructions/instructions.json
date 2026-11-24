@@ -185,5 +185,26 @@
         "jal",
         "jr",
         "jalr"
+    ],
+    "RVInstruction":[
+        "vadd",
+        "vsub",
+        "vswap",
+        "vadd.h",
+        "vsub.h"
+    ],
+    "MVInstruction":[
+        "vmul","vcmpl","vmul.h","vcmpl.h"
+    ],
+    "SVInstruction":[
+        "vsd"
+    ],
+    "LVInstruction":[
+        "vld"
+    ],
+    "QVInstruction":[
+        "vmulj",
+        "vconj"
     ]
+
 }

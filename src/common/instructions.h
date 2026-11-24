@@ -186,7 +186,22 @@ enum class Instruction
     kfmv_x_d,
     kfcvt_d_l,
     kfcvt_d_lu,
-    kfmv_d_x
+    kfmv_d_x,
+    kvadd,
+    kvsub,
+    kvadd_h,
+    kvsub_h,
+    //added for mul and sd vector instructions
+    kvmul,
+    kvcmpl,
+    kvmul_h,
+    kvcmpl_h,
+    kvsd,
+    kvld,
+    kvswap,
+    kvmulj,
+    kvconj
+    
 };
 
 // TODO: use enum class for instruction encoding
@@ -407,6 +422,68 @@ struct FDSTypeInstructionEncoding
     }
 };
 
+
+struct RVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<7> funct7;
+
+    RVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7)
+        : opcode(opcode), funct3(funct3), funct7(funct7)
+    {
+    }
+};
+
+struct MVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<7> funct7;
+    
+    MVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7)
+        : opcode(opcode), funct3(funct3), funct7(funct7)
+    {
+    }
+};
+
+struct SVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+
+    SVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3)
+        : opcode(opcode), funct3(funct3)
+    {
+    }
+};
+
+
+struct LVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+
+    LVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3)
+        : opcode(opcode), funct3(funct3)
+    {
+    }
+};
+
+
+struct QVTypeInstructionEncoding
+{
+    std::bitset<7> opcode;
+    std::bitset<3> funct3;
+    std::bitset<5> funct5;
+    std::bitset<7> funct7;
+
+    QVTypeInstructionEncoding(unsigned int opcode, unsigned int funct3, unsigned int funct7,unsigned int funct5)
+        : opcode(opcode), funct3(funct3), funct5(funct5),funct7(funct7)
+    {
+    }
+};
+
 /**
  * @brief Enum that represents different syntax types for instructions.
  */
@@ -446,6 +523,12 @@ enum class SyntaxType
                          ///< floating-point-register
     O_FPR_C_I_LP_GPR_RP, ///< Opcode floating-point-register , immediate , lparen ( general-register
                          ///< ) rparen
+    
+
+    O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register          
+    //  O_VPR_C_VPR_C_VPR,   ///< Opcode vector-register , vector-register , vector-register 
+    O_VPR_C_I_LP_GPR_RP, ///< Opcode vector-register, immediate, lparen (general-register) rparen   
+    O_VPR_C_VPR, ///< Opcode vector-register, vector-register       
 };
 
 extern std::unordered_map<std::string, RTypeInstructionEncoding> R_type_instruction_encoding_map;
@@ -476,6 +559,16 @@ extern std::unordered_map<std::string, FDITypeInstructionEncoding>
 extern std::unordered_map<std::string, FDSTypeInstructionEncoding>
     F_D_S_type_instruction_encoding_map;
 
+extern std::unordered_map<std::string, RVTypeInstructionEncoding>
+    RV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, MVTypeInstructionEncoding>
+    MV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, SVTypeInstructionEncoding>
+    SV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, LVTypeInstructionEncoding>
+    LV_type_instruction_encoding_map;
+extern std::unordered_map<std::string, QVTypeInstructionEncoding>
+    QV_type_instruction_encoding_map;
 /**
  * @brief A map that associates instruction names with their expected syntax.
  *
@@ -513,7 +606,12 @@ bool isValidFDSTypeInstruction(const std::string &instruction);
 
 bool isFInstruction(const uint32_t &instruction);
 bool isDInstruction(const uint32_t &instruction);
-
+bool isVInstruction(const uint32_t &instruction);
+bool isValidRVTypeInstruction(const std::string &name);
+bool isValidMVTypeInstruction(const std::string &name);
+bool isValidSVTypeInstruction(const std::string &name);
+bool isValidLVTypeInstruction(const std::string &name);
+bool isValidQVTypeInstruction(const std::string &name);
 std::string getExpectedSyntaxes(const std::string &opcode);
 
 /**

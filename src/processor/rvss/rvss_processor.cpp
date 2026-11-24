@@ -17,6 +17,7 @@
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
+#include <stdexcept>
 #include <iostream>
 #include <mutex>
 #include <queue>
@@ -200,6 +201,11 @@ void RVSSProcessor::Execute()
     else if (instruction_set::isDInstruction(current_instruction_))
     {
         ExecuteDouble();
+        return;
+    }
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        ExecuteVector();
         return;
     }
     else if (opcode == 0b1110011)
@@ -398,6 +404,68 @@ void RVSSProcessor::ExecuteDouble()
         control_unit_.GetAluSignal(current_instruction_, control_unit_.GetAluOp());
     std::tie(execution_result_, fcsr_status) =
         alu::Alu::dfpexecute(aluOperation, reg1_value, reg2_value, reg3_value, rm);
+}
+
+
+void RVSSProcessor::ExecuteVector()
+{
+    uint8_t opcode = current_instruction_ & 0b1111111;
+    uint8_t rd     = (current_instruction_ >> 7)  & 0b11111;
+    uint8_t funct3 = (current_instruction_ >> 12) & 0b111;
+    uint8_t rs1    = (current_instruction_ >> 15) & 0b11111;
+    uint8_t rs2    = (current_instruction_ >> 20) & 0b11111;
+    uint8_t funct7 = (current_instruction_ >> 25) & 0b1111111;
+
+    // VSD / VLD: calculate effective address using a GPR base and immediate.
+    if (opcode == 0b1101011 || opcode == 0b1101010)
+    {
+        int32_t imm = ImmGenerator(current_instruction_);
+        uint64_t base = registers_.ReadGpr(rs1);
+
+        execution_result_ =
+            base + static_cast<uint64_t>(static_cast<int64_t>(imm));
+
+        return;
+    }
+
+    // Get the vector operation from the instruction encoding.
+    alu::AluOp aluOperation =
+        control_unit_.GetAluSignal(
+            current_instruction_,
+            control_unit_.GetAluOp());
+
+    // Read source and old destination registers.
+    uint64_t a = registers_.ReadVpr(rs1);
+    uint64_t old_destination = registers_.ReadVpr(rd);
+
+    // VSWAP doesn't use rs2.
+    uint64_t b = 0;
+    // VADD, VSUB, and VMUL read the second source register.
+    if (aluOperation != alu::AluOp::VSWAP)
+    {
+        b = registers_.ReadVpr(rs2);
+    }
+
+    if ((funct7 & 0b1000000) != 0)
+    {
+        execution_result_ = alu::Alu::executeVector16(
+            aluOperation,
+            old_destination,
+            a,
+            b,
+            4,
+            0b1111);
+    }
+    else
+    {
+        execution_result_ = alu::Alu::executeVector32(
+            aluOperation,
+            old_destination,
+            a,
+            b,
+            2,
+            0b11);
+    }
 }
 
 void RVSSProcessor::ExecuteCsr()
@@ -644,7 +712,11 @@ void RVSSProcessor::WriteMemory()
         WriteMemoryDouble();
         return;
     }
-
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        WriteMemoryVector();
+        return;
+    }
     if (control_unit_.GetMemRead())
     {
         switch (funct3)
@@ -827,6 +899,42 @@ void RVSSProcessor::WriteMemoryDouble()
     }
 }
 
+void RVSSProcessor::WriteMemoryVector()
+{
+    uint8_t rs2 = (current_instruction_ >> 20) & 0b11111;
+
+    if (control_unit_.GetMemRead())
+    { // VLD
+        memory_result_ = memory_controller_.readDoubleWord(execution_result_);
+    }
+
+    uint64_t addr = 0;
+    std::vector<uint8_t> old_bytes_vec;
+    std::vector<uint8_t> new_bytes_vec;
+
+    if (control_unit_.GetMemWrite())
+    { // VSD
+        addr = execution_result_;
+        for (size_t i = 0; i < 8; ++i)
+        {
+            old_bytes_vec.push_back(memory_controller_.readByte(addr + i));
+        }
+        uint64_t val = registers_.ReadVpr(rs2);
+        memory_controller_.writeDoubleWord(execution_result_, val);
+        // new_bytes_vec.push_back(memory_controller_.ReadByte(addr));
+        for (size_t i = 0; i < 8; ++i)
+        {
+            new_bytes_vec.push_back(memory_controller_.readByte(addr + i));
+        }
+    }
+
+    if (old_bytes_vec != new_bytes_vec)
+    {
+        current_delta_.memory_changes.push_back({addr, old_bytes_vec, new_bytes_vec});
+    }
+}
+
+
 void RVSSProcessor::WriteBack()
 {
     uint8_t opcode = current_instruction_ & 0b1111111;
@@ -847,6 +955,11 @@ void RVSSProcessor::WriteBack()
     else if (instruction_set::isDInstruction(current_instruction_))
     {
         WriteBackDouble();
+        return;
+    }
+    else if(instruction_set::isVInstruction(current_instruction_))
+    {
+        WriteBackVector();
         return;
     }
     else if (opcode == 0b1110011)
@@ -998,6 +1111,36 @@ void RVSSProcessor::WriteBackDouble()
     }
 
     return;
+}
+
+void RVSSProcessor::WriteBackVector()
+{
+    uint8_t rd = (current_instruction_ >> 7) & 0b11111;
+    qDebug() << "RegWrite:" << control_unit_.GetRegWrite()
+         << "Instruction:" << Qt::hex << current_instruction_;
+
+    // Only process instructions that write a destination register.
+    if (!control_unit_.GetRegWrite())
+    {
+        return;
+    }
+
+    if (rd >= 32)
+    {
+        throw std::out_of_range("Invalid vector destination register");
+    }
+
+    uint64_t old_reg = registers_.ReadVpr(rd);
+    uint64_t new_reg =control_unit_.GetMemRead()? memory_result_: execution_result_;
+    // uint64_t new_reg = execution_result_;
+    registers_.WriteVpr(rd, new_reg);
+
+    // Register change type 3 represents a vector register.
+    if (old_reg != new_reg)
+    {
+        current_delta_.register_changes.push_back(
+            {rd, 3, old_reg, new_reg});
+    }
 }
 
 void RVSSProcessor::WriteBackCsr()
@@ -1213,6 +1356,11 @@ void RVSSProcessor::Undo()
             registers_.WriteFpr(change.reg_index, change.old_value);
             break;
         }
+        case 3:
+        { // VPR
+            registers_.WriteVpr(change.reg_index, change.old_value);
+            break;
+        }
         default:
             std::cerr << "Invalid register type: " << change.reg_type << std::endl;
             break;
@@ -1283,6 +1431,11 @@ void RVSSProcessor::Redo()
         case 2:
         { // FPR
             registers_.WriteFpr(change.reg_index, change.new_value);
+            break;
+        }
+        case 3:
+        { // VPR
+            registers_.WriteVpr(change.reg_index, change.new_value);
             break;
         }
         default:

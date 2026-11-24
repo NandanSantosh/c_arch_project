@@ -133,6 +133,41 @@ void RVSSControlUnit::SetControlSignals(uint32_t instruction)
         break;
     }
 
+    case 0b0101011:
+    { // RV-type (kvAdd, kvSub, kvSwap, kvAdd.h, kvSub.h)
+        reg_write_ = true;
+        alu_op_ = true;
+        break;
+    }
+    case 0b1011011:
+    { // MV-type (kvMul,kvcmpl,kvmul.h,kvcmpl.h)
+        reg_write_ = true;
+        alu_op_ = true;
+        break;
+    }
+
+    case 0b1101011:
+    { // SV-type (kvsd)
+        alu_src_ = true;
+        alu_op_ = true;
+        mem_write_ = true;
+        break;
+    }
+     case 0b1101010:
+    { // Load instructions (LB, LH, LW, LD)
+        alu_src_ = true;
+        mem_to_reg_ = true;
+        reg_write_ = true;
+        mem_read_ = true;
+        break;
+    }
+     case 0b0101001:
+    { 
+        reg_write_ = true;
+        alu_op_ = true;
+        break;
+    }
+
     default:
         break;
     }
@@ -967,8 +1002,97 @@ alu::AluOp RVSSControlUnit::GetAluSignal(uint32_t instruction, bool ALUOp)
         }
         break;
     }
+
+    case 0b0101011:
+    { // RV-type vector instructions
+        switch (funct7)
+        {
+            case 0b0000000:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VADD;
+                break;
+            }
+
+            case 0b0000001:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VSUB;
+                break;
+            }
+
+            case 0b0000010:
+            {
+                if (funct3 == 0b010)
+                    return alu::AluOp::VSWAP;
+                break;
+            }
+            case 0b1000000:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VADD_H;
+                break;
+            }
+
+            case 0b1000001:
+            {
+                if (funct3 == 0b001)
+                    return alu::AluOp::VSUB_H;
+                break;
+            }
+
+        }
+
+        break;
     }
+
+    case 0b1011011: // MV-type: vmul
+{
+        if (funct3 == 0b001)
+        {
+            if (funct7 == 0b0000010)
+                return alu::AluOp::VMUL;
+            if (funct7 == 0b1000010)
+                return alu::AluOp::VMUL_H;
+        }
+
+        if (funct3 == 0b010)
+        {
+            if (funct7 == 0b0000010)
+                return alu::AluOp::VCMPL;
+            if (funct7 == 0b1000010)
+                return alu::AluOp::VCMPL_H;
+        }
+    break;
+}
+
+case 0b1101011: // SV-type: vsd
+{
+    if (funct3 == 0b011)
+        return alu::AluOp::ADD;
+
+    break;
+}
+
+case 0b1101010: // LV-type: vld
+{
+    if (funct3 == 0b011)
+        return alu::AluOp::ADD;
+
+    break;
+}
+case 0b0101001:
+{
+    if (funct5 == 0b00001)
+        return alu::AluOp::VMULJ;
+     if (funct5 == 0b00010)
+        return alu::AluOp::VCONJ;
+    break;
+}
+    
 
     return alu::AluOp::NONE;
 }
 }//namespace Kites
+
+}

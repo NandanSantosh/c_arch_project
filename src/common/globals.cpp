@@ -36,7 +36,7 @@ std::filesystem::path temporary_assembly_file_path =
 std::filesystem::path errors_dump_file_path =
     (invokation_path / "vm_state" / "errors_dump.json");
 std::filesystem::path registers_dump_file_path =
-    (invokation_path / "vm_state" / "registers_dump.json");
+ (invokation_path / "vm_state" / "registers_dump.json");
 std::filesystem::path memory_dump_file_path =
     (invokation_path / "vm_state" / "memory_dump.json");
 std::filesystem::path cache_dump_file_path =

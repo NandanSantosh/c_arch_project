@@ -5,6 +5,7 @@
  */
 
 #include "processor/alu.h"
+#include <stdexcept>
 #include <cfenv>
 #include <cmath>
 #include <cstdint>
@@ -14,6 +15,54 @@ namespace Kites
 {
 namespace alu
 {
+
+
+
+
+
+ [[nodiscard]]  std::uint16_t Alu::f2h(std::uint32_t f, std::uint8_t& fl)
+{
+    const std::uint32_t sign = (f >> 16) & 0x8000u;                 // move sign to bit 15
+    const std::uint32_t exp8 = (f >> 23) & 0xFFu;                   // fp32 exponent field
+    const std::int32_t  e    = static_cast<std::int32_t>(exp8) - 127 + 15;  // rebias 127 -> 15
+    std::uint32_t       m    = f & 0x7FFFFFu;                       // 23-bit mantissa
+
+    // 1) Inf / NaN: keep the class, make NaN quiet
+    if (exp8 == 0xFFu)
+        return static_cast<std::uint16_t>(sign | 0x7C00u | (m ? 0x200u : 0u));
+
+    // 2) Too large for fp16 -> inf
+    if (e >= 31) {
+        fl |= FCSR_OVERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | 0x7C00u);
+    }
+
+    // 3) Too small for a normal fp16 -> subnormal or zero
+    if (e <= 0) {
+        if (e < -10) {                                              // below half the smallest subnormal
+            if (f & 0x7FFFFFFFu) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+            return static_cast<std::uint16_t>(sign);                // signed zero
+        }
+        m |= 0x800000u;                                             // make the hidden 1 explicit
+        const std::uint32_t sh  = static_cast<std::uint32_t>(14 - e);
+        std::uint32_t       hm  = m >> sh;                          // kept bits
+        const std::uint32_t rem = m & ((1u << sh) - 1u);            // dropped bits
+        const std::uint32_t mid = 1u << (sh - 1u);                  // exactly half an ulp
+        if (rem > mid || (rem == mid && (hm & 1u))) ++hm;           // RNE
+        if (rem) fl |= FCSR_UNDERFLOW | FCSR_INEXACT;
+        return static_cast<std::uint16_t>(sign | hm);               // carry into exponent is correct
+    }
+
+
+    std::uint32_t       hm  = (static_cast<std::uint32_t>(e) << 10) | (m >> 13);
+    const std::uint32_t rem = m & 0x1FFFu;                          // 13 dropped bits
+    if (rem > 0x1000u || (rem == 0x1000u && (hm & 1u))) ++hm;       // RNE, tie -> even
+    if (rem) fl |= FCSR_INEXACT;
+    if ((hm & 0x7C00u) == 0x7C00u) fl |= FCSR_OVERFLOW;             // rounded up into inf
+    return static_cast<std::uint16_t>(sign | hm);
+}
+
+
 
 [[nodiscard]] std::pair<uint64_t, bool> Alu::execute(AluOp op, uint64_t a, uint64_t b)
 {
@@ -1052,6 +1101,285 @@ namespace alu
     return {result_bits, fcsr};
 }
 
+
+[[nodiscard]] std::uint64_t Alu::executeVector32(AluOp op, std::uint64_t destination, std::uint64_t a,
+                                                    std::uint64_t b, std::size_t activeLanes , std::uint8_t mask)
+{
+    constexpr std::uint64_t LANE_MASK = 0xFFFFFFFFULL;
+
+    // A 64-bit register contains at most two 32-bit lanes.
+    if (activeLanes > 2) {
+        throw std::invalid_argument(
+            "activeLanes must be 0, 1, or 2");
+    }
+
+    // Only mask bits 0 and 1 are valid.
+    if ((mask & ~0x03u) != 0) {
+        throw std::invalid_argument(
+            "Mask must contain only two lane bits");
+    }
+
+    //Handling for the case VSWAP
+    // VSWAP exchanges the two 32-bit lanes of source register a.
+    if (op == AluOp::VSWAP) {
+        if (activeLanes != 2) {
+            throw std::invalid_argument(
+                "VSWAP requires exactly two active lanes");
+        }
+
+        // Preserve destination lanes that are masked off.
+        std::uint64_t result = destination;
+
+        if (mask & 0x01u) {
+            result = (result & 0xFFFFFFFF00000000ULL) |
+                    ((a >> 32) & 0xFFFFFFFFULL);
+        }
+
+        if (mask & 0x02u) {
+            result = (result & 0x00000000FFFFFFFFULL) |
+                    ((a & 0xFFFFFFFFULL) << 32);
+        }
+
+        return result;
+    }
+
+ if (op == AluOp::VCONJ || op == AluOp::VMULJ) {
+    constexpr std::uint32_t SIGN = 0x80000000u;
+
+    const std::uint32_t re = static_cast<std::uint32_t>(a);        
+    const std::uint32_t im = static_cast<std::uint32_t>(a >> 32);  
+
+    if (op == AluOp::VCONJ) {
+        return (static_cast<std::uint64_t>(im ^ SIGN) << 32) | re;
+    }
+
+
+    return (static_cast<std::uint64_t>(re) << 32) | (im ^ SIGN);
+}
+
+
+    // Map the vector operation to the existing scalar float operation.
+    AluOp scalarOp;
+
+    switch (op) {
+        case AluOp::VADD:
+            scalarOp = AluOp::FADD_S;
+            break;
+            
+        case AluOp::VSUB:
+            scalarOp = AluOp::FSUB_S;
+            break;
+
+        case AluOp::VMUL:
+            scalarOp = AluOp::FMUL_S;
+            break;
+
+        case AluOp::VCMPL:
+            scalarOp = AluOp::VCMPL;
+            break;
+         case AluOp::VMULJ:
+            scalarOp = AluOp::VMULJ;
+            break;
+        case AluOp::VCONJ:
+            scalarOp = AluOp::VCONJ;
+            break;
+
+        //  case AluOp::VMUL:
+        //     scalarOp = AluOp::FMUL_S;
+        //     break;
+        
+            
+        default:
+            throw std::invalid_argument(
+                "Unsupported vector operation");
+    }
+
+    // Start with the old destination so inactive lanes are preserved.
+    std::uint64_t result = destination;
+
+
+    if (AluOp::VCMPL == scalarOp) {
+
+    // int numlanes = activeLanes / 2;
+
+    // for (int i = 0; i < numlanes; i++) {
+        unsigned shift = static_cast<unsigned>(0 * 64);
+
+        const std::uint32_t Aj =
+            static_cast<std::uint32_t>((a >> (shift + 32)) & LANE_MASK);
+        const std::uint32_t Ai =
+            static_cast<std::uint32_t>((a >> shift) & LANE_MASK);
+        const std::uint32_t Bj =
+            static_cast<std::uint32_t>((b >> (shift + 32)) & LANE_MASK);
+        const std::uint32_t Bi =
+            static_cast<std::uint32_t>((b >> shift) & LANE_MASK);
+        auto [l1, fcsr1] = Alu::fpexecute(AluOp::FMUL_S, Ai, Bi, 0, 0);
+        auto [l2, fcsr2] = Alu::fpexecute(AluOp::FMUL_S, Aj, Bj, 0, 0);
+        auto [l3, fcsr3] = Alu::fpexecute(AluOp::FMUL_S, Ai, Bj, 0, 0);
+        auto [l4, fcsr4] = Alu::fpexecute(AluOp::FMUL_S, Aj, Bi, 0, 0);
+        auto [realResult, fcsr5] =
+            Alu::fpexecute(AluOp::FSUB_S, l1, l2, 0, 0);
+        auto [imagResult, fcsr6] =
+            Alu::fpexecute(AluOp::FADD_S, l3, l4, 0, 0);
+        std::uint64_t complexResult =
+            (static_cast<std::uint64_t>(imagResult) << 32) |
+            (static_cast<std::uint64_t>(realResult) & LANE_MASK);
+        std::uint64_t shiftedMask =
+            static_cast<std::uint64_t>(UINT64_MAX) << shift;
+
+        result = (result & ~shiftedMask) |
+                 (complexResult << shift);
+    // }
+
+    return result;
+}
+
+    
+
+    for (std::size_t lane = 0; lane < activeLanes; ++lane) {
+        // Skip this lane if its mask bit is disabled.
+        if ((mask & (1u << lane)) == 0) {
+            continue;
+        }
+
+        const unsigned shift = static_cast<unsigned>(lane * 32);
+
+        // Extract the 32-bit floating-point representations.
+        const std::uint32_t laneA =
+            static_cast<std::uint32_t>((a >> shift) & LANE_MASK);
+
+        const std::uint32_t laneB =
+            static_cast<std::uint32_t>((b >> shift) & LANE_MASK);
+
+        // Execute the existing scalar single-precision operation.
+        const auto [laneResultBits, fcsr] =
+            Alu::fpexecute(scalarOp, laneA, laneB, 0, 0);
+
+        // Replace only this lane; keep the other lane unchanged.
+        const std::uint64_t shiftedMask = LANE_MASK << shift;
+
+        result = (result & ~shiftedMask) |
+                 ((laneResultBits & LANE_MASK) << shift);
+    }
+
+    return result;
+}
+
+
+
+
+
+[[nodiscard]] std::uint64_t Alu::executeVector16(AluOp op, std::uint64_t destination, std::uint64_t a,
+                                                    std::uint64_t b, std::size_t activeLanes , std::uint8_t mask)
+{
+    constexpr std::uint64_t LANE_MASK = 0xFFFFULL;
+
+    // A 64-bit register contains at most two 32-bit lanes.
+    if (activeLanes > 4) {
+        throw std::invalid_argument(
+            "activeLanes must be 0, 1, 3, 4, or 2");
+    }
+
+    std::uint8_t  flags  = 0;   
+
+if (op == AluOp::VCMPL_H) {
+    auto get = [](std::uint64_t v, unsigned lane) {
+        std::uint16_t bits = static_cast<std::uint16_t>(v >> (lane * 16));
+        _Float16 h;
+        std::memcpy(&h, &bits, 2);
+        return static_cast<float>(h);
+    };
+
+    auto put = [&](std::uint64_t& r, unsigned lane, float f) {
+        if (!(mask & (1u << lane))) return;
+        _Float16 h = static_cast<_Float16>(f);
+        std::uint16_t bits;
+        std::memcpy(&bits, &h, 2);
+        const unsigned shift = lane * 16;
+        r = (r & ~(LANE_MASK << shift)) | (static_cast<std::uint64_t>(bits) << shift);
+    };
+
+    std::uint64_t result = destination;
+
+    for (unsigned re = 0; re + 1 < activeLanes; re += 2) {
+        const float ar = get(a, re), ai = get(a, re + 1);
+        const float br = get(b, re), bi = get(b, re + 1);
+
+        put(result, re,     ar * br - ai * bi);   
+        put(result, re + 1, ar * bi + ai * br);  
+    }
+
+    return result;
+}
+
+   
+    AluOp scalarOp;
+
+    switch (op) {
+        case AluOp::VADD_H:
+            scalarOp = AluOp::FADD_S;
+            break;
+
+        case AluOp::VSUB_H:
+            scalarOp = AluOp::FSUB_S;
+            break;
+
+        case AluOp::VMUL_H:
+            scalarOp = AluOp::FMUL_S;
+            break;
+
+        case AluOp::VCMPL_H:
+            scalarOp = AluOp::VCMPL_H;
+            break;
+        
+            
+        default:
+            throw std::invalid_argument(
+                "Unsupported vector operation");
+    }
+
+
+    std::uint64_t result = destination;
+
+
+
+    for (std::size_t lane = 0; lane < activeLanes; ++lane) {
+        // Skip this lane if its mask bit is disabled.
+        if ((mask & (1u << lane)) == 0) {
+            continue;
+        }
+
+        const unsigned shift = static_cast<unsigned>(lane * 16);
+        constexpr std::uint64_t LANE16 = 0xFFFFULL;
+
+        const std::uint16_t laneA16 = static_cast<std::uint16_t>(a >> shift);
+        const std::uint16_t laneB16 = static_cast<std::uint16_t>(b >> shift);
+        _Float16 ha, hb;
+        std::memcpy(&ha, &laneA16, sizeof(_Float16));
+        std::memcpy(&hb, &laneB16, sizeof(_Float16));
+
+        const float fa = static_cast<float>(ha);
+        const float fb = static_cast<float>(hb);
+
+        std::uint32_t fa_bits, fb_bits;
+        std::memcpy(&fa_bits, &fa, sizeof(float));
+        std::memcpy(&fb_bits, &fb, sizeof(float));
+
+        const auto [r32, f32flags] = Alu::fpexecute(scalarOp, fa_bits, fb_bits, 0, 0);
+         flags |= (f32flags & FCSR_INVALID_OP); 
+   
+        const std::uint16_t r16 = f2h(static_cast<std::uint32_t>(r32), flags);
+
+        result = (result & ~(LANE16 << shift)) |
+            (static_cast<std::uint64_t>(r16) << shift);
+        }
+
+    return result;
+}
+
+
+
+
 void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)
 {
     carry_ = carry;
@@ -1059,6 +1387,9 @@ void Alu::setFlags(bool carry, bool zero, bool negative, bool overflow)
     negative_ = negative;
     overflow_ = overflow;
 }
+
+// fp32 bits -> fp16 bits, round-to-nearest-even.
+// Raises FCSR_OVERFLOW / FCSR_UNDERFLOW / FCSR_INEXACT into `fl` (ORed, sticky).
 
 } // namespace alu
 }//namespace Kites

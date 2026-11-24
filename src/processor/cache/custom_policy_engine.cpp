@@ -7,9 +7,10 @@ namespace Kites
 {
 extern "C"
 {
-#include "lauxlib.h"
+#include "lualib.h"
 #include "lua.h"
 #include "lualib.h"
+#include "../../../external/lua-5.5.0/src/lauxlib.h"
 
 }
 
