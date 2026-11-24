@@ -1,107 +1,93 @@
 #!/usr/bin/env python3
-"""
-Compare Kites scalar and vector FFT memory dumps.
+"""Compare a scalar FFT memory dump with a vector (fp32 or fp16) dump.
 
 Usage:
-    python compare_fft.py scalar_memory_dump.json vector_memory_dump.json
+    python3 scripts/outputs_comparision.py scalar.json vector.json [--tol 1e-5]
 
-Each JSON entry maps a 64-bit memory address to a 64-bit hexadecimal word.
-The word contains two packed FP32 lanes. The script compares the raw words
-exactly and also reports decoded FP32 lane differences.
+Dump formats (detected automatically from the number of rows):
+    fp32: N rows, one complex per 64-bit row (low 32 = real, high 32 = imag)
+    fp16: N/2 rows, two complex per row, each a 32-bit word (imag<<16 | real)
+
+Scalar and vector round in a different order, so bit-exact equality is not
+expected. PASS if the relative L2 difference <= tol
+(default 1e-5 for fp32, 5e-3 for fp16).
 """
 
+import argparse
 import json
-import struct
 import sys
-from pathlib import Path
+
+import numpy as np
 
 
 def load_dump(filename):
-    with open(filename, "r", encoding="utf-8") as f:
+    with open(filename, encoding="utf-8") as f:
         data = json.load(f)
-
     if not isinstance(data, dict):
         raise ValueError(f"{filename}: expected a JSON object")
-
-    result = {}
-    for address, value in data.items():
-        addr = int(address, 16)
-        word = int(value, 16)
-        if not 0 <= word < (1 << 64):
-            raise ValueError(f"{filename}: value at {address} is not 64-bit")
-        result[addr] = word
-    return result
+    rows = sorted((int(a, 16), int(v, 16)) for a, v in data.items())
+    return np.array([v for _, v in rows], dtype=np.uint64)
 
 
-def fp32_from_bits(bits):
-    return struct.unpack(">f", bits.to_bytes(4, byteorder="big"))[0]
+def decode(words, fmt):
+    """64-bit rows -> complex array."""
+    raw = words.astype("<u8").tobytes()
+    dt = "<f4" if fmt == "fp32" else "<f2"
+    v = np.frombuffer(raw, dtype=dt).astype(float)
+    return v[0::2] + 1j * v[1::2]
+
+
+def compare(scalar_file, vector_file, tol=None):
+    s_words, v_words = load_dump(scalar_file), load_dump(vector_file)
+    n = len(s_words)
+    if len(v_words) == n:
+        fmt = "fp32"
+    elif 2 * len(v_words) == n:
+        fmt = "fp16"
+    else:
+        raise ValueError(f"row counts {n} / {len(v_words)}: not N/N or N/(N/2)")
+    s, v = decode(s_words, "fp32"), decode(v_words, fmt)
+    if tol is None:
+        tol = 1e-5 if fmt == "fp32" else 5e-3
+
+    e = np.abs(v - s)
+    rel = np.linalg.norm(e) / np.linalg.norm(s)
+    exact = int(np.sum(s_words == v_words)) if fmt == "fp32" else None
+    return {"N": n, "fmt": fmt, "max_abs": e.max(), "bin": int(e.argmax()),
+            "rel": rel, "snr": 20 * np.log10(1 / rel) if rel else np.inf,
+            "exact": exact, "tol": tol,
+            "finite": bool(np.all(np.isfinite(v))),
+            "pass": bool(rel <= tol and np.all(np.isfinite(v))),
+            "s": s, "v": v}
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python compare_fft.py scalar_memory_dump.json vector_memory_dump.json")
-        raise SystemExit(2)
+    ap = argparse.ArgumentParser(usage=__doc__)
+    ap.add_argument("scalar")
+    ap.add_argument("vector")
+    ap.add_argument("--tol", type=float, help="max relative L2 difference")
+    a = ap.parse_args()
 
-    scalar_file, vector_file = sys.argv[1], sys.argv[2]
-    scalar = load_dump(scalar_file)
-    vector = load_dump(vector_file)
+    r = compare(a.scalar, a.vector, a.tol)
+    print("FFT memory dump comparison (vector vs scalar)")
+    print(f"Scalar file : {a.scalar}")
+    print(f"Vector file : {a.vector}  ({r['fmt']})")
+    print(f"N           : {r['N']}")
+    if r["exact"] is not None:
+        print(f"Bit-exact   : {r['exact']}/{r['N']} samples")
+    print(f"Max abs diff: {r['max_abs']:.6g}  (bin {r['bin']})")
+    print(f"Rel L2 diff : {r['rel']:.3e}   SNR vs scalar: {r['snr']:.1f} dB")
+    if not r["finite"]:
+        print("WARNING: inf/NaN in vector output")
 
-    scalar_addresses = set(scalar)
-    vector_addresses = set(vector)
-    common = sorted(scalar_addresses & vector_addresses)
-    scalar_only = sorted(scalar_addresses - vector_addresses)
-    vector_only = sorted(vector_addresses - scalar_addresses)
+    worst = np.argsort(np.abs(r["v"] - r["s"]))[::-1][:5]
+    print("\nLargest differences:")
+    for k in worst:
+        print(f"  X[{k:4d}]  scalar {r['s'][k]:.6g}   vector {r['v'][k]:.6g}")
 
-    print("FFT memory dump comparison")
-    print(f"Scalar file: {scalar_file}")
-    print(f"Vector file: {vector_file}")
-    print(f"Scalar entries: {len(scalar)}")
-    print(f"Vector entries: {len(vector)}")
-    print(f"Common addresses: {len(common)}")
-    print(f"Addresses only in scalar: {len(scalar_only)}")
-    print(f"Addresses only in vector: {len(vector_only)}")
-
-    different_words = []
-    lane_differences = []
-    max_abs_error = 0.0
-
-    for address in common:
-        scalar_word = scalar[address]
-        vector_word = vector[address]
-
-        if scalar_word != vector_word:
-            different_words.append((address, scalar_word, vector_word))
-
-        # Each 64-bit word is two FP32 lanes: high 32 bits, then low 32 bits.
-        scalar_lanes = (scalar_word >> 32, scalar_word & 0xFFFFFFFF)
-        vector_lanes = (vector_word >> 32, vector_word & 0xFFFFFFFF)
-
-        for lane_index, (sb, vb) in enumerate(zip(scalar_lanes, vector_lanes)):
-            sf = fp32_from_bits(sb)
-            vf = fp32_from_bits(vb)
-            if sb != vb:
-                lane_differences.append((address, lane_index, sf, vf))
-                if sf == sf and vf == vf:  # ignore NaN when calculating error
-                    max_abs_error = max(max_abs_error, abs(sf - vf))
-
-    print(f"Different 64-bit words: {len(different_words)}")
-    print(f"Different FP32 lanes: {len(lane_differences)}")
-
-    if lane_differences:
-        print(f"Maximum absolute FP32 error: {max_abs_error:.9g}")
-        print("\nFirst differing values:")
-        for address, lane, scalar_value, vector_value in lane_differences[:10]:
-            lane_name = "high" if lane == 0 else "low"
-            print(
-                f"  address 0x{address:016x}, {lane_name} lane: "
-                f"scalar={scalar_value:.9g}, vector={vector_value:.9g}"
-            )
-
-    exact_match = not scalar_only and not vector_only and not different_words
-    print("\nRESULT:", "PASS - outputs are bit-for-bit identical"
-          if exact_match else "DIFFERENT - inspect the mismatches")
-
-    raise SystemExit(0 if exact_match else 1)
+    print(f"\nRESULT: {'PASS' if r['pass'] else 'FAIL'} "
+          f"(rel L2 {r['rel']:.2e} {'<=' if r['pass'] else '>'} tol {r['tol']:.0e})")
+    sys.exit(0 if r["pass"] else 1)
 
 
 if __name__ == "__main__":

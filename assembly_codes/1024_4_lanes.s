@@ -7,7 +7,7 @@
 #   vadd.h  rd, rs1, rs2 : rd[k] = rs1[k] + rs2[k]          k = 0..3
 #   vsub.h  rd, rs1, rs2 : rd[k] = rs1[k] - rs2[k]
 #   vmul.h  rd, rs1, rs2 : rd[k] = rs1[k] * rs2[k]
-#   vcompl.h rd, rs1, rs2: two complex products
+#   vcmpl.h rd, rs1, rs2: two complex products
 #       rd = (a*e - b*f, a*f + b*e, c*g - d*h, c*h + d*g)
 #       for rs1 = [a,b,c,d], rs2 = [e,f,g,h]
 #   vld / vsd : 64-bit load / store (unchanged)

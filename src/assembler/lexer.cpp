@@ -228,10 +228,16 @@ Token Lexer::number()
         return {TokenType::NUM, parserUnsignedPrefixed(value, 10, 0), line_number_,
                 start_column};
     }
+    // else if (std::regex_match(value, float_regex))
+    // {
+
+    //     return {TokenType::FLOAT, std::to_string(std::stod(value)), line_number_, start_column};
+    // }
     else if (std::regex_match(value, float_regex))
     {
-
-        return {TokenType::FLOAT, std::to_string(std::stod(value)), line_number_, start_column};
+        // Keep the literal as written: std::to_string() would round it to 6 decimals.
+        (void)std::stod(value); // validate
+        return {TokenType::FLOAT, value, line_number_, start_column};
     }
 
     return {TokenType::INVALID, "Invalid", line_number_, start_column};

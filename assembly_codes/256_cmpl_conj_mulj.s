@@ -344,7 +344,7 @@ bitrev_done:
 #
 # vcmpl : complex multiplication
 # vconj : complex conjugation
-# vmulj : multiplication by -i
+# vmulj : multiplication by +i
 # ============================================================
 
 stage_loop:
@@ -482,7 +482,8 @@ stage2_block:
 # W0 = 1
 # W1 = -i
 #
-# vmulj(a+ib) = b-ia
+# vmulj(a+ib) = i*(a+ib) = -b+ia
+# T = B*W1 = -i*B = -vmulj(B), so A+T = A-vmulj(B), A-T = A+vmulj(B)
 # ============================================================
 
 stage4_loop:
@@ -506,9 +507,9 @@ stage4_block:
     vsub v5, v0, v1
 
     # j = 1, W1 = -i
-    vmulj v8, v3
-    vadd  v9, v2, v8
-    vsub  v10, v2, v8
+    vmulj v8, v3               # v8 = i*B1
+    vsub  v9, v2, v8           # A1 + T = A1 - i*B1
+    vadd  v10, v2, v8          # A1 - T = A1 + i*B1
 
     # Store results
     vsd v4,  0(a0)

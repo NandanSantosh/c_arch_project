@@ -1,7 +1,7 @@
 # Packed-fp16 radix-2 DIT FFT, N = 64
 # Each 64-bit register = 4 fp16 lanes [a,b,c,d] = (re0, im0, re1, im1) -> 2 complex samples.
 #   vadd.h / vsub.h : lane-wise on 4 x fp16
-#   vcompl.h rd,rs1,rs2 : rd = (a*e-b*f, a*f+b*e, c*g-d*h, c*h+d*g)
+#   vcmpl.h rd,rs1,rs2 : rd = (a*e-b*f, a*f+b*e, c*g-d*h, c*h+d*g)
 #   vld / vsd : 64-bit load / store
 # One complex sample = one 32-bit word: (imag_fp16 << 16) | real_fp16.
 # Output overwrites x[] in place.
@@ -259,10 +259,10 @@ butterfly_loop8:
     vld  v10, 16(a2)
     vld  v11, 24(a2)
 
-    vcompl.h v12, v4, v8       # T = B * W
-    vcompl.h v13, v5, v9
-    vcompl.h v14, v6, v10
-    vcompl.h v15, v7, v11
+    vcmpl.h v12, v4, v8       # T = B * W
+    vcmpl.h v13, v5, v9
+    vcmpl.h v14, v6, v10
+    vcmpl.h v15, v7, v11
 
     vadd.h v16, v0, v12        # A' = A + T
     vadd.h v17, v1, v13
@@ -307,7 +307,7 @@ mid_butterfly:
     vld      v0, 0(a0)
     vld      v1, 0(a1)
     vld      v8, 0(a2)
-    vcompl.h v4, v1, v8
+    vcmpl.h v4, v1, v8
     vadd.h   v5, v0, v4
     vsub.h   v6, v0, v4
     vsd      v5, 0(a0)

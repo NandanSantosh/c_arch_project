@@ -1,0 +1,3 @@
+# Python dependencies for the FFT scripts (scripts/ and fft_guide/).
+# Requires Python >= 3.8. Everything else used is in the standard library.
+numpy>=1.21
