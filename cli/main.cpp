@@ -35,6 +35,8 @@ void printUsage(const char *programName)
         << "  --vm <name>     rvss (default) | rv5-nh-nf | rv5-h-nf | rv5-nh-f | rv5-h-f\n"
         << "  --mem-dump      dump <row_count> 8-byte rows starting at <hex_addr>; "
            "repeatable (batch mode only)\n"
+        << "  --mem-output    destination for memory dump (default path otherwise)\n"
+        << "  -o, --output    CSV filename (saved inside instructions_count/)\n"
         << "  --repl, -i      drop into the interactive REPL instead of auto-running;\n"
         << "                  if assembly-file is given it is loaded before the prompt\n"
         << "  (running with no assembly-file also enters the REPL)\n";
@@ -62,58 +64,102 @@ int main(int argc, char *argv[])
     bool csvOutputProvided = false;
     std::vector<std::string> memDumpArgs;
     bool replRequested = false;
+    
 
-    for (int i = 1; i < argc; ++i)
+   for (int i = 1; i < argc; ++i)
+{
+    std::string arg = argv[i];
+
+    if (arg == "--vm")
     {
-        std::string arg = argv[i];
-        if (arg == "--vm")
+        if (i + 1 >= argc)
         {
-            if (i + 1 >= argc)
-            {
-                std::cerr << "Error: --vm requires a value.\n";
-                printUsage(argv[0]);
-                return 1;
-            }
-            processorTypeStr = argv[++i];
-        }
-        else if (arg == "--mem-dump")
-        {
-            if (i + 2 >= argc)
-            {
-                std::cerr << "Error: --mem-dump requires <hex_addr> <row_count>.\n";
-                printUsage(argv[0]);
-                return 1;
-            }
-            memDumpArgs.push_back(argv[++i]);
-            memDumpArgs.push_back(argv[++i]);
-        }
-        else if (arg == "--repl" || arg == "-i")
-        {
-            replRequested = true;
-        }
-        else if (!arg.empty() && arg[0] == '-')
-        {
-            std::cerr << "Error: unknown argument '" << arg << "'.\n";
+            std::cerr << "Error: --vm requires a value.\n";
             printUsage(argv[0]);
             return 1;
         }
-        else if (assemblyFile.empty())
-        {
-            assemblyFile = arg;
-        }
-        else if (!csvOutputProvided)
-        {
-            csvOutputFile = arg;
-            csvOutputProvided = true;
-        }
-        else
-        {
-            std::cerr << "Error: unexpected extra argument '" << arg << "'.\n";
-            printUsage(argv[0]);
-            return 1;
-        }
+
+        processorTypeStr = argv[++i];
     }
 
+    else if (arg == "--mem-dump")
+    {
+        if (i + 2 >= argc)
+        {
+            std::cerr << "Error: --mem-dump requires <hex_addr> <row_count>.\n";
+            printUsage(argv[0]);
+            return 1;
+        }
+
+        memDumpArgs.push_back(argv[++i]);
+        memDumpArgs.push_back(argv[++i]);
+    }
+
+    else if (arg == "--repl" || arg == "-i")
+    {
+        replRequested = true;
+    }
+    else if (arg == "--mem-output")
+{
+    if (i + 1 >= argc)
+    {
+        std::cerr << "Error: --mem-output requires a filename.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    memDumpArgs.push_back("--mem-output");
+    memDumpArgs.push_back(argv[++i]);
+}
+
+
+
+    // Explicit CSV output option
+    else if (arg == "--output" || arg == "-o")
+    {
+        if (i + 1 >= argc)
+        {
+            std::cerr << "Error: --output requires a CSV filename.\n";
+            printUsage(argv[0]);
+            return 1;
+        }
+
+        if (csvOutputProvided)
+        {
+            std::cerr << "Error: CSV output specified more than once.\n";
+            return 1;
+        }
+
+        csvOutputFile = "instructions_count/" + std::string(argv[++i]);
+        csvOutputProvided = true;
+    }
+
+    else if (!arg.empty() && arg[0] == '-')
+    {
+        std::cerr << "Error: unknown argument '" << arg << "'.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+    else if (assemblyFile.empty())
+    {
+        assemblyFile = arg;
+    }
+
+    // Optional positional CSV filename
+    else if (!csvOutputProvided)
+    {
+        csvOutputFile = "instructions_count/" + arg;
+        csvOutputProvided = true;
+    }
+
+    else
+    {
+        std::cerr << "Error: unexpected extra argument '" << arg << "'.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+}
     auto processorTypeIt = processorTypes.find(processorTypeStr);
     if (processorTypeIt == processorTypes.end())
     {
@@ -160,8 +206,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Kites::ProcessorManager manager(nullptr, processorTypeIt->second);
-    manager.setCSVOutputPath("instructions_count/" + csvOutputFile);
+   Kites::ProcessorManager manager(nullptr, processorTypeIt->second);
+    manager.setCSVOutputPath(csvOutputFile);
 
     bool runFailed = false;
     std::string runErrorMsg;
